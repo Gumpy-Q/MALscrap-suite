@@ -12,7 +12,7 @@ import numpy as np
 import time
 from datetime import datetime
 
-
+begin=time.time()
 seasons=["winter","spring","summer","fall"]
 formatting={'title':[],'MAL_id':[],'type':[],'studio':[],'release-season':[],'release-year':[],'realase-date':[],'source-material':[],'episodes':[]}
 anime_types=['TV (New)','ONA','OVA','Movie','Special']
@@ -128,7 +128,6 @@ def seasonscrap(season,year,anime_type):
             for anime in animes:
                 #those are directly in the text
                 season_scrap['title'].append(anime.find("h2",{'class':'h2_anime_title'}).text) 
-                season_scrap['MAL_id'].append(anime.find("h2",{'class':'h2_anime_title'}).find("a").get('href')[30:35]) #the id is in the url of the hypertext link on the name of the anime. The ID is in position 30 to 35 in the link
                 season_scrap['studio'].append(anime.find("span",{'class':'producer'}).text)
                 season_scrap['source-material'].append(anime.find("span",{'class':'source'}).text)
                 
@@ -137,13 +136,19 @@ def seasonscrap(season,year,anime_type):
                 season_scrap['release-season'].append(season)
                 season_scrap['release-year'].append(year)
                 
+                ID=anime.find("h2",{'class':'h2_anime_title'}).find("a").get('href')[30:35] #the id is in the url of the hypertext link on the name of the anime. The ID is in position 30 to 35 in the link
+                ID=''.join(filter(lambda i: i.isdigit(), ID))
+                season_scrap['MAL_id'].append(ID)
                 #Realase date exists in two formats: Mon. DD, YYYY, HH:MM (JST) or Mon. DD, YYYY
                 #There is also a lot of spaces and \n so I remove them before extracting the date to a datetime object with strptime
                 try:
                     release=datetime.strptime(anime.find("span",{'class':'remain-time'}).text.replace('  ','').replace('\n',''),'%b %d, %Y, %H:%M (JST)')
                 except:
-                    release=datetime.strptime(anime.find("span",{'class':'remain-time'}).text.replace('  ','').replace('\n',''),'%b %d, %Y')    
-                
+                    try:
+                        release=datetime.strptime(anime.find("span",{'class':'remain-time'}).text.replace('  ','').replace('\n',''),'%b %d, %Y')    
+                    except:
+                        release=None
+                        
                 season_scrap['realase-date'].append(release)
                 
                 #I want only the number of episode/OVA/Movie, if it's not given then I put a Null value 
@@ -158,7 +163,7 @@ def seasonscrap(season,year,anime_type):
         else:
             continue
            
-        time.sleep(2)
+        time.sleep(5)
     return season_scrap
 
                 #SECTION 4 COMPILATION OF SCRAPING
@@ -205,4 +210,5 @@ while datavalid==False:
             scrap.to_mysql('Data/MAL-from-'+start_season+str(start_year)+'-to-'+end_season+str(end_year)+'.mysql')
         else:
             print('Invalid Input.')
-        
+compute_time=round(time.time()-begin)
+print(str(datetime.timedelta(seconds=compute_time)) +' time to scrap' )        
