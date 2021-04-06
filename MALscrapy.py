@@ -11,8 +11,9 @@ from bs4 import BeautifulSoup
 import numpy as np
 import time
 from datetime import datetime
+from datetime import timedelta
 
-begin=time.time()
+
 seasons=["winter","spring","summer","fall"]
 formatting={'title':[],'MAL_id':[],'type':[],'studio':[],'release-season':[],'release-year':[],'realase-date':[],'source-material':[],'episodes':[]}
 anime_types=['TV (New)','ONA','OVA','Movie','Special']
@@ -33,6 +34,8 @@ print('____________________________')
 
                 #SECTION 2 CHOICES
 #choose start year. I choose to limite the range to 1917 (first recorded anime on MAL) to present year+1
+begin=time.time()
+
 datavalid=False
 while datavalid==False:
     print('____________________________')
@@ -171,7 +174,7 @@ def seasonscrap(season,year,anime_type):
         else:
             continue
            
-        time.sleep(5)
+    time.sleep(3)
     return season_scrap
 
 
@@ -206,7 +209,7 @@ scrap.reset_index(drop=True, inplace=True) #reset l'index
 output=["html","json","csv","excel","mysql"]
 
 compute_time=round(time.time()-begin)
-print(str(datetime.timedelta(seconds=compute_time)) +' time to scrap' ) 
+print(str(timedelta(seconds=compute_time)) +' time to scrap' ) 
 
 datavalid=False
 while datavalid==False:
