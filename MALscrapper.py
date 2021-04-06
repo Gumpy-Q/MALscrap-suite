@@ -28,6 +28,9 @@ print('____________________________')
 print("A slight reminder: \n Winter starts in january \n Spring starts in april \n Summer starts in july \n Fall starts in october")
 print('____________________________')
 
+
+
+
                 #SECTION 2 CHOICES
 #choose start year. I choose to limite the range to 1917 (first recorded anime on MAL) to present year+1
 datavalid=False
@@ -109,6 +112,9 @@ while datavalid==False:
     
 print('____________________________')
 
+
+
+
                 #SECTION 3 scrapper fonction
 def seasonscrap(season,year,anime_type):
     url=default_url+"/"+str(year)+'/'+season    #url to scrap
@@ -117,8 +123,10 @@ def seasonscrap(season,year,anime_type):
     soup=BeautifulSoup(r.content,'lxml')
     
     season_scrap=formatting #initializing the dictionary
-    season_types=soup.find_all('div',{'class':'anime-header'}) #anime-header has the name of each section
+    
+    season_types=soup.find_all('div',{'class':'anime-header'}) #anime-header has the name of each section for anime type
     season_types_parent=[]
+    
     for season_type in season_types:
         season_types_parent.append(season_type.parent) #but it's the parent which got all the anime div
         
@@ -166,6 +174,8 @@ def seasonscrap(season,year,anime_type):
         time.sleep(5)
     return season_scrap
 
+
+
                 #SECTION 4 COMPILATION OF SCRAPING
 years=np.arange(start_year,end_year+1,1) #building a vector of years from start to end year
 scrap=pd.DataFrame(formatting) #initializing my dictionary
@@ -189,8 +199,14 @@ for year in years:
         df_n=pd.DataFrame(seasonscrap(season_to_scrap,year,type_to_scrap)) #I bluid a DataFrame around my data
         scrap=pd.concat([scrap,df_n]) #add the new data to the end of the data Frame
 
-                #SECTION 5 EXPORT
+scrap.reset_index(drop=True, inplace=True) #reset l'index
+              
+
+              #SECTION 5 EXPORT
 output=["html","json","csv","excel","mysql"]
+
+compute_time=round(time.time()-begin)
+print(str(datetime.timedelta(seconds=compute_time)) +' time to scrap' ) 
 
 datavalid=False
 while datavalid==False:
@@ -210,5 +226,5 @@ while datavalid==False:
             scrap.to_mysql('Data/MAL-from-'+start_season+str(start_year)+'-to-'+end_season+str(end_year)+'.mysql')
         else:
             print('Invalid Input.')
-compute_time=round(time.time()-begin)
-print(str(datetime.timedelta(seconds=compute_time)) +' time to scrap' )        
+
+input("press any key to quit: ")       
