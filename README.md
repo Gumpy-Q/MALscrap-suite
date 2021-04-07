@@ -1,7 +1,6 @@
 # MALscraPy
 Want to scrap MAL for specific seasons ? Here it is
 
-### MALscrapper
 ## A NoobxWeaboo attempt to scrap anime's data from MyAnimeList
 
 Access to last data here https://www.kaggle.com/crazygump/myanimelist-scrappind-a-decade-of-anime
