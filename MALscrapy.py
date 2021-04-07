@@ -114,7 +114,7 @@ while datavalid==False:
        print(anime_types)
     
 print('____________________________')
-
+sleep_time=int(input('How many seconds between two requests ? \nWARNING fast requests might get your IP ban (I used 2 seconds to build my datasets) '))
 
 
 
@@ -139,8 +139,8 @@ def seasonscrap(season,year,anime_type):
             for anime in animes:
                 #those are directly in the text
                 season_scrap['title'].append(anime.find("h2",{'class':'h2_anime_title'}).text) 
-                season_scrap['studio'].append(anime.find("span",{'class':'producer'}).text)
-                season_scrap['source-material'].append(anime.find("span",{'class':'source'}).text)
+                season_scrap['studio'].append(anime.find("span",{'class':'producer'}).text.replace('          -','Unknown'))
+                season_scrap['source-material'].append(anime.find("span",{'class':'source'}).text.replace('-','Unknown'))
                 
                 #those are defined in the scraping
                 season_scrap['type'].append(season_type.find('div',{'class':'anime-header'}).string)
@@ -148,7 +148,7 @@ def seasonscrap(season,year,anime_type):
                 season_scrap['release-year'].append(year)
                 
                 ID=anime.find("h2",{'class':'h2_anime_title'}).find("a").get('href')[30:35] #the id is in the url of the hypertext link on the name of the anime. The ID is in position 30 to 35 in the link
-                ID=''.join(filter(lambda i: i.isdigit(), ID))
+                ID=''.join(filter(lambda i: i.isdigit(), ID)) #ID can have different length thus I will only take digit character
                 season_scrap['MAL_id'].append(ID)
                 #Realase date exists in two formats: Mon. DD, YYYY, HH:MM (JST) or Mon. DD, YYYY
                 #There is also a lot of spaces and \n so I remove them before extracting the date to a datetime object with strptime
@@ -173,8 +173,10 @@ def seasonscrap(season,year,anime_type):
             print('____________________________')
         else:
             continue
-           
-    time.sleep(3)
+    
+    print('Script will sleep for '+str(sleep_time) +'  seconds')
+    time.sleep(sleep_time)
+    
     return season_scrap
 
 
@@ -210,7 +212,7 @@ pd.to_numeric(scrap['episodes'], downcast='integer')
 output=["html","json","csv","excel"]
 
 compute_time=round(time.time()-begin)
-print(str(timedelta(seconds=compute_time)) +' time to scrap' ) 
+print('time to scrap'+str(timedelta(seconds=compute_time))) 
 
 datavalid=False
 while datavalid==False:
