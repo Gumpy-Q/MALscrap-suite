@@ -16,7 +16,7 @@ from datetime import timedelta
 
 seasons=["winter","spring","summer","fall"]
 formatting={'title':[],'MAL_id':[],'type':[],'studio':[],'release-season':[],'release-year':[],'realase-date':[],'source-material':[],'episodes':[]}
-anime_types=['TV (New)','ONA','OVA','Movie','Special']
+anime_types=['TV (New)','TV (Continuing)','ONA','OVA','Movie','Special']
 
 default_url='https://myanimelist.net/anime/season'
 
@@ -167,7 +167,7 @@ def seasonscrap(season,year,anime_type):
                 try:
                     season_scrap['episodes'].append(int(eps))
                 except:
-                    season_scrap['episodes'].append(None) #Null is None in Python
+                    season_scrap['episodes'].append(int(0)) #Null is None in Python
                 
             print('Finish scraping '+season_type.find('div',{'class':'anime-header'}).string+' of '+season+' '+str(year))
             print('____________________________')
@@ -202,11 +202,12 @@ for year in years:
         df_n=pd.DataFrame(seasonscrap(season_to_scrap,year,type_to_scrap)) #I bluid a DataFrame around my data
         scrap=pd.concat([scrap,df_n]) #add the new data to the end of the data Frame
 
-scrap.reset_index(drop=True, inplace=True) #reset l'index
-              
+scrap.reset_index(drop=True, inplace=True) #reset l'index qui est chamboulé par le concat
+pd.to_numeric(scrap['release-year'], downcast='integer')              
+pd.to_numeric(scrap['episodes'], downcast='integer')    
 
               #SECTION 5 EXPORT
-output=["html","json","csv","excel","mysql"]
+output=["html","json","csv","excel"]
 
 compute_time=round(time.time()-begin)
 print(str(timedelta(seconds=compute_time)) +' time to scrap' ) 
@@ -218,16 +219,16 @@ while datavalid==False:
     if output_format in output:
         datavalid=True
         if output_format=='html':
-            scrap.to_html('Data/MAL-from-'+start_season+str(start_year)+'-to-'+end_season+str(end_year)+'.html')
+            scrap.to_html('Data/MAL-'+type_chosen+'-from-'+start_season+str(start_year)+'-to-'+end_season+str(end_year)+'.html',index=False)
         elif output_format=='json':
-            scrap.to_json('Data/MAL-from-'+start_season+str(start_year)+'-to-'+end_season+str(end_year)+'.json')
+            scrap.to_json('Data/MAL-'+type_chosen+'-from-'+start_season+str(start_year)+'-to-'+end_season+str(end_year)+'.json')
         elif output_format=='csv':
-            scrap.to_csv('Data/MAL-from-'+start_season+str(start_year)+'-to-'+end_season+str(end_year)+'.csv')
+            scrap.to_csv('Data/MAL-'+type_chosen+'-from-'+start_season+str(start_year)+'-to-'+end_season+str(end_year)+'.csv',index=False)
         elif output_format=='excel':
-            scrap.to_excel('Data/MAL-from-'+start_season+str(start_year)+'-to-'+end_season+str(end_year)+'.xlsx')
-        elif output_format=='mysql':
-            scrap.to_mysql('Data/MAL-from-'+start_season+str(start_year)+'-to-'+end_season+str(end_year)+'.mysql')
+            scrap.to_excel('Data/MAL-'+type_chosen+'-from-'+start_season+str(start_year)+'-to-'+end_season+str(end_year)+'.xlsx',index=False)
         else:
             print('Invalid Input.')
+
+
 
 input("press any key to quit: ")       
