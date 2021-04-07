@@ -7,7 +7,7 @@ Access to last data here https://www.kaggle.com/crazygump/myanimelist-scrappind-
 
 ## Wanna run the script without knowing much about Python ?
 ### Requisite
-You only need to install [Python]( https://www.python.org/downloads/) and the following modules:
+You only need to install [Python]( https://www.python.org/downloads/) and its following modules:
 * [Requests](https://docs.python-requests.org/en/latest/user/install/#install) 
 * [BeautifulSoup4](https://www.crummy.com/software/BeautifulSoup/bs4/doc/#installing-beautiful-soup)
 * [Numpy](https://numpy.org/install/)
