@@ -30,7 +30,7 @@ season_analyze=raw.value_counts(['release-year','release-season','type']).reset_
 min_year=int(input('year to start data: '))
 max_year=int(input('year to end data: '))
 
-select_years=season_analyze[(season_analyze['release-year']<max_year) | (season_analyze['release-year']>min_year)]
+select_years=season_analyze[(season_analyze['release-year']<max_year) & (season_analyze['release-year']>min_year)]
 
 years=np.linspace(select_years['release-year'].min(),select_years['release-year'].max(),select_years['release-year'].max()-select_years['release-year'].min()+1).astype(int)
 maxcount=10+select_years.groupby(['release-year','release-season']).sum().max()[0]
@@ -78,7 +78,7 @@ for season,ax in zip(seasons,axes): #permet de faire varier ensemble les deux
         # except:
         #     bottom=bottom[:-1]+df_type['count']
 
-fig.legend(handles, labels, bbox_to_anchor=(1,0.6), loc="upper left",fontsize='medium')
+fig.legend(handles, labels, bbox_to_anchor=(1,0.6), loc="upper left",fontsize='small')
 fig.tight_layout()
 fig.show()
 input('press key')    
