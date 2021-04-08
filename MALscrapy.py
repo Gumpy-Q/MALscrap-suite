@@ -15,7 +15,7 @@ from datetime import timedelta
 
 
 seasons=["winter","spring","summer","fall"]
-formatting={'title':[],'MAL_id':[],'type':[],'studio':[],'release-season':[],'release-year':[],'realase-date':[],'source-material':[],'episodes':[]}
+formatting=['title','MAL_id','type','studio','release-season','release-year','realase-date','source-material','episodes']
 anime_types=['TV (New)','TV (Continuing)','ONA','OVA','Movie','Special']
 
 default_url='https://myanimelist.net/anime/season'
@@ -125,7 +125,9 @@ def seasonscrap(season,year,anime_type):
     r=requests.get(url,headers)
     soup=BeautifulSoup(r.content,'lxml')
     
-    season_scrap=formatting #initializing the dictionary
+    season_scrap={}
+    for key in formatting:
+        season_scrap[key]=[]  #initializing the dictionary
     
     season_types=soup.find_all('div',{'class':'anime-header'}) #anime-header has the name of each section for anime type
     season_types_parent=[]
@@ -139,14 +141,14 @@ def seasonscrap(season,year,anime_type):
             for anime in animes:
                 #those are directly in the text
                 season_scrap['title'].append(anime.find("h2",{'class':'h2_anime_title'}).text) 
-                season_scrap['studio'].append(anime.find("span",{'class':'producer'}).text.replace('          -','Unknown'))
-                season_scrap['source-material'].append(anime.find("span",{'class':'source'}).text.replace('-','Unknown'))
+                season_scrap['studio'].append(anime.find("span",{'class':'producer'}).text)
+                season_scrap['source-material'].append(anime.find("span",{'class':'source'}).text)
                 
                 #those are defined in the scraping
                 season_scrap['type'].append(season_type.find('div',{'class':'anime-header'}).string)
                 season_scrap['release-season'].append(season)
                 season_scrap['release-year'].append(year)
-                
+                                
                 ID=anime.find("h2",{'class':'h2_anime_title'}).find("a").get('href')[30:35] #the id is in the url of the hypertext link on the name of the anime. The ID is in position 30 to 35 in the link
                 ID=''.join(filter(lambda i: i.isdigit(), ID)) #ID can have different length thus I will only take digit character
                 season_scrap['MAL_id'].append(ID)
@@ -167,7 +169,8 @@ def seasonscrap(season,year,anime_type):
                 try:
                     season_scrap['episodes'].append(int(eps))
                 except:
-                    season_scrap['episodes'].append(int(0)) #Null is None in Python
+                    season_scrap['episodes'].append(int(0))
+                
                 
             print('Finish scraping '+season_type.find('div',{'class':'anime-header'}).string+' of '+season+' '+str(year))
             print('____________________________')
@@ -176,14 +179,14 @@ def seasonscrap(season,year,anime_type):
     
     print('Script will sleep for '+str(sleep_time) +'  seconds')
     time.sleep(sleep_time)
-    
+    print('anime for this season: '+str(pd.DataFrame(season_scrap).shape[0]))
     return season_scrap
 
 
 
                 #SECTION 4 COMPILATION OF SCRAPING
 years=np.arange(start_year,end_year+1,1) #building a vector of years from start to end year
-scrap=pd.DataFrame(formatting) #initializing my dictionary
+scrap=pd.DataFrame(dict.fromkeys(formatting,[])) #initializing my dictionary
 
 #I need to give the seasons I want to scrape depending if: start year, end year, start=end
 for year in years:
@@ -213,21 +216,23 @@ output=["html","json","csv","excel"]
 
 compute_time=round(time.time()-begin)
 print('time to scrap'+str(timedelta(seconds=compute_time))) 
+path='Data/MAL-'+type_chosen+'-from-'+start_season+str(start_year)+'-to-'+end_season+str(end_year)
 
 datavalid=False
 while datavalid==False:
     print(output)
     output_format=input("Which output format do you want from the list upside: ").lower()
+    
     if output_format in output:
         datavalid=True
         if output_format=='html':
-            scrap.to_html('Data/MAL-'+type_chosen+'-from-'+start_season+str(start_year)+'-to-'+end_season+str(end_year)+'.html',index=False)
+            scrap.to_html(path+'.html',index=False)
         elif output_format=='json':
-            scrap.to_json('Data/MAL-'+type_chosen+'-from-'+start_season+str(start_year)+'-to-'+end_season+str(end_year)+'.json')
+            scrap.to_json(path+'.json')
         elif output_format=='csv':
-            scrap.to_csv('Data/MAL-'+type_chosen+'-from-'+start_season+str(start_year)+'-to-'+end_season+str(end_year)+'.csv',index=False)
+            scrap.to_csv(path+'.csv',index=False)
         elif output_format=='excel':
-            scrap.to_excel('Data/MAL-'+type_chosen+'-from-'+start_season+str(start_year)+'-to-'+end_season+str(end_year)+'.xlsx',index=False)
+            scrap.to_excel(path+'.xlsx',index=False)
         else:
             print('Invalid Input.')
 
