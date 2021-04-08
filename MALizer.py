@@ -58,8 +58,6 @@ for season,ax in zip(seasons,axes): #permet de faire varier ensemble les deux
             temp_bottom['cumul']=temp_bottom['cumul']+temp_bottom['count']
             
             for year,cumul in zip(temp_bottom['years'],temp_bottom['cumul']):
-                index_year=bottom[bottom['years']==year].index[0]
-                # bottom['cumul'][index_year]=cumul
                 bottom.loc[bottom['years']==year,['cumul']]=cumul
             
         else:
