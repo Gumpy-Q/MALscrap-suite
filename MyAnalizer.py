@@ -35,12 +35,13 @@ def production(min_year,max_year,anitypes):
     years=np.linspace(select_years['release-year'].min(),select_years['release-year'].max(),select_years['release-year'].max()-select_years['release-year'].min()+1).astype(int)
     maxcount=10+select_years.groupby(['release-year','release-season']).sum().max()[0]
     
-    fig, axes = plt.subplots(2,2,)
+    fig, axes = plt.subplots(2,2,figsize=(15,10))
     axes = axes.flatten()
     
     bottom={'years':years,'cumul':[0]*len(years)}
     bottom=pd.DataFrame(bottom)
     ymax=0
+    font='xx-large'
     
     for season,ax in zip(seasons,axes): #permet de faire varier ensemble les deux
         df_season=select_years[select_years['release-season']==season].sort_values('release-year')
@@ -67,11 +68,13 @@ def production(min_year,max_year,anitypes):
             
             
             ax.ticklabel_format(style='plain',axis='x')
-            ax.set_ylabel('count')
-            ax.set_title(season)
+            ax.set_ylabel('count',fontsize=font)
+            ax.xaxis.label.set_size(font)
+            ax.set_title(season,fontsize=font)
             ax.axis(ymax=maxcount+5)
             ax.axis(xmax=select_years['release-year'].max()+1,xmin=select_years['release-year'].min()-1)
             ax.tick_params('x',labelrotation=45)
+            
             ax.ticklabel_format(axis='x', style='plain', useOffset=False)
             handles, labels = ax.get_legend_handles_labels()
             # try:
@@ -84,7 +87,7 @@ def production(min_year,max_year,anitypes):
         ax.axis(ymax=ymax+5)
     
     fig.tight_layout()
-    fig.legend(handles, labels, bbox_to_anchor=(1,0.6), loc="upper left",fontsize='small')
+    fig.legend(handles, labels, bbox_to_anchor=(1,0.6), loc="upper left",fontsize=font)
 
     return fig
  
@@ -131,5 +134,6 @@ while datavalid==False:
        print('Invalid input. Must be all or (be careful of case !): ')
        print(anime_types)
 
-production(start_year,end_year,type_to_scrap).show()
+fig=production(start_year,end_year,type_to_scrap)
+fig.show()
 input('press key') 
