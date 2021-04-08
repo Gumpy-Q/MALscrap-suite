@@ -24,9 +24,9 @@ Want to visualize the data you have just scraped ? Here it is !
 
 ## Want to run it ?
 ### Requisites
-Previous requisites
-A csv file with the data you scraped before
-Change the path in the script until I take the time to prompt for it
+Previous requisites  
+A csv file with the data you scraped before  
+Change the path in the script until I take the time to prompt for it  
 
 ### Run it
 When you will run the script, follow the instructions in the command prompt.
