@@ -87,18 +87,22 @@ def production(df,min_year,max_year,anitypes):
     
     fig.suptitle('Evolution of the production',fontsize=font)
     fig.tight_layout()
-    fig.legend(handles, labels, bbox_to_anchor=(1,0.6), loc="upper left",fontsize='small')
+    fig.legend(handles, labels, bbox_to_anchor=(1,0.6), loc="upper left",fontsize=font)
 
     return fig
 
 def episode(df,min_year,max_year):
     select_year=df[(df['type']=='TV (New)') & (df['episodes']>0) & (df['release-year']>=min_year) & (df['release-year']<=max_year)] #Limit my dataframe
     
-    fig, ax =plt.subplots()
+    fig, ax =plt.subplots(figsize=enlarge_fig)
     ax=sb.violinplot(x='release-year',y='episodes',data=select_year,bw=.05,cut=0, scale='width',inner='quartile',orientation='h') 
-    ax.set_xticklabels(ax.get_xticklabels(),rotation=45)
+    ax.tick_params('x',labelrotation=45, labelsize=font)
+    ax.tick_params('y', labelsize=font)
+    ax.set_ylabel('length',fontsize=font)
+    ax.xaxis.label.set_size(font)
     ax.set(ylim=(0,60))
     ax.xaxis.set_major_locator(ticker.MultipleLocator(base=round((max_year-min_year)/10))) # I want to limit the number of label shown
+    ax.set_title('Repartion of anime length',fontsize=font)
     
     fig.tight_layout()
     return fig    
@@ -143,7 +147,7 @@ def sauce(df,min_year,max_year,anitypes):
 
 
     bottom=pd.DataFrame({'years':years,'cumul':[0]*len(years)})#this data frame will accumulate the value to build the stacked barplot
-    font='medium' 
+
                        
     if len(anitypes)==5:
         fig, axes = plt.subplots(2,3,figsize=enlarge_fig) #building a subplot for the 5 anime type
@@ -222,7 +226,7 @@ def sauce(df,min_year,max_year,anitypes):
     
     fig.suptitle('Source of the adaptation',fontsize=font)          
     fig.tight_layout()
-    fig.legend(handles, labels, bbox_to_anchor=(1,0.6), loc="upper left",fontsize='small')
+    fig.legend(handles, labels, bbox_to_anchor=(1,0.6), loc="upper left",fontsize=font)
     return fig
 
 datavalid=False
