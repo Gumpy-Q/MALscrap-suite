@@ -1,6 +1,6 @@
 # MALscraPy
 Want to scrap MAL for specific seasons ? Here it is  
-Access to last data here https://www.kaggle.com/crazygump/myanimelist-scrappind-a-decade-of-anime  
+Access to last data on my Kaggle [here](https://www.kaggle.com/crazygump/myanimelist-scrappind-a-decade-of-anime)
 
 ## Want run the script without knowing much about Python ?
 ### Requisites
