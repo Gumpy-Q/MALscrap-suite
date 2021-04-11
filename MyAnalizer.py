@@ -49,17 +49,22 @@ def production(df,min_year,max_year,anitypes,color_list): #To vizualize the sum 
     
     picked_colors=color_list[0:len(anitypes)+1]
     
+    custom_patches=[]
+    
+    #avoid colors mismatch when getting legend
+    for color in picked_colors:
+        custom_patches.append(Patch(facecolor=color, edgecolor='b')) 
+    
     for season,ax in zip(seasons,axes): #Season and plot goes together so I zip them
         df_season=select_years[select_years['release-season']==season].sort_values('release-year') #reducing the DataFrame to the season studied
         bottom['cumul']=[0]*len(years) #initialize bottom for each season
-        print('--------------'+season)
+        # print('--------------'+season)
         
         for anime_type,color in zip(anitypes,picked_colors):
             
             df_type=df_season[df_season['type']==anime_type]
             df_type.reset_index(drop=True, inplace=True)
-            print(anime_type)
-            print(color)
+            # print(anime_type)
             
             if len(df_type)!=len(bottom):
                 temp_bottom=pd.merge(bottom,df_type,left_on='years',right_on='release-year') #if there is a lack of type of anime for a season, I reduce the bottom dataframe to an extract of it (if not shape mis shape between count and bottom)
@@ -84,8 +89,7 @@ def production(df,min_year,max_year,anitypes,color_list): #To vizualize the sum 
             ax.tick_params('y', labelsize=font)
             ax.xaxis.set_major_locator(ticker.MultipleLocator(base=round((max_year-min_year)/5)))
             ax.ticklabel_format(axis='x', style='plain', useOffset=False) #If I don't do this plt want to put the label to engineering notation
-            handles, labels = ax.get_legend_handles_labels() #I store the legend
-        
+                    
         ymax=max(bottom['cumul'].max(),ymax) #after each season I retrieve the maximum value to limit plot axis
         
     for ax in axes:
@@ -93,8 +97,7 @@ def production(df,min_year,max_year,anitypes,color_list): #To vizualize the sum 
     
     fig.suptitle('Evolution of the production',fontsize=font)
     fig.tight_layout()
-    fig.legend(handles, labels, bbox_to_anchor=(1,0.6), loc="upper left",fontsize=font)
-
+    fig.legend(custom_patches, anitypes, bbox_to_anchor=(1,0.6), loc="upper left",fontsize=font)
     return fig
 
 def episode(df,min_year,max_year,anitype,max_shown): #This function is showing the repartition of anime'lenght in the year
@@ -136,8 +139,7 @@ def sauce(df,min_year,max_year,anitypes,color_list):
     sauces=select_years.sort_values('percent',ascending=False)['source-material'].unique()    
        
     picked_colors=color_list[0:len(sauces)]
-    print(picked_colors)
-    
+     
     custom_patches=[]
     
     #avoid colors mismatch when getting legend
@@ -153,7 +155,7 @@ def sauce(df,min_year,max_year,anitypes,color_list):
         for sauce,color in zip(sauces,picked_colors): #I want to attribute a color for each source that will be consistent for each type of anime
                 df_sauce=df_type[df_type['source-material']==sauce] #reducing the the source
                 df_sauce.reset_index(drop=True, inplace=True)
-                print(sauce)
+                # print(sauce)
                 
                 if len(df_sauce)!=len(bottom):
                     temp_bottom=pd.merge(bottom,df_sauce,left_on='years',right_on='release-year') #if there is a lack of source for anime for a season, I reduce the bottom dataframe to an extract of it (if not shape mis shape between count and bottom)
@@ -187,7 +189,7 @@ def sauce(df,min_year,max_year,anitypes,color_list):
         for anime_type,ax in zip(anitypes,axes): #Season and plot goes together so I zip them
             df_type=select_years[select_years['type']==anime_type].sort_values('release-year') #reducing the DataFrame to the season studied I need the year to be at the right order for the stacking
             bottom['cumul']=[0]*len(years) #initialize bottom for each season
-            print('--------------'+anime_type)
+            # print('--------------'+anime_type)
             
             stackbarcolor(df_type,sauces,bottom,ax,anime_type)
                            
@@ -196,7 +198,7 @@ def sauce(df,min_year,max_year,anitypes,color_list):
         df_type=select_years.sort_values('release-year') #reducing the DataFrame to the season studied I need the year to be at the right order for the stacking
         bottom['cumul']=[0]*len(years) #initialize bottom for each season
         anime_type=anitypes[0]
-        print('--------------'+anime_type)
+        # print('--------------'+anime_type)
           
         stackbarcolor(df_type, sauces, bottom, ax,anime_type)
         
@@ -204,6 +206,7 @@ def sauce(df,min_year,max_year,anitypes,color_list):
     fig.suptitle('Source of the adaptation (if less than 5% -> Other)',fontsize=font)          
     fig.tight_layout()
     fig.legend(custom_patches, sauces, bbox_to_anchor=(1,0.6), loc="upper left",fontsize=font)
+    
     return fig
 
 datavalid=False
