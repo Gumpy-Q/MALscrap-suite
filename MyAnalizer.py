@@ -29,8 +29,9 @@ raw['episodes']=raw['episodes'].astype(int)
 
 font='xx-large'
 enlarge_fig=(15,10)
+picked_colors=['#e6194B', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#42d4f4', '#f032e6', '#bfef45', '#fabed4', '#469990', '#dcbeff', '#9A6324', '#fffac8', '#800000', '#aaffc3', '#808000', '#ffd8b1', '#000075', '#a9a9a9', '#ffffff', '#000000']
 
-def production(df,min_year,max_year,anitypes): #To vizualize the sum of anime product each year for each season
+def production(df,min_year,max_year,anitypes,color_list): #To vizualize the sum of anime product each year for each season
     
     season_analyze=df.value_counts(['release-year','release-season','type']).reset_index(name='count') #count occurence and build the dataframe with a new column 'count'
 
@@ -46,12 +47,14 @@ def production(df,min_year,max_year,anitypes): #To vizualize the sum of anime pr
     bottom=pd.DataFrame({'years':years,'cumul':[0]*len(years)})#this data frame will accumulate the value to build the stacked barplot
     ymax=0
     
+    picked_colord=color_list[0:len(anitypes)+1]
+    
     for season,ax in zip(seasons,axes): #Season and plot goes together so I zip them
         df_season=select_years[select_years['release-season']==season].sort_values('release-year') #reducing the DataFrame to the season studied
         bottom['cumul']=[0]*len(years) #initialize bottom for each season
         print('--------------'+season)
         
-        for anime_type in anitypes:
+        for anime_type,color in zip(anitypes,picked_colord):
             df_type=df_season[df_season['type']==anime_type]
             df_type.reset_index(drop=True, inplace=True)
             print(anime_type)
@@ -59,7 +62,7 @@ def production(df,min_year,max_year,anitypes): #To vizualize the sum of anime pr
             if len(df_type)!=len(bottom):
                 temp_bottom=pd.merge(bottom,df_type,left_on='years',right_on='release-year') #if there is a lack of type of anime for a season, I reduce the bottom dataframe to an extract of it (if not shape mis shape between count and bottom)
                                         
-                ax.bar(df_type['release-year'],df_type['count'],label=anime_type,bottom=temp_bottom['cumul'])
+                ax.bar(df_type['release-year'],df_type['count'],label=anime_type,bottom=temp_bottom['cumul'],edgecolor='black',color=color)
                 
                 temp_bottom['cumul']=temp_bottom['cumul']+temp_bottom['count'] #Create the cumul for the temp bottom
                 
@@ -67,7 +70,7 @@ def production(df,min_year,max_year,anitypes): #To vizualize the sum of anime pr
                     bottom.loc[bottom['years']==year,['cumul']]=cumul #put the value in temp bottom to the actual bottom
                 
             else:
-                ax.bar(df_type['release-year'],df_type['count'],label=anime_type,bottom=bottom['cumul'])
+                ax.bar(df_type['release-year'],df_type['count'],label=anime_type,bottom=bottom['cumul'],edgecolor='black',color=color)
                 bottom['cumul']=bottom['cumul']+df_type['count'] #way easier when each year are full
             
             
@@ -109,7 +112,7 @@ def episode(df,min_year,max_year,anitype,max_shown): #This function is showing t
     fig.tight_layout()
     return fig    
 
-def sauce(df,min_year,max_year,anitypes): 
+def sauce(df,min_year,max_year,anitypes,color_list): 
         
     select_years=df[(df['release-year']<=max_year) & (df['release-year']>=min_year)] #remove years out of study scope
     select_years=select_years[select_years['type'].isin(anitypes)] 
@@ -125,14 +128,8 @@ def sauce(df,min_year,max_year,anitypes):
     
     #build a descending list by percent of source material
     sauces=select_years.sort_values('percent',ascending=False)['source-material'].unique()    
-    
-    #I have a lot of category so I want to build a custom color list with colors picked randomly and all different
-    colors_list = list(colors._colors_full_map.values())
-    random_list=np.random.choice(np.arange(len(colors_list)), len(sauces),replace=False) #replace to pick strictly different number
-    random_color=[]
-    for color in random_list:
-        random_color.append(colors_list[color])
-    
+       
+    picked_colors=color_list[0:len(sauces)+1]
 
     years=np.linspace(select_years['release-year'].min(),select_years['release-year'].max(),select_years['release-year'].max()-select_years['release-year'].min()+1).astype(int) #I want a list of the years
 
@@ -140,7 +137,7 @@ def sauce(df,min_year,max_year,anitypes):
     bottom=pd.DataFrame({'years':years,'cumul':[0]*len(years)})#this dataframe will accumulate the value to build the stacked barplot
     
     def stackbarcolor(df_type,sauces,bottom,ax,anime_type):
-        for sauce,color in zip(sauces,random_color): #I want to attribute a color for each source that will be consistent for each type of anime
+        for sauce,color in zip(sauces,picked_colors): #I want to attribute a color for each source that will be consistent for each type of anime
                 df_sauce=df_type[df_type['source-material']==sauce] #reducing the the source
                 df_sauce.reset_index(drop=True, inplace=True)
                 print(sauce)
@@ -148,7 +145,7 @@ def sauce(df,min_year,max_year,anitypes):
                 if len(df_sauce)!=len(bottom):
                     temp_bottom=pd.merge(bottom,df_sauce,left_on='years',right_on='release-year') #if there is a lack of source for anime for a season, I reduce the bottom dataframe to an extract of it (if not shape mis shape between count and bottom)
                                             
-                    ax.bar(df_sauce['release-year'],df_sauce['percent'],label=sauce,bottom=temp_bottom['cumul'],color=color)
+                    ax.bar(df_sauce['release-year'],df_sauce['percent'],label=sauce,bottom=temp_bottom['cumul'],color=color,edgecolor='black')
                     
                     temp_bottom['cumul']=temp_bottom['cumul']+temp_bottom['percent'] #Create the cumul for the temp bottom
                     
@@ -156,7 +153,7 @@ def sauce(df,min_year,max_year,anitypes):
                         bottom.loc[bottom['years']==year,['cumul']]=cumul #put the value in temp bottom to the actual bottom
                     
                 else:
-                    ax.bar(df_sauce['release-year'],df_sauce['percent'],label=sauce,bottom=bottom['cumul'],color=color)
+                    ax.bar(df_sauce['release-year'],df_sauce['percent'],label=sauce,bottom=bottom['cumul'],color=color,edgecolor='black')
                     bottom['cumul']=bottom['cumul']+df_sauce['percent'] #way easier when each year are full
                 
                 ax.set_ylabel('percent',fontsize=font)
@@ -247,10 +244,10 @@ while datavalid==False:
        print(anime_types)
 
 
-fig_prod=production(raw,start_year,end_year,type_to_viz)
+fig_prod=production(raw,start_year,end_year,type_to_viz,picked_colors)
 fig_prod.show()
 
-fig_sauce=sauce(raw,start_year,end_year,type_to_viz)
+fig_sauce=sauce(raw,start_year,end_year,type_to_viz,picked_colors)
 fig_sauce.show()
 
 fig_ep=episode(raw,start_year,end_year,'TV (New)',60)
