@@ -117,7 +117,7 @@ def episode(df,min_year,max_year,anitype,max_shown): #This function is showing t
     fig.tight_layout()
     return fig    
 
-def sauce(df,min_year,max_year,anitypes,color_list): 
+def sauce(df,min_year,max_year,anitypes,color_list,thresold): 
         
     select_years=df[(df['release-year']<=max_year) & (df['release-year']>=min_year)] #remove years out of study scope
     select_years=select_years[select_years['type'].isin(anitypes)] 
@@ -131,7 +131,8 @@ def sauce(df,min_year,max_year,anitypes,color_list):
     select_years=pd.merge(select_years,select_sum,on=('release-year','type')) 
     select_years['percent']=select_years['count']/select_years['sum']
     
-    select_years.loc[select_years['percent']<0.05,'source-material']='Other'
+    
+    select_years.loc[select_years['percent']<(thresold/100),'source-material']='Other'
     select_years=select_years.groupby(['release-year','type','source-material'])['percent'].sum().reset_index(name='percent')
     
     
@@ -203,7 +204,7 @@ def sauce(df,min_year,max_year,anitypes,color_list):
         stackbarcolor(df_type, sauces, bottom, ax,anime_type)
         
     
-    fig.suptitle('Source of the adaptation (if less than 5% -> Other)',fontsize=font)          
+    fig.suptitle('Source of the adaptation (if less than '+str(thresold)+'% -> Other)',fontsize=font)          
     fig.tight_layout()
     fig.legend(custom_patches, sauces, bbox_to_anchor=(1,0.6), loc="upper left",fontsize=font)
     
@@ -256,7 +257,7 @@ while datavalid==False:
 fig_prod=production(raw,start_year,end_year,type_to_viz,picked_colors)
 fig_prod.show()
 
-fig_sauce=sauce(raw,start_year,end_year,type_to_viz,picked_colors)
+fig_sauce=sauce(raw,start_year,end_year,type_to_viz,picked_colors,2.5)
 fig_sauce.show()
 
 fig_ep=episode(raw,start_year,end_year,'TV (New)',60)
