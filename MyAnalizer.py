@@ -30,11 +30,12 @@ raw['episodes']=raw['episodes'].astype(int)
 font='xx-large'
 enlarge_fig=(15,10)
 
-def production(df,min_year,max_year,anitypes):
+def production(df,min_year,max_year,anitypes): #To vizualize the sum of anime product each year for each season
     
     season_analyze=df.value_counts(['release-year','release-season','type']).reset_index(name='count') #count occurence and build the dataframe with a new column 'count'
 
     select_years=season_analyze[(season_analyze['release-year']<=max_year) & (season_analyze['release-year']>=min_year)] #remove years out of study scope
+    select_years=select_years[select_years['type'].isin(anitypes)]
     
     years=np.linspace(select_years['release-year'].min(),select_years['release-year'].max(),select_years['release-year'].max()-select_years['release-year'].min()+1).astype(int) #I want a list of the years
     
@@ -91,80 +92,61 @@ def production(df,min_year,max_year,anitypes):
 
     return fig
 
-def episode(df,min_year,max_year):
-    select_year=df[(df['type']=='TV (New)') & (df['episodes']>0) & (df['release-year']>=min_year) & (df['release-year']<=max_year)] #Limit my dataframe
+def episode(df,min_year,max_year,anitype,max_shown): #This function is showing the repartition of anime'lenght in the year
+    select_year=df[(df['type']==anitype) & (df['episodes']>0) & (df['release-year']>=min_year) & (df['release-year']<=max_year)] #Limit my dataframe
     
     fig, ax =plt.subplots(figsize=enlarge_fig)
     ax=sb.violinplot(x='release-year',y='episodes',data=select_year,bw=.05,cut=0, scale='width',inner='quartile',orientation='h') 
     ax.tick_params('x',labelrotation=45, labelsize=font)
     ax.tick_params('y', labelsize=font)
     ax.set_ylabel('length',fontsize=font)
+    ax.set_ylabel('diffusion',fontsize=font)
     ax.xaxis.label.set_size(font)
-    ax.set(ylim=(0,60))
+    ax.set(ylim=(0,max_shown))
     ax.xaxis.set_major_locator(ticker.MultipleLocator(base=round((max_year-min_year)/10))) # I want to limit the number of label shown
-    ax.set_title('Repartion of anime length',fontsize=font)
+    ax.set_title('Repartion of anime length : '+ anitype,fontsize=font)
     
     fig.tight_layout()
     return fig    
 
-def sauce(df,min_year,max_year,anitypes):
-    
-    if len(anitypes) == 6:
-        anitypes=['TV (New)', 'Special', 'OVA', 'ONA', 'Movie']
+def sauce(df,min_year,max_year,anitypes): 
         
     select_years=df[(df['release-year']<=max_year) & (df['release-year']>=min_year)] #remove years out of study scope
-    select_years=select_years[select_years['type'].isin(anitypes)]
+    select_years=select_years[select_years['type'].isin(anitypes)] 
     
-    select_years.loc[select_years['source-material'] == '-', 'source-material'] = "Unknown in MAL"
+    select_years.loc[select_years['source-material'] == '-', 'source-material'] = "Unknown in MAL" #replace the default value when source is not assigned to an anime
     
-    select_years=select_years.value_counts(['release-year','type','source-material']).reset_index(name='count')
+    select_years=select_years.value_counts(['release-year','type','source-material']).reset_index(name='count') #transform the long list to a count for each config
     
+    #getting the sum and repartition for each release-year/type couple
     select_sum=select_years.groupby(['release-year','type'])['count'].sum().reset_index(name='sum')
-    select_years=pd.merge(select_years,select_sum,on=('release-year','type'))
+    select_years=pd.merge(select_years,select_sum,on=('release-year','type')) 
     select_years['percent']=select_years['count']/select_years['sum']
     
-    # select_years=select_years[select_years['percent']>0.05]
+    #build a descending list by percent of source material
+    sauces=select_years.sort_values('percent',ascending=False)['source-material'].unique()    
     
-    sauces=select_years['source-material'].unique()    
-    
+    #I have a lot of category so I want to build a custom color list with colors picked randomly and all different
     colors_list = list(colors._colors_full_map.values())
-    random_list=np.random.choice(np.arange(len(colors_list)), len(sauces),replace=False)
+    random_list=np.random.choice(np.arange(len(colors_list)), len(sauces),replace=False) #replace to pick strictly different number
     random_color=[]
     for color in random_list:
         random_color.append(colors_list[color])
     
+
     years=np.linspace(select_years['release-year'].min(),select_years['release-year'].max(),select_years['release-year'].max()-select_years['release-year'].min()+1).astype(int) #I want a list of the years
+
+
+    bottom=pd.DataFrame({'years':years,'cumul':[0]*len(years)})#this dataframe will accumulate the value to build the stacked barplot
     
-    for year in years:
-        df_year=select_years[select_years['release-year']==year]
-        for anitype in anitypes:
-            df_type=df_year[df_year['type']==anitype]
-            for sauce in sauces:
-                if sauce not in df_type['source-material'].values:
-                    add_sauce=pd.DataFrame({'release-year':[year],'type':[anitype],'source-material':[sauce],'count':[0],'sum':[0],'percent':[0]})
-                    select_years=pd.concat([select_years,add_sauce])
-                    select_years.reset_index(drop=True,inplace=True)
-
-
-    bottom=pd.DataFrame({'years':years,'cumul':[0]*len(years)})#this data frame will accumulate the value to build the stacked barplot
-
-                       
-    if len(anitypes)==5:
-        fig, axes = plt.subplots(2,3,figsize=enlarge_fig) #building a subplot for the 5 anime type
-        axes = axes.flatten()
-        
-        for anime_type,ax in zip(anitypes,axes): #Season and plot goes together so I zip them
-            df_type=select_years[select_years['type']==anime_type].sort_values('release-year') #reducing the DataFrame to the season studied I need the year to be at the right order for the stacking
-            bottom['cumul']=[0]*len(years) #initialize bottom for each season
-            print('--------------'+anime_type)
-            
-            for sauce,color in zip(sauces,random_color):
-                df_sauce=df_type[df_type['source-material']==sauce]
+    def stackbarcolor(df_type,sauces,bottom,ax,anime_type):
+        for sauce,color in zip(sauces,random_color): #I want to attribute a color for each source that will be consistent for each type of anime
+                df_sauce=df_type[df_type['source-material']==sauce] #reducing the the source
                 df_sauce.reset_index(drop=True, inplace=True)
                 print(sauce)
                 
                 if len(df_sauce)!=len(bottom):
-                    temp_bottom=pd.merge(bottom,df_sauce,left_on='years',right_on='release-year') #if there is a lack of type of anime for a season, I reduce the bottom dataframe to an extract of it (if not shape mis shape between count and bottom)
+                    temp_bottom=pd.merge(bottom,df_sauce,left_on='years',right_on='release-year') #if there is a lack of source for anime for a season, I reduce the bottom dataframe to an extract of it (if not shape mis shape between count and bottom)
                                             
                     ax.bar(df_sauce['release-year'],df_sauce['percent'],label=sauce,bottom=temp_bottom['cumul'],color=color)
                     
@@ -185,44 +167,36 @@ def sauce(df,min_year,max_year,anitypes):
                 ax.tick_params('y', labelsize=font)
                 ax.axis(ymax=1)
                 ax.ticklabel_format(axis='x', style='plain', useOffset=False) #If I don't do this plt want to put the label to engineering notation
-                ax.xaxis.set_major_locator(ticker.MultipleLocator(base=round((max_year-min_year)/5)))
-                handles, labels = ax.get_legend_handles_labels() #I store the legend
+                ax.xaxis.set_major_locator(ticker.MultipleLocator(base=round((max_year-min_year)/5))) #I want only 5 step for xlabel
+                
+
     
+    
+    #differentiating plot for each type or just one type                   
+    if len(anitypes)>1:
+        fig, axes = plt.subplots(2,3,figsize=enlarge_fig) #building a subplot for the 6 anime types
+        axes = axes.flatten()
+        
+        for anime_type,ax in zip(anitypes,axes): #Season and plot goes together so I zip them
+            df_type=select_years[select_years['type']==anime_type].sort_values('release-year') #reducing the DataFrame to the season studied I need the year to be at the right order for the stacking
+            bottom['cumul']=[0]*len(years) #initialize bottom for each season
+            print('--------------'+anime_type)
+            
+            stackbarcolor(df_type,sauces,bottom,ax,anime_type)
+            
+        for ax in axes:
+            handles, labels = ax.get_legend_handles_labels() #I store the legend
+                
     else:
         fig, ax = plt.subplots(1,1,figsize=enlarge_fig) #building a subplot for the one choosen
         df_type=select_years.sort_values('release-year') #reducing the DataFrame to the season studied I need the year to be at the right order for the stacking
         bottom['cumul']=[0]*len(years) #initialize bottom for each season
-        print('--------------'+anitypes[0])
+        anime_type=anitypes[0]
+        print('--------------'+anime_type)
+          
+        stackbarcolor(df_type, sauces, bottom, ax,anime_type)
         
-        for sauce,color in zip(sauces,random_color):
-            df_sauce=df_type[df_type['source-material']==sauce]
-            df_sauce.reset_index(drop=True, inplace=True)
-            print(sauce)
-            
-            if len(df_sauce)!=len(bottom):
-                temp_bottom=pd.merge(bottom,df_sauce,left_on='years',right_on='release-year') #if there is a lack of type of anime for a season, I reduce the bottom dataframe to an extract of it (if not shape mis shape between count and bottom)
-                                        
-                ax.bar(df_sauce['release-year'],df_sauce['percent'],label=sauce,bottom=temp_bottom['cumul'],color=color)
-                
-                temp_bottom['cumul']=temp_bottom['cumul']+temp_bottom['percent'] #Create the cumul for the temp bottom
-                
-                for year,cumul in zip(temp_bottom['years'],temp_bottom['cumul']):
-                    bottom.loc[bottom['years']==year,['cumul']]=cumul #put the value in temp bottom to the actual bottom
-                
-            else:
-                ax.bar(df_sauce['release-year'],df_sauce['percent'],label=sauce,bottom=bottom['cumul'],color=color)
-                bottom['cumul']=bottom['cumul']+df_sauce['percent'] #way easier when each year are full
-            
-            ax.set_ylabel('percent',fontsize=font)
-            ax.xaxis.label.set_size(font)
-            ax.set_title(anitypes[0],fontsize=font)
-            ax.axis(xmax=select_years['release-year'].max()+1,xmin=select_years['release-year'].min()-1)
-            ax.tick_params('x',labelrotation=45, labelsize=font)
-            ax.tick_params('y', labelsize=font)
-            ax.axis(ymax=1)
-            ax.ticklabel_format(axis='x', style='plain', useOffset=False) #If I don't do this plt want to put the label to engineering notation
-            ax.xaxis.set_major_locator(ticker.MultipleLocator(base=round((max_year-min_year)/5)))
-            handles, labels = ax.get_legend_handles_labels() #I store the legend
+        handles, labels = ax.get_legend_handles_labels() #I store the legend
     
     fig.suptitle('Source of the adaptation',fontsize=font)          
     fig.tight_layout()
@@ -279,7 +253,10 @@ fig_prod.show()
 fig_sauce=sauce(raw,start_year,end_year,type_to_viz)
 fig_sauce.show()
 
-fig_ep=episode(raw,start_year,end_year)
+fig_ep=episode(raw,start_year,end_year,'TV (New)',60)
+fig_ep.show()
+
+fig_ep=episode(raw,start_year,end_year,'TV (Continuing)',150)
 fig_ep.show()
 
 input('press key') 
