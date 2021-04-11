@@ -11,11 +11,15 @@ You only need to install [Python]( https://www.python.org/downloads/) and its fo
 * [Numpy](https://numpy.org/install/)
 * [Pandas](https://pandas.pydata.org/docs/getting_started/install.html)
 
-### Run it
+## Run it
 When you will run the script, follow the instructions in the command prompt.
-Beware: scraping large temporal range might be a bit RAM intensive (800 MB for 2021 to 2010)
+Beware: scraping large temporal range might be a bit RAM intensive (500 MB for 2021 to 2010)
 
 This is may not be the fastest way to scrap MAL (30s to scrap all 2020 anime content with 15 seconds of sleep time to avoid making MAL mad at me)
+
+| Title | MAL-id | Type | Studio | Realase-season | Release-year | Release-date | Source-material | Episodes |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Attack No.1 | 1550 | TV (New) | Tokyo Movie Shinsha | winter | 1970 | 1969-12-07 19:00:00 | Manga | 104 |
 
 # MyAnalizer
 Want to visualize the data you have just scraped ? Here it is !
@@ -26,7 +30,7 @@ Previous requisites
 A csv file with the data you scraped before  
 Change the path in the script until I take the time to prompt for it  
 
-### Run it
+## Run it
 When you will run the script, follow the instructions in the command prompt.
 
 ### Example of results
