@@ -148,7 +148,9 @@ def source(df,min_year,max_year,anitypes,color_list,thresold):
             # print('--------------'+anime_type)
             
             stackbarcolor(df_type,sources,ax,anime_type,picked_colors,'source-material','percent','part of the diffusion')
-                           
+            for ax in axes:
+                ax.set(ylim=(0,1))        
+                
     else:
         fig, ax = plt.subplots(1,1,figsize=enlarge_fig) #building a subplot for the one choosen
         df_type=select_years.sort_values('release-year') #reducing the DataFrame to the season studied I need the year to be at the right order for the stacking
