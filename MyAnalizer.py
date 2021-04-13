@@ -55,7 +55,7 @@ def stackbarcolor(df_plot,cat_list,ax,plot_name,colors_list,cat_key,tosum_key,yl
             ax.tick_params('y', labelsize=font)
             ax.set(xlim=(min_year-1,max_year+1))
             ax.ticklabel_format(axis='x', style='plain', useOffset=False) #If I don't do this plt want to put the label to engineering notation
-            ax.xaxis.set_major_locator(MaxNLocator(integer=True,nbins=5,prune='both'))
+            ax.xaxis.set_major_locator(MaxNLocator(integer=True,nbins=7,min_n_ticks=5,prune='both')) #give instruction how to handle the tick label: integer, nb of label, remove egde label
             
     ymax=max(df_plot['bottom'].max(),ymax) #after each season I retrieve the maximum value to limit plot axis
     
@@ -142,8 +142,8 @@ def episode(df,min_year,max_year,anitype,max_shown): #This function is showing t
     ax.set_ylabel('diffusion',fontsize=font)
     ax.xaxis.label.set_size(font)
     ax.set(ylim=(0,max_shown))
-    ax.xaxis.set_major_locator(ticker.MultipleLocator(base=round((max_year-min_year)/10))) # I want to limit the number of label shown
     ax.set_title('Repartion of anime length : '+ anitype,fontsize=font)
+    ax.xaxis.set_major_locator(MaxNLocator(integer=True,nbins=12,min_n_ticks=10,prune='both')) #
         
     fig.tight_layout()
     return fig    
@@ -201,6 +201,7 @@ def source(df,min_year,max_year,anitypes,color_list,thresold):
           
         stackbarcolor(df_type,sources,ax,anime_type,picked_colors,'source-material','percent','part of the diffusion',max_year,min_year)
         ax.set(ylim=(0,1))
+        ax.yaxis.set_major_formatter(PercentFormatter(xmax=1, decimals=0, symbol='%', is_latex=False))
     
     fig.suptitle('Source of the adaptation (if less than '+str(thresold)+'% -> Other)',fontsize=font)          
     fig.tight_layout()
