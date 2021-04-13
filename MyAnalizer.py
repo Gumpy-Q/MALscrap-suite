@@ -120,7 +120,7 @@ def production_year(df,min_year,max_year,anitypes,color_list): #To vizualize the
      
     df_year=select_years.sort_values('release-year') #reducing the DataFrame to the season studied
         
-    ymax=stackbarcolor(df_year,anitypes,ax,'',picked_colors,'type','count','Count',max_year,min_year,ymax)
+    ymax=stackbarcolor(df_year,anitypes,ax,'',picked_colors,'type','count','Number of anime aired',max_year,min_year,ymax)
         
     ax.axis(ymax=ymax+5) #And then I set the limit
     
@@ -138,8 +138,7 @@ def episode(df,min_year,max_year,anitype,max_shown): #This function is showing t
     ax=sb.violinplot(x='release-year',y='episodes',data=select_year,bw=.05,cut=0, scale='width',inner='quartile',orientation='h') 
     ax.tick_params('x',labelrotation=45, labelsize=font)
     ax.tick_params('y', labelsize=font)
-    ax.set_ylabel('length',fontsize=font)
-    ax.set_ylabel('diffusion',fontsize=font)
+    ax.set_ylabel('Number of episodes per anime',fontsize=font)
     ax.xaxis.label.set_size(font)
     ax.set(ylim=(0,max_shown))
     ax.set_title('Repartion of anime length : '+ anitype,fontsize=font)
@@ -188,7 +187,7 @@ def source(df,min_year,max_year,anitypes,color_list,thresold):
             df_type=select_years[select_years['type']==anime_type].sort_values('release-year') #reducing the DataFrame to the season studied I need the year to be at the right order for the stacking
             print('--------------'+anime_type)
             
-            stackbarcolor(df_type,sources,ax,anime_type,picked_colors,'source-material','percent','part of the diffusion',max_year,min_year)
+            stackbarcolor(df_type,sources,ax,anime_type,picked_colors,'source-material','percent','Part of the diffusion',max_year,min_year)
             for ax in axes:
                 ax.set(ylim=(0,1))
                 ax.yaxis.set_major_formatter(PercentFormatter(xmax=1, decimals=0, symbol='%', is_latex=False))
@@ -199,7 +198,7 @@ def source(df,min_year,max_year,anitypes,color_list,thresold):
         anime_type=anitypes[0]
         print('--------------'+anime_type)
           
-        stackbarcolor(df_type,sources,ax,anime_type,picked_colors,'source-material','percent','part of the diffusion',max_year,min_year)
+        stackbarcolor(df_type,sources,ax,anime_type,picked_colors,'source-material','percent','Part of the diffusion',max_year,min_year)
         ax.set(ylim=(0,1))
         ax.yaxis.set_major_formatter(PercentFormatter(xmax=1, decimals=0, symbol='%', is_latex=False))
     
