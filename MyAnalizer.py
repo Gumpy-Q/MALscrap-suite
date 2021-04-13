@@ -37,6 +37,7 @@ def stackbarcolor(df_plot,cat_list,ax,plot_name,colors_list,cat_key,tosum_key,yl
     df_plot['bottom']=0    
     
     for cat_value,color in zip(cat_list,colors_list): #I want to attribute a color for each source that will be consistent for each type of anime
+            print('implementing '+cat_value)
             df_cat=df_plot[df_plot[cat_key]==cat_value] #reducing the the source
             df_cat.reset_index(drop=True, inplace=True)
                                   
@@ -54,13 +55,13 @@ def stackbarcolor(df_plot,cat_list,ax,plot_name,colors_list,cat_key,tosum_key,yl
             ax.tick_params('y', labelsize=font)
             ax.set(xlim=(min_year-1,max_year+1))
             ax.ticklabel_format(axis='x', style='plain', useOffset=False) #If I don't do this plt want to put the label to engineering notation
-            ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+            ax.xaxis.set_major_locator(MaxNLocator(integer=True,nbins=5,prune='both'))
             
     ymax=max(df_plot['bottom'].max(),ymax) #after each season I retrieve the maximum value to limit plot axis
     
     return ymax
 
-def production_month(df,min_year,max_year,anitypes,color_list): #To vizualize the sum of anime product each year for each season
+def production_season(df,min_year,max_year,anitypes,color_list): #To vizualize the sum of anime product each year for each season
     
     season_analyze=df.value_counts(['release-year','release-season','type']).reset_index(name='count') #count occurence and build the dataframe with a new column 'count'
 
@@ -80,10 +81,12 @@ def production_month(df,min_year,max_year,anitypes,color_list): #To vizualize th
     for color in picked_colors:
         custom_patches.append(Patch(facecolor=color, edgecolor='b')) 
     
+    print('plotting evolution of production by season')
+    
     for season,ax in zip(seasons,axes): #Season and plot goes together so I zip them
         df_season=select_years[select_years['release-season']==season].sort_values('release-year') #reducing the DataFrame to the season studied
 
-        # print('--------------'+season)
+        print('--------------'+season)
         
         ymax=stackbarcolor(df_season,anitypes,ax,season,picked_colors,'type','count','Count',max_year,min_year,ymax)
         
@@ -108,14 +111,14 @@ def production_year(df,min_year,max_year,anitypes,color_list): #To vizualize the
     #avoid colors mismatch when getting legend
     for color in picked_colors:
         custom_patches.append(Patch(facecolor=color, edgecolor='b'))
-        
+    
+    print('plotting evolution of production by year')    
+    
     fig, ax = plt.subplots(1,figsize=enlarge_fig) #building a subplot for the 4 seasons
     
     ymax=0
      
     df_year=select_years.sort_values('release-year') #reducing the DataFrame to the season studied
-
-        # print('--------------'+season)
         
     ymax=stackbarcolor(df_year,anitypes,ax,'',picked_colors,'type','count','Count',max_year,min_year,ymax)
         
@@ -128,6 +131,8 @@ def production_year(df,min_year,max_year,anitypes,color_list): #To vizualize the
 
 def episode(df,min_year,max_year,anitype,max_shown): #This function is showing the repartition of anime'lenght in the year
     select_year=df[(df['type']==anitype) & (df['episodes']>0) & (df['release-year']>=min_year) & (df['release-year']<=max_year)] #Limit my dataframe
+    
+    print('plotting evolution of anime length')
     
     fig, ax =plt.subplots(figsize=enlarge_fig)
     ax=sb.violinplot(x='release-year',y='episodes',data=select_year,bw=.05,cut=0, scale='width',inner='quartile',orientation='h') 
@@ -172,14 +177,16 @@ def source(df,min_year,max_year,anitypes,color_list,thresold):
     #avoid colors mismatch when getting legend
     for color in picked_colors:
         custom_patches.append(Patch(facecolor=color, edgecolor='b')) 
-                    
+    
+    print('plotting evolution of source material')    
+                
     if len(anitypes)>1:
         fig, axes = plt.subplots(2,3,figsize=enlarge_fig) #building a subplot for the 6 anime types
         axes = axes.flatten()
         
         for anime_type,ax in zip(anitypes,axes): #Season and plot goes together so I zip them
             df_type=select_years[select_years['type']==anime_type].sort_values('release-year') #reducing the DataFrame to the season studied I need the year to be at the right order for the stacking
-            # print('--------------'+anime_type)
+            print('--------------'+anime_type)
             
             stackbarcolor(df_type,sources,ax,anime_type,picked_colors,'source-material','percent','part of the diffusion',max_year,min_year)
             for ax in axes:
@@ -190,7 +197,7 @@ def source(df,min_year,max_year,anitypes,color_list,thresold):
         fig, ax = plt.subplots(1,1,figsize=enlarge_fig) #building a subplot for the one choosen
         df_type=select_years.sort_values('release-year') #reducing the DataFrame to the season studied I need the year to be at the right order for the stacking
         anime_type=anitypes[0]
-        # print('--------------'+anime_type)
+        print('--------------'+anime_type)
           
         stackbarcolor(df_type,sources,ax,anime_type,picked_colors,'source-material','percent','part of the diffusion',max_year,min_year)
         ax.set(ylim=(0,1))
@@ -245,7 +252,7 @@ while datavalid==False:
        print(anime_types)
 
 
-fig_prod_m=production_month(raw,start_year,end_year,type_to_viz,picked_colors)
+fig_prod_m=production_season(raw,start_year,end_year,type_to_viz,picked_colors)
 fig_prod_m.show()
 
 fig_prod_y=production_year(raw,start_year,end_year,type_to_viz,picked_colors)
