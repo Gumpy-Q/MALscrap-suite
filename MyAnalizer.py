@@ -55,7 +55,7 @@ def stackbarcolor(df_plot,cat_list,ax,plot_name,colors_list,cat_key,tosum_key,yl
             ax.tick_params('y', labelsize=font)
             ax.set(xlim=(min_year-1,max_year+1))
             ax.ticklabel_format(axis='x', style='plain', useOffset=False) #If I don't do this plt want to put the label to engineering notation
-            ax.xaxis.set_major_locator(MaxNLocator(integer=True,nbins=7,min_n_ticks=5,prune='both')) #give instruction how to handle the tick label: integer, nb of label, remove egde label
+            ax.xaxis.set_major_locator(MaxNLocator(integer=True,nbins=7,prune='both')) #give instruction how to handle the tick label: integer, nb of label, remove egde label
             
     ymax=max(df_plot['bottom'].max(),ymax) #after each season I retrieve the maximum value to limit plot axis
     
@@ -81,7 +81,7 @@ def production_season(df,min_year,max_year,anitypes,color_list): #To vizualize t
     for color in picked_colors:
         custom_patches.append(Patch(facecolor=color, edgecolor='b')) 
     
-    print('plotting evolution of production by season')
+    print('------------ plotting evolution of production by season ------------')
     
     for season,ax in zip(seasons,axes): #Season and plot goes together so I zip them
         df_season=select_years[select_years['release-season']==season].sort_values('release-year') #reducing the DataFrame to the season studied
@@ -93,7 +93,8 @@ def production_season(df,min_year,max_year,anitypes,color_list): #To vizualize t
     for ax in axes:
         ax.axis(ymax=ymax+5) #And then I set the limit
         ax.ticklabel_format(axis='x', style='plain', useOffset=False)
-        
+    
+    fig.text(0,-0.02,'Data collected with MALscraPy & Plot made with MyAnalizer | Scripts available at http://github.com/Gumpy-Q',fontsize=font, backgroundcolor='grey',style='italic',color='white')
     fig.suptitle('Evolution of the production',fontsize=font)
     fig.tight_layout()
     fig.legend(custom_patches, anitypes, bbox_to_anchor=(1,0.6), loc="upper left",fontsize=font)
@@ -112,7 +113,7 @@ def production_year(df,min_year,max_year,anitypes,color_list): #To vizualize the
     for color in picked_colors:
         custom_patches.append(Patch(facecolor=color, edgecolor='b'))
     
-    print('plotting evolution of production by year')    
+    print('------------ plotting evolution of production by year ------------')    
     
     fig, ax = plt.subplots(1,figsize=enlarge_fig) #building a subplot for the 4 seasons
     
@@ -124,6 +125,7 @@ def production_year(df,min_year,max_year,anitypes,color_list): #To vizualize the
         
     ax.axis(ymax=ymax+5) #And then I set the limit
     
+    fig.text(0,-0.02,'Data collected with MALscraPy & Plot made with MyAnalizer | Scripts available at http://github.com/Gumpy-Q',fontsize=font, backgroundcolor='grey',style='italic',color='white')
     fig.suptitle('Evolution of the production',fontsize=font)
     fig.tight_layout()
     fig.legend(custom_patches, anitypes, bbox_to_anchor=(1,0.6), loc="upper left",fontsize=font)
@@ -132,7 +134,7 @@ def production_year(df,min_year,max_year,anitypes,color_list): #To vizualize the
 def episode(df,min_year,max_year,anitype,max_shown): #This function is showing the repartition of anime'lenght in the year
     select_year=df[(df['type']==anitype) & (df['episodes']>0) & (df['release-year']>=min_year) & (df['release-year']<=max_year)] #Limit my dataframe
     
-    print('plotting evolution of anime length')
+    print('------------ plotting evolution of anime length ------------')
     
     fig, ax =plt.subplots(figsize=enlarge_fig)
     ax=sb.violinplot(x='release-year',y='episodes',data=select_year,bw=.05,cut=0, scale='width',inner='quartile',orientation='h') 
@@ -142,8 +144,9 @@ def episode(df,min_year,max_year,anitype,max_shown): #This function is showing t
     ax.xaxis.label.set_size(font)
     ax.set(ylim=(0,max_shown))
     ax.set_title('Repartion of anime length : '+ anitype,fontsize=font)
-    ax.xaxis.set_major_locator(MaxNLocator(integer=True,nbins=12,min_n_ticks=10,prune='both')) #
-        
+    ax.xaxis.set_major_locator(MaxNLocator(integer=True,nbins=12,prune='both')) #
+    
+    fig.text(0,-0.02,'Data collected with MALscraPy & Plot made with MyAnalizer | Scripts available at http://github.com/Gumpy-Q',fontsize=font, backgroundcolor='grey',style='italic',color='white') 
     fig.tight_layout()
     return fig    
 
@@ -201,7 +204,9 @@ def source(df,min_year,max_year,anitypes,color_list,thresold):
         stackbarcolor(df_type,sources,ax,anime_type,picked_colors,'source-material','percent','Part of the diffusion',max_year,min_year)
         ax.set(ylim=(0,1))
         ax.yaxis.set_major_formatter(PercentFormatter(xmax=1, decimals=0, symbol='%', is_latex=False))
+
     
+    fig.text(0,-0.02,'Data collected with MALscraPy & Plot made with MyAnalizer | Scripts available at http://github.com/Gumpy-Q',fontsize=font, backgroundcolor='grey',style='italic',color='white')
     fig.suptitle('Source of the adaptation (if less than '+str(thresold)+'% -> Other)',fontsize=font)          
     fig.tight_layout()
     fig.legend(custom_patches, sources, bbox_to_anchor=(1,0.6), loc="upper left",fontsize=font)
