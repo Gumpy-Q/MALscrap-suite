@@ -8,25 +8,51 @@ Created on Thu Apr  8 09:32:36 2021
 import pandas as pd
 import time
 
+
 import matplotlib.pyplot as plt
 from matplotlib import style
-import matplotlib.ticker as ticker
 from matplotlib.patches import Patch
 from matplotlib.ticker import PercentFormatter
 from matplotlib.ticker import MaxNLocator
-
 import seaborn as sb
+
+import PySimpleGUI as sg
+from sys import exit
+
 
 seasons=['winter','spring','summer','fall']
 anime_types=['TV (New)','TV (Continuing)','Special','OVA','ONA','Movie']
-style.use('ggplot') 
+style.use('ggplot')
+sg.theme('DefaultNoMoreNagging') 
 
-path='Data/MAL-all-from-winter1970-to-spring2021.csv'
+
+datavalid=False
+
+while datavalid==False:
+    layout = [[sg.Text('Path of the csv file')],
+            [sg.Input(default_text='Data/MAL-all-from-winter1970-to-present.csv'), sg.FileBrowse(file_types=(("csv Files", "*.csv"),))], 
+            [sg.OK(), sg.Cancel()]] 
+    window = sg.Window('Get path', layout)
+    event, values = window.read()
+    window.close()
+    if event==sg.WIN_CLOSED or event=='Cancel':
+        exit()  
+
+    path=values[0]
+    window.close()
+    try:
+        raw=pd.read_csv(path)
+        datavalid=True
+    except:
+        sg.popup('Could not read file.')    
 
 raw=pd.read_csv(path)
 
 raw['release-year']=raw['release-year'].astype(int) #I make sure they are integer as sometime it's interpreted as float
 raw['episodes']=raw['episodes'].astype(int)
+
+first_year=raw['release-year'].min()
+last_year=raw['release-year'].max()
 
 font='xx-large'
 enlarge_fig=(15,10)
@@ -215,36 +241,43 @@ def source(df,min_year,max_year,anitypes,color_list,thresold):
 
 datavalid=False
 while datavalid==False:
-    print('____________________________')
-    start_year=input("From which year do you want to visualize ? ")
+    layout = [[sg.Text('From which year do you want to visualize ? ')],
+            [sg.Text('Must be YYYY in range ['+str(first_year)+';'+str(time.localtime().tm_year+1)+']')],
+            [sg.Text('from'),sg.Spin([i for i in range(first_year,time.localtime().tm_year+2)], initial_value=first_year),sg.Text('to'),sg.Spin([i for i in range(first_year,time.localtime().tm_year+2)], initial_value=last_year)], 
+            [sg.OK(), sg.Cancel()]] 
+    window = sg.Window('Start point selection', layout)
+    event, values = window.read()
+    window.close()
+    
+    if event==sg.WIN_CLOSED or event=='Cancel':
+         exit()    
+
+    start_year=values[0]
+    end_year=values[1]
     try:
         start_year=int(start_year) #check if input is integer without breaking
-        if start_year<1917 or start_year>time.localtime().tm_year:
-            print('Invalid input. Must be YYYY in range [1917;'+str(time.localtime().tm_year+1)+']')
-        else:
-            datavalid=True
-    except:
-        print('Invalid input. Must be YYYY in range [1917;'+str(time.localtime().tm_year+1)+']')
-       
-datavalid=False
-while datavalid==False:
-    print('____________________________')
-    end_year=input("To which year do you want to visualize ? ")
-    try:
         end_year=int(end_year)
-        if end_year<start_year or end_year>time.localtime().tm_year:
-            print('Invalid input. Must be YYYY in range ['+str(start_year)+';'+str(time.localtime().tm_year)+']')
+        if start_year<1917 or start_year>time.localtime().tm_year or end_year<1917 or end_year>time.localtime().tm_year:
+            sg.popup('Invalid input. Must be YYYY in range ['+str(first_year)+';'+str(time.localtime().tm_year+1)+']')
+        elif start_year>end_year:
+            sg.popup('Start year is after end year')
         else:
             datavalid=True
     except:
-        print('Invalid input. Must be YYYY in range ['+str(start_year)+';'+str(time.localtime().tm_year)+']')
+        sg.popup('Invalid input. Must be YYYY in range ['+str(first_year)+';'+str(time.localtime().tm_year+1)+']')
+        
 
-print('____________________________')
-print("This is the list of content you can find in MyAnimeList: ",anime_types)
+anime_choose=['all']+anime_types
 type_to_viz=[]
 datavalid=False
 while datavalid==False:
-    type_chosen=input("Write one type you want to visualize (be careful of case !) or all for all of them: ")
+    layout = [[sg.Text('Which type of content do you want to plot ? ')],
+            [sg.Combo(anime_choose,default_value='all')], 
+            [sg.OK(), sg.Cancel()]]
+    window = sg.Window('Choosing anime type', layout)
+    event, values = window.read()
+    window.close()
+    type_chosen=values[0]
     if type_chosen in anime_types:
        type_to_viz.append(type_chosen)
        datavalid=True       
@@ -252,8 +285,7 @@ while datavalid==False:
        type_to_viz=anime_types
        datavalid=True    
     else:
-       print('____________________________')
-       print('Invalid input. Must be all or (be careful of case !): ')
+       sg.popup('Invalid input. Must be all or (be careful of case !): ')
        print(anime_types)
 
 

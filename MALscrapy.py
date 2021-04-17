@@ -12,6 +12,8 @@ import numpy as np
 import time
 from datetime import datetime
 from datetime import timedelta
+import PySimpleGUI as sg
+from sys import exit
 
 
 seasons=["winter","spring","summer","fall"]
@@ -19,18 +21,18 @@ formatting=['title','MAL_id','type','studio','release-season','release-year','re
 anime_types=['TV (New)','TV (Continuing)','ONA','OVA','Movie','Special']
 
 default_url='https://myanimelist.net/anime/season'
+sg.theme('DefaultNoMoreNagging')
 
-print("This script is going to scrap anime informations from MyAnimeList for a period of time you will determine later.")
-print('____________________________')
-print('Data will be retrieve in this format:')
-print(formatting)
-time.sleep(2)
-print('____________________________')
-print("A slight reminder: \n Winter starts in january \n Spring starts in april \n Summer starts in july \n Fall starts in october")
-print('____________________________')
-
-
-
+layout=[[sg.Text("This script is going to scrap anime informations from MyAnimeList for a period of time you will determine later.")],
+[sg.Text('____________________________')],
+[sg.Text('Data will be retrieve in this format:')],
+[sg.Text(formatting)],
+[sg.Text('____________________________')],
+[sg.Text("A slight reminder: \n Winter starts in january \n Spring starts in april \n Summer starts in july \n Fall starts in october")],
+[sg.OK()]]
+window = sg.Window('Start point selection', layout)
+window.read()
+window.close()
 
                 #SECTION 2 CHOICES
 #choose start year. I choose to limite the range to 1917 (first recorded anime on MAL) to present year+1
@@ -38,83 +40,105 @@ begin=time.time()
 
 datavalid=False
 while datavalid==False:
-    print('____________________________')
-    start_year=input("From which year do you want to scrap ? ")
+    layout = [[sg.Text('From which year do you want to visualize ? ')],
+            [sg.Text('Must be YYYY in range [1917;'+str(time.localtime().tm_year+1)+']')],
+            [sg.Text('from'),sg.Spin([i for i in range(1917,time.localtime().tm_year+2)], initial_value=time.localtime().tm_year-10),sg.Combo(seasons,default_value='winter')], 
+            [sg.OK(), sg.Cancel()]] 
+    window = sg.Window('Start point selection', layout)
+    event, values = window.read()
+    window.close()
+
+  
+    if event==sg.WIN_CLOSED or event=='Cancel':
+         exit()
+         
+    start_year=values[0]
+    start_season=values[1]
+    start_season_index=seasons.index(start_season)
+    
     try:
         start_year=int(start_year) #check if input is integer without breaking
-        if start_year<1917 or start_year>time.localtime().tm_year:
-            print('Invalid input. Must be YYYY in range [1917;'+str(time.localtime().tm_year+1)+']')
+        if start_year<1917 or start_year>time.localtime().tm_year+1:
+            sg.popup('Invalid input. Must be YYYY in range [1917;'+str(time.localtime().tm_year+1)+']')
         else:
             datavalid=True
     except:
-        print('Invalid input. Must be YYYY in range [1917;'+str(time.localtime().tm_year+1)+']')
+        sg.popup('Invalid input. Must be YYYY in range [1917;'+str(time.localtime().tm_year+1)+']')
 
-#season is an input I will check if in the season list
+        
 datavalid=False
 while datavalid==False:
-    print('____________________________')
-    start_season=str(input("From which season of "+str(start_year)+" do you want to scrap ? ")).lower()
-         
-    if start_season in seasons:
-        start_season_index=seasons.index(start_season) #I will need the position of start season in the list later
-        datavalid=True
-    else:
-        print('Invalid input. Must be one of the following:')
-        print(seasons)
-
-#Check if end year is in the acceptable range
-datavalid=False
-while datavalid==False:
-    print('____________________________')
-    end_year=input("To which year do you want to scrap ? ")
-    try:
-        end_year=int(end_year)
-        if end_year<start_year or end_year>time.localtime().tm_year:
-            print('Invalid input. Must be YYYY in range ['+str(start_year)+';'+str(time.localtime().tm_year)+']')
-        else:
-            datavalid=True
-    except:
-        print('Invalid input. Must be YYYY in range ['+str(start_year)+';'+str(time.localtime().tm_year)+']')
- 
-#Check if end season is: in list, not earlier than start season if in the same year
-datavalid=False
-while datavalid==False:
-    print('____________________________')
-    end_season=input("To which season of "+str(start_year)+" do you want to scrap ? ").lower()
+    layout = [[sg.Text('To which year do you want to visualize ? ')],
+            [sg.Text('Must be YYYY in range [1917;'+str(time.localtime().tm_year+1)+']')],
+            [sg.Text('to'),sg.Spin([i for i in range(start_year,time.localtime().tm_year+2)], initial_value=start_year),sg.Combo(seasons,default_value='fall')], 
+            [sg.OK(), sg.Cancel()]] 
+    window = sg.Window('End point selection', layout)
+    event, values = window.read()
+    window.close()
     
-    if end_season in seasons:
-        end_season_index=seasons.index(end_season)
-        if start_year==end_year:
+    if event==sg.WIN_CLOSED or event=='Cancel':
+         exit()
+         
+    end_year=values[0]
+    end_season=values[1]
+    end_season_index=seasons.index(end_season)
+    
+    try:
+        end_year=int(start_year) #check if input is integer without breaking
+        if start_year<1917 or end_year>start_year:
+            sg.popup('Invalid input. Must be YYYY in range ['+start_year+';'+str(time.localtime().tm_year+1)+']')
+        elif end_year==start_year:
             if start_season_index<=end_season_index: #position of end season must be greater than position of start season or equal
                 datavalid=True
             else:
-                print('Invalid input. End and start in same year but end season is sooner than start.')
+                sg.popup('Invalid input. End and start in same year but end season is sooner than start.')
+            
         else:
             datavalid=True
-    else:
-        print('Invalid input. Must be one of the following:')
-        print(seasons)
+    except:
+        sg.popup('Invalid input. Must be YYYY in range [1917;'+str(time.localtime().tm_year+1)+']')
 
-print('____________________________')
-print("This is the list of content you can find in MyAnimeList: ",anime_types)
+
+anime_choose=['all']+anime_types
 type_to_scrap=[]
-
 datavalid=False
 while datavalid==False:
-    type_chosen=input("Write one type you want to scrap (be careful of case !) or all for all of them: ")
+    layout = [[sg.Text('Which type of content do you want to scrap ? ')],
+            [sg.Combo(anime_choose,default_value='all')], 
+            [sg.OK(), sg.Cancel()]]
+    window = sg.Window('Choosing anime type', layout)
+    event, values = window.read()
+    window.close()
+    
+    if event==sg.WIN_CLOSED or event=='Cancel':
+         exit()
+         
+    type_chosen=values[0]
+    
     if type_chosen in anime_types:
-       type_to_scrap=type_chosen
+       type_to_scrap.append(type_chosen)
        datavalid=True       
     elif type_chosen=="all":
        type_to_scrap=anime_types
        datavalid=True    
     else:
-       print('____________________________')
-       print('Invalid input. Must be all or (be careful of case !): ')
+       sg.popup('Invalid input. Must be all or (be careful of case !): ')
        print(anime_types)
     
 print('____________________________')
-sleep_time=int(input('How many seconds between two requests ? \nWARNING fast requests might get your IP ban (I used 2 seconds to build my datasets) '))
+
+layout = [[sg.Text('How many seconds between two requests ? ')],
+          [sg.Text('WARNING fast requests might get your IP ban (I used 2 seconds to build my datasets)')],
+          [sg.Slider(range=(0,10),default_value=2,orientation='horizontal')],
+          [sg.OK(), sg.Cancel()]]
+window = sg.Window('Choosing anime type', layout)
+event, values = window.read()
+window.close()
+
+if event==sg.WIN_CLOSED or event=='Cancel':
+         exit()
+    
+sleep_time=values[0]
 
 
 
@@ -123,7 +147,7 @@ def seasonscrap(season,year,anime_type):
     url=default_url+"/"+str(year)+'/'+season    #url to scrap
     headers=({'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:53.0) Gecko/20100101 Firefox/53.0','Accept-Language':'fr-FR,q=0.5'})
     r=requests.get(url,headers)
-    soup=BeautifulSoup(r.content,'lxml')
+    soup=BeautifulSoup(r.content,'html.parser')
     
     season_scrap={}
     for key in formatting:
@@ -215,27 +239,39 @@ pd.to_numeric(scrap['episodes'], downcast='integer')
 output=["html","json","csv","excel"]
 
 compute_time=round(time.time()-begin)
-print('time to scrap'+str(timedelta(seconds=compute_time))) 
-path='Data/MAL-'+type_chosen+'-from-'+start_season+str(start_year)+'-to-'+end_season+str(end_year)
+sg.popup('time to scrap: '+str(timedelta(seconds=compute_time))) 
+path='Data/'
+filename='/MAL-'+type_chosen+'-from-'+start_season+str(start_year)+'-to-'+end_season+str(end_year)
 
 datavalid=False
 while datavalid==False:
     print(output)
-    output_format=input("Which output format do you want from the list upside: ").lower()
+    layout = [  [sg.Text('Path to save')],
+            [sg.Input(default_text=path), sg.FolderBrowse()],
+            [sg.Text('Output format:'),sg.Combo(output,default_value='csv')],
+            [sg.OK(), sg.Cancel()]] 
+
+    window = sg.Window('Get path', layout)
+
+    event, values = window.read()
+    window.close()
+
+    if event==sg.WIN_CLOSED or event=='Cancel':
+        exit()  
     
+    path=values[0]
+    output_format=values[1]
     if output_format in output:
         datavalid=True
         if output_format=='html':
-            scrap.to_html(path+'.html',index=False)
+            scrap.to_html(path+filename+'.html',index=False)
         elif output_format=='json':
-            scrap.to_json(path+'.json')
+            scrap.to_json(path+filename+'.json')
         elif output_format=='csv':
-            scrap.to_csv(path+'.csv',index=False)
+            scrap.to_csv(path+filename+'.csv',index=False)
         elif output_format=='excel':
-            scrap.to_excel(path+'.xlsx',index=False)
+            scrap.to_excel(path+filename+'.xlsx',index=False)
         else:
             print('Invalid Input.')
 
-
-
-input("press any key to quit: ")       
+sg.popup('File saved as ' + path+filename+'.'+output_format)       
