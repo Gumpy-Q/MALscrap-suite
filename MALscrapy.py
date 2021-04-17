@@ -30,7 +30,7 @@ layout=[[sg.Text("This script is going to scrap anime informations from MyAnimeL
 [sg.Text('____________________________')],
 [sg.Text("A slight reminder: \n Winter starts in january \n Spring starts in april \n Summer starts in july \n Fall starts in october")],
 [sg.OK()]]
-window = sg.Window('Start point selection', layout)
+window = sg.Window('Introduction', layout)
 window.read()
 window.close()
 
@@ -84,8 +84,8 @@ while datavalid==False:
     end_season_index=seasons.index(end_season)
     
     try:
-        end_year=int(start_year) #check if input is integer without breaking
-        if start_year<1917 or end_year>start_year:
+        end_year=int(end_year) #check if input is integer without breaking
+        if end_year<1917 or end_year<start_year:
             sg.popup('Invalid input. Must be YYYY in range ['+start_year+';'+str(time.localtime().tm_year+1)+']')
         elif end_year==start_year:
             if start_season_index<=end_season_index: #position of end season must be greater than position of start season or equal
@@ -198,7 +198,7 @@ def seasonscrap(season,year,anime_type):
                 
             print('Finish scraping '+season_type.find('div',{'class':'anime-header'}).string+' of '+season+' '+str(year))
             print('____________________________')
-        else:
+        else: 
             continue
     
     print('Script will sleep for '+str(sleep_time) +'  seconds')
@@ -228,6 +228,7 @@ for year in years:
         seasons_to_scrap=seasons #For other years betweend start and end, I want all of them
         
     for season_to_scrap in seasons_to_scrap:
+
         df_n=pd.DataFrame(seasonscrap(season_to_scrap,year,type_to_scrap)) #I bluid a DataFrame around my data
         scrap=pd.concat([scrap,df_n]) #add the new data to the end of the data Frame
 
