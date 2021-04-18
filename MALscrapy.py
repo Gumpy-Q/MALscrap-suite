@@ -195,7 +195,7 @@ def seasonscrap(season,year,anime_type):
                     season_scrap['episodes'].append(int(0))
                 
                 
-            print('Finish scraping '+season_type.find('div',{'class':'anime-header'}).string+' of '+season+' '+str(year))
+            print('Finished scraping '+season_type.find('div',{'class':'anime-header'}).string+' of '+season+' '+str(year))
         else: 
             continue
     print('____________________________')
@@ -240,12 +240,15 @@ for year in years:
         if event==sg.WIN_CLOSED or event=='Cancel':
             window.close()
             exit()
-        progress_bar.UpdateBar(season_scraped)
-        
+             
         df_n=pd.DataFrame(seasonscrap(season_to_scrap,year,type_to_scrap)) #I bluid a DataFrame around my data
+
+        season_scraped+=1
+        progress_bar.UpdateBar(season_scraped)
+        window.refresh()
+
         scrap=pd.concat([scrap,df_n]) #add the new data to the end of the data Frame
         
-        season_scraped+=1
         time.sleep(sleep_time)
         
 window.close()
