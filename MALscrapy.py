@@ -213,9 +213,8 @@ years=np.arange(start_year,end_year+1,1) #building a vector of years from start 
 scrap=pd.DataFrame(dict.fromkeys(formatting,[])) #initializing my dictionary
 
 layout = [[sg.Text('Current progress')],
-          [sg.ProgressBar(4*(1+end_year-start_year), orientation='h', size=(50, 20), key='progressbar')],
           [sg.Output(size=(80,12))],
-          
+          [sg.ProgressBar(4*(1+end_year-start_year), orientation='h', size=(51, 20), key='progressbar')],
           [sg.Cancel()]]
 
 window = sg.Window('Progress', layout)
@@ -241,7 +240,7 @@ for year in years:
         
     for season_to_scrap in seasons_to_scrap:
         
-        event,values=window.read(timeout=2+sleep_time)
+        event,values=window.read(timeout=5+sleep_time)
         if event==sg.WIN_CLOSED or event=='Cancel':
             window.close()
             exit()
