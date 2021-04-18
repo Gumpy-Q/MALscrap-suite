@@ -42,7 +42,3 @@ When you will run the script, follow the instructions in GUI.
 ![Source of the anime adaptation from 2000 to 2021](https://github.com/Gumpy-Q/MALscraPy/blob/main/source%2000%20to%2021.png)
 ![New anime length from 1990 to 2021](https://github.com/Gumpy-Q/MALscraPy/blob/main/episode%20new%2090%20to%2021.png)
 ![Continued anime length from 1990 to 2021](https://github.com/Gumpy-Q/MALscraPy/blob/main/episode%20continue%2090%20to%2021.png)
-
-
-### Known issue
-When showing the plot from IDLE or python command prompt, the legends don't appear. It works in a Notebook and with Spyder.
