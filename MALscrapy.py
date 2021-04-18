@@ -25,10 +25,10 @@ sg.theme('DefaultNoMoreNagging')
 
 layout=[[sg.Text("This script is going to scrap anime informations from MyAnimeList for a period of time you will determine later.")],
 [sg.Text('____________________________')],
-[sg.Text('Data will be retrieve in this format:')],
-[sg.Text(formatting)],
+[sg.Text('Data will be retrieved in this format:')],
+[[sg.Text('  ')] + [sg.Text(h+'  |') for h in formatting]],
 [sg.Text('____________________________')],
-[sg.Text("A slight reminder: \n Winter starts in january \n Spring starts in april \n Summer starts in july \n Fall starts in october")],
+[sg.Text("A little reminder: \n Winter starts in january \n Spring starts in april \n Summer starts in july \n Fall starts in october")],
 [sg.OK()]]
 window = sg.Window('Introduction', layout)
 window.read()
@@ -40,9 +40,9 @@ begin=time.time()
 
 datavalid=False
 while datavalid==False:
-    layout = [[sg.Text('From which year do you want to visualize ? ')],
+    layout = [[sg.Text('From which year do you want to scrap ? ')],
             [sg.Text('Must be YYYY in range [1917;'+str(time.localtime().tm_year+1)+']')],
-            [sg.Text('from'),sg.Spin([i for i in range(1917,time.localtime().tm_year+2)], initial_value=time.localtime().tm_year-10),sg.Combo(seasons,default_value='winter')], 
+            [sg.Text('From'),sg.Spin([i for i in range(1917,time.localtime().tm_year+2)], initial_value=time.localtime().tm_year-10),sg.Text('season'),sg.Combo(seasons,default_value='winter')], 
             [sg.OK(), sg.Cancel()]] 
     window = sg.Window('Start point selection', layout)
     event, values = window.read()
@@ -68,9 +68,9 @@ while datavalid==False:
         
 datavalid=False
 while datavalid==False:
-    layout = [[sg.Text('To which year do you want to visualize ? ')],
+    layout = [[sg.Text('Until which year do you want to scrap ? ')],
             [sg.Text('Must be YYYY in range [1917;'+str(time.localtime().tm_year+1)+']')],
-            [sg.Text('to'),sg.Spin([i for i in range(start_year,time.localtime().tm_year+2)], initial_value=start_year),sg.Combo(seasons,default_value='fall')], 
+            [sg.Text('Until'),sg.Spin([i for i in range(start_year,time.localtime().tm_year+2)], initial_value=start_year),sg.Text('season'),sg.Combo(seasons,default_value='fall')], 
             [sg.OK(), sg.Cancel()]] 
     window = sg.Window('End point selection', layout)
     event, values = window.read()
@@ -91,7 +91,7 @@ while datavalid==False:
             if start_season_index<=end_season_index: #position of end season must be greater than position of start season or equal
                 datavalid=True
             else:
-                sg.popup('Invalid input. End and start in same year but end season is sooner than start.')
+                sg.popup('Invalid input. End and start in same the year but end season is sooner than start.')
             
         else:
             datavalid=True

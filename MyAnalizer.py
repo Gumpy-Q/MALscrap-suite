@@ -87,6 +87,9 @@ def stackbarcolor(df_plot,cat_list,ax,plot_name,colors_list,cat_key,tosum_key,yl
     
     return ymax
 
+def signature(fig):
+    fig.text(0,-0.02,'Data collected with MALscraPy & Plot made with MyAnalizer | Scripts available at http://github.com/Gumpy-Q',fontsize=font, backgroundcolor='grey',style='italic',color='white')
+
 def production_season(df,min_year,max_year,anitypes,color_list): #To vizualize the sum of anime product each year for each season
     
     season_analyze=df.value_counts(['release-year','release-season','type']).reset_index(name='count') #count occurence and build the dataframe with a new column 'count'
@@ -120,7 +123,7 @@ def production_season(df,min_year,max_year,anitypes,color_list): #To vizualize t
         ax.axis(ymax=ymax+5) #And then I set the limit
         ax.ticklabel_format(axis='x', style='plain', useOffset=False)
     
-    fig.text(0,-0.02,'Data collected with MALscraPy & Plot made with MyAnalizer | Scripts available at http://github.com/Gumpy-Q',fontsize=font, backgroundcolor='grey',style='italic',color='white')
+    signature(fig)
     fig.suptitle('Evolution of the production',fontsize=font)
     fig.tight_layout()
     fig.legend(custom_patches, anitypes, bbox_to_anchor=(1,0.6), loc="upper left",fontsize=font)
@@ -151,7 +154,7 @@ def production_year(df,min_year,max_year,anitypes,color_list): #To vizualize the
         
     ax.axis(ymax=ymax+5) #And then I set the limit
     
-    fig.text(0,-0.02,'Data collected with MALscraPy & Plot made with MyAnalizer | Scripts available at http://github.com/Gumpy-Q',fontsize=font, backgroundcolor='grey',style='italic',color='white')
+    signature(fig)
     fig.suptitle('Evolution of the production',fontsize=font)
     fig.tight_layout()
     fig.legend(custom_patches, anitypes, bbox_to_anchor=(1,0.6), loc="upper left",fontsize=font)
@@ -172,7 +175,7 @@ def episode(df,min_year,max_year,anitype,max_shown): #This function is showing t
     ax.set_title('Repartion of anime length : '+ anitype,fontsize=font)
     ax.xaxis.set_major_locator(MaxNLocator(integer=True,nbins=12,prune='both')) #
     
-    fig.text(0,-0.02,'Data collected with MALscraPy & Plot made with MyAnalizer | Scripts available at http://github.com/Gumpy-Q',fontsize=font, backgroundcolor='grey',style='italic',color='white') 
+    signature(fig)
     fig.tight_layout()
     return fig    
 
@@ -232,7 +235,7 @@ def source(df,min_year,max_year,anitypes,color_list,thresold):
         ax.yaxis.set_major_formatter(PercentFormatter(xmax=1, decimals=0, symbol='%', is_latex=False))
 
     
-    fig.text(0,-0.02,'Data collected with MALscraPy & Plot made with MyAnalizer | Scripts available at http://github.com/Gumpy-Q',fontsize=font, backgroundcolor='grey',style='italic',color='white')
+    signature(fig)
     fig.suptitle('Source of the adaptation (if less than '+str(thresold)+'% -> Other)',fontsize=font)          
     fig.tight_layout()
     fig.legend(custom_patches, sources, bbox_to_anchor=(1,0.6), loc="upper left",fontsize=font)
@@ -241,11 +244,11 @@ def source(df,min_year,max_year,anitypes,color_list,thresold):
 
 datavalid=False
 while datavalid==False:
-    layout = [[sg.Text('From which year do you want to visualize ? ')],
+    layout = [[sg.Text('Which years do you want to view ? ')],
             [sg.Text('Must be YYYY in range ['+str(first_year)+';'+str(time.localtime().tm_year+1)+']')],
-            [sg.Text('from'),sg.Spin([i for i in range(first_year,time.localtime().tm_year+2)], initial_value=first_year),sg.Text('to'),sg.Spin([i for i in range(first_year,time.localtime().tm_year+2)], initial_value=last_year)], 
+            [sg.Text('From'),sg.Spin([i for i in range(first_year,time.localtime().tm_year+2)], initial_value=first_year),sg.Text('until'),sg.Spin([i for i in range(first_year,time.localtime().tm_year+2)], initial_value=last_year)], 
             [sg.OK(), sg.Cancel()]] 
-    window = sg.Window('Start point selection', layout)
+    window = sg.Window('Interval selection', layout)
     event, values = window.read()
     window.close()
     
