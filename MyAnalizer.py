@@ -27,7 +27,9 @@ style.use('ggplot')
 sg.theme('DefaultNoMoreNagging') 
 
 font='xx-large'
-enlarge_fig=(15,10)
+leg_position='center right'
+adjust={'bottom':0.11,'right':0.82,'wspace':0.35}
+enlarge_fig=(18,10)
 picked_colors=['#e6194B', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#42d4f4', '#f032e6', '#bfef45', '#fabed4', '#469990', '#dcbeff', '#9A6324', '#fffac8', '#800000', '#aaffc3', '#808000', '#ffd8b1', '#000075', '#a9a9a9', '#ffffff', '#000000']
 
                 #SECTION 2 CHOICE
@@ -163,7 +165,7 @@ def stackbarcolor(df_plot,cat_list,ax,plot_name,colors_list,cat_key,tosum_key,yl
     return ymax
 
 def signature(fig):
-    fig.text(0,-0.02,'Data collected with MALscraPy & Plot made with MyAnalizer | Scripts available at http://github.com/Gumpy-Q',fontsize=font, backgroundcolor='grey',style='italic',color='white')
+    fig.text(0,0.005,' Data collected with MALscraPy & Plot made with MyAnalizer | Scripts available at http://github.com/Gumpy-Q',fontsize=font, backgroundcolor='grey',style='italic',color='white')
 
 def production_season(df,min_year,max_year,anitypes,color_list): #To vizualize the sum of anime product each year for each season
     
@@ -200,8 +202,13 @@ def production_season(df,min_year,max_year,anitypes,color_list): #To vizualize t
     
     signature(fig)
     fig.suptitle('Evolution of the production',fontsize=font)
-    fig.tight_layout()
-    fig.legend(custom_patches, anitypes, bbox_to_anchor=(1,0.6), loc="upper left",fontsize=font)
+    fig.legend(custom_patches, anitypes, loc=leg_position,fontsize=font)
+    
+    fig.tight_layout()    
+    fig.subplots_adjust(right=adjust['right'],bottom=adjust['bottom'],wspace=adjust['wspace'])
+       
+    fig.savefig(savepath+'/season_evolution-'+str(start_year)+'-'+str(end_year))
+    fig.show()
     return fig
 
 def production_year(df,min_year,max_year,anitypes,color_list): #To vizualize the sum of anime product each year for each season
@@ -231,8 +238,14 @@ def production_year(df,min_year,max_year,anitypes,color_list): #To vizualize the
     
     signature(fig)
     fig.suptitle('Evolution of the production',fontsize=font)
-    fig.tight_layout()
-    fig.legend(custom_patches, anitypes, bbox_to_anchor=(1,0.6), loc="upper left",fontsize=font)
+    fig.legend(custom_patches, anitypes, loc=leg_position,fontsize=font)
+
+    fig.tight_layout()    
+    fig.subplots_adjust(right=adjust['right'],bottom=adjust['bottom'])
+       
+    fig.savefig(savepath+'/year_evolution'+str(start_year)+'-'+str(end_year))
+    fig.show()
+
     return fig
 
 def episode(df,min_year,max_year,anitype,max_shown): #This function is showing the repartition of anime'lenght in the year
@@ -251,7 +264,13 @@ def episode(df,min_year,max_year,anitype,max_shown): #This function is showing t
     ax.xaxis.set_major_locator(MaxNLocator(integer=True,nbins=12,prune='both')) #
     
     signature(fig)
-    fig.tight_layout()
+    
+    fig.tight_layout()    
+    fig.subplots_adjust(bottom=adjust['bottom'])
+    
+    fig.savefig(savepath+'/episode_'+anitype+'-'+str(start_year)+'-'+str(end_year))
+    fig.show()
+    
     return fig    
 
 def source(df,min_year,max_year,anitypes,color_list,thresold): 
@@ -309,14 +328,31 @@ def source(df,min_year,max_year,anitypes,color_list,thresold):
         ax.set(ylim=(0,1))
         ax.yaxis.set_major_formatter(PercentFormatter(xmax=1, decimals=0, symbol='%', is_latex=False))
 
-    
+    fig.legend(custom_patches, sources, loc=leg_position,fontsize=font)
     signature(fig)
     fig.suptitle('Source of the adaptation (if less than '+str(thresold)+'% -> Other)',fontsize=font)          
-    fig.tight_layout()
-    fig.legend(custom_patches, sources, bbox_to_anchor=(1,0.6), loc="upper left",fontsize=font)
+   
+    fig.tight_layout()    
+    fig.subplots_adjust(right=adjust['right'],bottom=adjust['bottom'],wspace=adjust['wspace'])
+       
+    fig.savefig(savepath+'/source-'+str(start_year)+'-'+str(end_year))
+    fig.show()
     
     return fig
                 #SECTION 4 PRODUCTING PLOTS
+layout = [[sg.Text('Path to save plots')],
+          [sg.Input(default_text='plot'), sg.FolderBrowse()],
+          [sg.Ok(),sg.Cancel()]]
+
+window = sg.Window('Saving plot', layout)
+event,values=window.read()
+window.close()
+
+if event==sg.WIN_CLOSED or event=='Cancel':
+    window.close()
+    exit()  
+
+savepath=values[0]    
 
 layout = [[sg.Text('Current progress')],
           [sg.Output(size=(80,12))],
@@ -330,7 +366,7 @@ if event==sg.WIN_CLOSED or event=='Cancel':
 
 if plot_to_viz['Season evolution']==True:
     fig_prod_m=production_season(raw,start_year,end_year,type_to_viz,picked_colors)
-    fig_prod_m.show()
+
 event,values=window.read(timeout=5)
 if event==sg.WIN_CLOSED or event=='Cancel':
     window.close()
@@ -338,7 +374,7 @@ if event==sg.WIN_CLOSED or event=='Cancel':
 
 if plot_to_viz['Year evolution']==True:
     fig_prod_y=production_year(raw,start_year,end_year,type_to_viz,picked_colors)
-    fig_prod_y.show()
+
 event,values=window.read(timeout=5)
 if event==sg.WIN_CLOSED or event=='Cancel':
     window.close()
@@ -346,7 +382,7 @@ if event==sg.WIN_CLOSED or event=='Cancel':
     
 if plot_to_viz['Source repartition']==True:    
     fig_source=source(raw,start_year,end_year,type_to_viz,picked_colors,2.5)
-    fig_source.show()
+
 event,values=window.read(timeout=5)
 if event==sg.WIN_CLOSED or event=='Cancel':
     window.close()
@@ -354,7 +390,7 @@ if event==sg.WIN_CLOSED or event=='Cancel':
     
 if plot_to_viz['TV (New) length']==True:    
     fig_ep=episode(raw,start_year,end_year,'TV (New)',60)
-    fig_ep.show()
+
 event,values=window.read(timeout=5)
 if event==sg.WIN_CLOSED or event=='Cancel':
     window.close()
@@ -362,7 +398,7 @@ if event==sg.WIN_CLOSED or event=='Cancel':
     
 if plot_to_viz['TV (Continuing) length']==True:    
     fig_ep=episode(raw,start_year,end_year,'TV (Continuing)',150)
-    fig_ep.show()
+
 event,values=window.read(timeout=5)
 if event==sg.WIN_CLOSED or event=='Cancel':
     window.close()
