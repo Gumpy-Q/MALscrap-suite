@@ -47,7 +47,6 @@ while datavalid==False:
     window = sg.Window('Start point selection', layout)
     event, values = window.read()
     window.close()
-
   
     if event==sg.WIN_CLOSED or event=='Cancel':
          exit()
@@ -88,6 +87,7 @@ while datavalid==False:
         if end_year<1917 or end_year<start_year:
             sg.popup('Invalid input. Must be YYYY in range ['+start_year+';'+str(time.localtime().tm_year+1)+']')
         elif end_year==start_year:
+            
             if start_season_index<=end_season_index: #position of end season must be greater than position of start season or equal
                 datavalid=True
             else:
@@ -99,12 +99,11 @@ while datavalid==False:
         sg.popup('Invalid input. Must be YYYY in range [1917;'+str(time.localtime().tm_year+1)+']')
 
 
-anime_choose=['all']+anime_types
 type_to_scrap=[]
 datavalid=False
 while datavalid==False:
     layout = [[sg.Text('Which type of content do you want to scrap ? ')],
-            [sg.Combo(anime_choose,default_value='all')], 
+            [[sg.CBox(anitype, default=True) for anitype in anime_types]], 
             [sg.OK(), sg.Cancel()]]
     window = sg.Window('Choosing anime type', layout)
     event, values = window.read()
@@ -112,18 +111,18 @@ while datavalid==False:
     
     if event==sg.WIN_CLOSED or event=='Cancel':
          exit()
-         
-    type_chosen=values[0]
     
-    if type_chosen in anime_types:
-       type_to_scrap.append(type_chosen)
-       datavalid=True       
-    elif type_chosen=="all":
-       type_to_scrap=anime_types
-       datavalid=True    
+    for i in range(len(values)):
+        if values[i]==True:
+            type_to_scrap.append(anime_types[i])
+    
+    if len(type_to_scrap)!=0:
+        datavalid=True
     else:
-       sg.popup('Invalid input. Must be all or (be careful of case !): ')
-       print(anime_types)
+        sg.popup('At least one box must be checked')
+    
+         
+
     
 print('____________________________')
 
@@ -142,7 +141,7 @@ sleep_time=values[0]
 
 
 
-                #SECTION 3 scrapper fonction
+                #SECTION 3 scraper fonction
 def seasonscrap(season,year,anime_type):
     url=default_url+"/"+str(year)+'/'+season    #url to scrap
     headers=({'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:53.0) Gecko/20100101 Firefox/53.0','Accept-Language':'fr-FR,q=0.5'})
@@ -203,7 +202,6 @@ def seasonscrap(season,year,anime_type):
     print('anime for this season: '+str(pd.DataFrame(season_scrap).shape[0]))
     print('Script will sleep for '+str(sleep_time) +'  seconds')
     print('____________________________')
-    time.sleep(sleep_time)
     return season_scrap
 
 
@@ -223,33 +221,33 @@ season_scraped=0
 
 
 #I need to give the seasons I want to scrape depending if: start year, end year, start=end
-for year in years:
-    
+for year in years:   
     if year==start_year:
+        
         if year==end_year:
             seasons_to_scrap=seasons[start_season_index:end_season_index+1] #if start=end then I just want the season between
-
         else:
             seasons_to_scrap=seasons[start_season_index:] #I remove the season before start season for start year
 
     elif year==end_year:
         seasons_to_scrap=seasons[:end_season_index+1] #I remove season after end season if end year
-
     else:
         seasons_to_scrap=seasons #For other years betweend start and end, I want all of them
         
     for season_to_scrap in seasons_to_scrap:
-        
+        #show progress of scraping
         event,values=window.read(timeout=5+sleep_time)
         if event==sg.WIN_CLOSED or event=='Cancel':
             window.close()
             exit()
         progress_bar.UpdateBar(season_scraped)
+        
         df_n=pd.DataFrame(seasonscrap(season_to_scrap,year,type_to_scrap)) #I bluid a DataFrame around my data
         scrap=pd.concat([scrap,df_n]) #add the new data to the end of the data Frame
         
         season_scraped+=1
-
+        time.sleep(sleep_time)
+        
 window.close()
 
 scrap.reset_index(drop=True, inplace=True) #reset l'index qui est chamboulé par le concat
@@ -261,7 +259,15 @@ output=["html","json","csv","excel"]
 
 compute_time=round(time.time()-begin)
 sg.popup('time to scrap: '+str(timedelta(seconds=compute_time))) 
-path='Data/'
+path='Data'
+
+if len(type_to_scrap)==1:
+    type_chosen=type_to_scrap[0]
+elif len(type_to_scrap)==6:
+    type_chosen='all'
+else:
+    type_chosen='custom'
+
 filename='/MAL-'+type_chosen+'-from-'+start_season+str(start_year)+'-to-'+end_season+str(end_year)
 
 datavalid=False
@@ -282,17 +288,17 @@ while datavalid==False:
     
     path=values[0]
     output_format=values[1]
-    if output_format in output:
-        datavalid=True
-        if output_format=='html':
-            scrap.to_html(path+filename+'.html',index=False)
-        elif output_format=='json':
-            scrap.to_json(path+filename+'.json')
-        elif output_format=='csv':
-            scrap.to_csv(path+filename+'.csv',index=False)
-        elif output_format=='excel':
-            scrap.to_excel(path+filename+'.xlsx',index=False)
-        else:
-            print('Invalid Input.')
+    
+    if output_format=='html':
+        scrap.to_html(path+filename+'.html',index=False)
+    elif output_format=='json':
+        scrap.to_json(path+filename+'.json')
+    elif output_format=='csv':
+        scrap.to_csv(path+filename+'.csv',index=False)
+    elif output_format=='excel':
+        scrap.to_excel(path+filename+'.xlsx',index=False)
+    
+    datavalid=True
 
-sg.popup('File saved as ' + path+filename+'.'+output_format)       
+
+sg.popup('File saved as \n' + path+''+filename+'.'+output_format)       
