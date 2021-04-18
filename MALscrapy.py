@@ -69,7 +69,7 @@ while datavalid==False:
 datavalid=False
 while datavalid==False:
     layout = [[sg.Text('Until which year do you want to scrap ? ')],
-            [sg.Text('Must be YYYY in range [1917;'+str(time.localtime().tm_year+1)+']')],
+            [sg.Text('Must be YYYY in range ['+str(start_year)+';'+str(time.localtime().tm_year+1)+']')],
             [sg.Text('Until'),sg.Spin([i for i in range(start_year,time.localtime().tm_year+2)], initial_value=start_year),sg.Text('season'),sg.Combo(seasons,default_value='fall')], 
             [sg.OK(), sg.Cancel()]] 
     window = sg.Window('End point selection', layout)
@@ -197,13 +197,13 @@ def seasonscrap(season,year,anime_type):
                 
                 
             print('Finish scraping '+season_type.find('div',{'class':'anime-header'}).string+' of '+season+' '+str(year))
-            print('____________________________')
         else: 
             continue
-    
-    print('Script will sleep for '+str(sleep_time) +'  seconds')
-    time.sleep(sleep_time)
+    print('____________________________')
     print('anime for this season: '+str(pd.DataFrame(season_scrap).shape[0]))
+    print('Script will sleep for '+str(sleep_time) +'  seconds')
+    print('____________________________')
+    time.sleep(sleep_time)
     return season_scrap
 
 
@@ -212,8 +212,20 @@ def seasonscrap(season,year,anime_type):
 years=np.arange(start_year,end_year+1,1) #building a vector of years from start to end year
 scrap=pd.DataFrame(dict.fromkeys(formatting,[])) #initializing my dictionary
 
+layout = [[sg.Text('Current progress')],
+          [sg.ProgressBar(4*(1+end_year-start_year), orientation='h', size=(50, 20), key='progressbar')],
+          [sg.Output(size=(80,12))],
+          
+          [sg.Cancel()]]
+
+window = sg.Window('Progress', layout)
+progress_bar = window['progressbar']
+season_scraped=0
+
+
 #I need to give the seasons I want to scrape depending if: start year, end year, start=end
 for year in years:
+    
     if year==start_year:
         if year==end_year:
             seasons_to_scrap=seasons[start_season_index:end_season_index+1] #if start=end then I just want the season between
@@ -228,9 +240,18 @@ for year in years:
         seasons_to_scrap=seasons #For other years betweend start and end, I want all of them
         
     for season_to_scrap in seasons_to_scrap:
-
+        
+        event,values=window.read(timeout=2+sleep_time)
+        if event==sg.WIN_CLOSED or event=='Cancel':
+            window.close()
+            exit()
+        progress_bar.UpdateBar(season_scraped)
         df_n=pd.DataFrame(seasonscrap(season_to_scrap,year,type_to_scrap)) #I bluid a DataFrame around my data
         scrap=pd.concat([scrap,df_n]) #add the new data to the end of the data Frame
+        
+        season_scraped+=1
+
+window.close()
 
 scrap.reset_index(drop=True, inplace=True) #reset l'index qui est chamboulé par le concat
 pd.to_numeric(scrap['release-year'], downcast='integer')              
