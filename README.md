@@ -14,9 +14,9 @@ Use the latest executable [here](https://github.com/Gumpy-Q/MALscraPy/releases/)
 ### Run it
 When you will run the exe, follow the instructions in GUI.
 
-Beware: scraping large temporal range might be a bit RAM intensive (600 MB for 2021 to 2010)
+Beware: scraping large temporal range might be a bit RAM intensive (600 MB for 2020 to 2010)
 
-This may not be the fastest way to scrap MAL but it gets the job done (3m45s for 2021 to 2010)
+This may not be the fastest way to scrap MAL but it gets the job done (3m45s for 2020 to 2010)
 
 ## Want to run, read or modify the script with Python ?
 ### Requisites
