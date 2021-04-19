@@ -29,7 +29,8 @@ You only need to install [Python]( https://www.python.org/downloads/) and its fo
 
 # MyAnalizer
 Want to visualize the juicy data you have just scraped ? Here it is !
-AS for now this scripts can draw 3 kind of plots:
+
+As for now this scripts can draw 3 kind of plots:
 * Evolution of production (year & season)
 * Source material of anime production
 * Length of anime aired (New production & Production continuing release)
