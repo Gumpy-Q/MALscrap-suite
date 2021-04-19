@@ -146,31 +146,6 @@ def production_year(df,min_year,max_year,anitypes,color_list): #To vizualize the
 
     return fig
 
-def episode(df,min_year,max_year,anitype,max_shown): #This function is showing the repartition of anime'lenght in the year
-    select_year=df[(df['type']==anitype) & (df['episodes']>0) & (df['release-year']>=min_year) & (df['release-year']<=max_year)] #Limit my dataframe
-    
-    print('------------ plotting evolution of anime length ------------')
-    
-    fig, ax =plt.subplots(figsize=enlarge_fig)
-    ax=sb.violinplot(x='release-year',y='episodes',data=select_year,bw=.05,cut=0, scale='width',inner='quartile',orientation='h') 
-    ax.tick_params('x',labelrotation=45, labelsize=font)
-    ax.tick_params('y', labelsize=font)
-    ax.set_ylabel('Number of episodes per anime',fontsize=font)
-    ax.xaxis.label.set_size(font)
-    ax.set(ylim=(0,max_shown))
-    ax.set_title('Repartion of anime length : '+ anitype,fontsize=font)
-    ax.xaxis.set_major_locator(MaxNLocator(integer=True,nbins=12,prune='both')) #
-    
-    signature(fig)
-    
-    fig.tight_layout()    
-    fig.subplots_adjust(bottom=adjust['bottom'])
-    
-    fig.savefig(savepath+'/episode_'+anitype+'-'+str(start_year)+'-'+str(end_year))
-    fig.show()
-    
-    return fig    
-
 def source(df,min_year,max_year,anitypes,color_list,thresold): 
         
     select_years=df[(df['release-year']<=max_year) & (df['release-year']>=min_year)] #remove years out of study scope
@@ -204,9 +179,17 @@ def source(df,min_year,max_year,anitypes,color_list,thresold):
     print('------------ plotting evolution of source material ------------')    
                 
     if len(anitypes)>1:
-        fig, axes = plt.subplots(2,3,figsize=enlarge_fig) #building a subplot for the 6 anime types
-        axes = axes.flatten()
         
+        if len(anitypes)>4:
+            fig, axes = plt.subplots(2,3,figsize=enlarge_fig) #building a subplot for the 6 anime types
+            axes = axes.flatten()
+        elif len(anitypes)==2:
+            fig, axes = plt.subplots(1,2,figsize=enlarge_fig) #building a subplot for the 6 anime types
+            axes = axes.flatten()
+        else:
+            fig, axes = plt.subplots(2,2,figsize=enlarge_fig) #building a subplot for the 6 anime types
+            axes = axes.flatten()
+            
         for anime_type,ax in zip(anitypes,axes): #Season and plot goes together so I zip them
             df_type=select_years[select_years['type']==anime_type].sort_values('release-year') #reducing the DataFrame to the season studied I need the year to be at the right order for the stacking
             print('--------------'+anime_type)
@@ -237,6 +220,32 @@ def source(df,min_year,max_year,anitypes,color_list,thresold):
     fig.show()
     
     return fig
+
+def episode(df,min_year,max_year,anitype,max_shown): #This function is showing the repartition of anime'lenght in the year
+    select_year=df[(df['type']==anitype) & (df['episodes']>0) & (df['release-year']>=min_year) & (df['release-year']<=max_year)] #Limit my dataframe
+    
+    print('------------ plotting evolution of anime length ------------')
+    
+    fig, ax =plt.subplots(figsize=enlarge_fig)
+    ax=sb.violinplot(x='release-year',y='episodes',data=select_year,bw=.05,cut=0, scale='width',inner='quartile',orientation='h') 
+    ax.tick_params('x',labelrotation=45, labelsize=font)
+    ax.tick_params('y', labelsize=font)
+    ax.set_ylabel('Number of episodes per anime',fontsize=font)
+    ax.set_xlabel('Diffusion year',fontsize=font)
+    ax.xaxis.label.set_size(font)
+    ax.set(ylim=(0,max_shown))
+    ax.set_title('Repartion of anime length : '+ anitype,fontsize=font)
+    ax.xaxis.set_major_locator(MaxNLocator(integer=True,nbins=12,prune='both')) #
+    
+    signature(fig)
+    
+    fig.tight_layout()    
+    fig.subplots_adjust(bottom=adjust['bottom']+0.03)
+    
+    fig.savefig(savepath+'/episode_'+anitype+'-'+str(start_year)+'-'+str(end_year))
+    fig.show()
+    
+    return fig    
 
                 #SECTION 3 CHOICE
 again=['Yes']
