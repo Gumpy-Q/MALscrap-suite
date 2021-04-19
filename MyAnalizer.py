@@ -32,110 +32,8 @@ adjust={'bottom':0.11,'right':0.82,'wspace':0.35}
 enlarge_fig=(18,10)
 picked_colors=['#e6194B', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#42d4f4', '#f032e6', '#bfef45', '#fabed4', '#469990', '#dcbeff', '#9A6324', '#fffac8', '#800000', '#aaffc3', '#808000', '#ffd8b1', '#000075', '#a9a9a9', '#ffffff', '#000000']
 
-                #SECTION 2 CHOICE
-                
-#Choosing the csv file
-datavalid=False
-while datavalid==False:
-    layout = [[sg.Text('Path of the csv file')],
-            [sg.Input(default_text='Data/MAL-all-from-winter1970-to-present.csv'), sg.FileBrowse(file_types=(("csv Files", "*.csv"),))], 
-            [sg.OK(), sg.Cancel()]] 
-    window = sg.Window('Get path', layout)
-    event, values = window.read()
-    window.close()
-    if event==sg.WIN_CLOSED or event=='Cancel':
-        exit()  
 
-    path=values[0]
-    window.close()
-    try:
-        raw=pd.read_csv(path)
-        datavalid=True
-    except:
-        sg.popup('Could not read file.')    
-
-raw=pd.read_csv(path)
-
-raw['release-year']=raw['release-year'].astype(int) #I make sure they are integer as sometime it's interpreted as float
-raw['episodes']=raw['episodes'].astype(int)
-
-first_year=raw['release-year'].min()
-last_year=raw['release-year'].max()
-
-#Choosing the years to view in plot
-datavalid=False
-while datavalid==False:
-    layout = [[sg.Text('Which years do you want to view ? ')],
-            [sg.Text('Must be YYYY in range ['+str(first_year)+';'+str(time.localtime().tm_year+1)+']')],
-            [sg.Text('From'),sg.Spin([i for i in range(first_year,time.localtime().tm_year+2)], initial_value=first_year),sg.Text('until'),sg.Spin([i for i in range(first_year,time.localtime().tm_year+2)], initial_value=last_year)], 
-            [sg.OK(), sg.Cancel()]] 
-    window = sg.Window('Interval selection', layout)
-    event, values = window.read()
-    window.close()
-    
-    if event==sg.WIN_CLOSED or event=='Cancel':
-         exit()    
-
-    start_year=values[0]
-    end_year=values[1]
-    try:
-        start_year=int(start_year) #check if input is integer without breaking
-        end_year=int(end_year)
-        if start_year<1917 or start_year>time.localtime().tm_year or end_year<1917 or end_year>time.localtime().tm_year:
-            sg.popup('Invalid input. Must be YYYY in range ['+str(first_year)+';'+str(time.localtime().tm_year+1)+']')
-        elif start_year>end_year:
-            sg.popup('Start year is after end year')
-        else:
-            datavalid=True
-    except:
-        sg.popup('Invalid input. Must be YYYY in range ['+str(first_year)+';'+str(time.localtime().tm_year+1)+']')
-        
-#Choosing the type to view in plot
-type_to_viz=[]
-datavalid=False
-while datavalid==False:
-    layout = [[sg.Text('Which type of content do you want to scrap ? ')],
-            [[sg.CBox(anitype, default=True) for anitype in anime_types]], 
-            [sg.OK(), sg.Cancel()]]
-    window = sg.Window('Choosing anime type', layout)
-    event, values = window.read()
-    window.close()
-    
-    if event==sg.WIN_CLOSED or event=='Cancel':
-         exit()
-    
-    for i in range(len(values)):
-        if values[i]==True:
-            type_to_viz.append(anime_types[i])
-    
-    if len(type_to_viz)!=0:
-        datavalid=True
-    else:
-        sg.popup('At least one box must be checked')
-
-#Choosing the plot to produce        
-plot_to_viz=[]
-datavalid=False
-while datavalid==False:
-    layout = [[sg.Text('Which type of content do you want to scrap ? ')],
-            [[sg.CBox(plot, default=True,key=plot) for plot in plot_list]], 
-            [sg.OK(), sg.Cancel()]]
-    window = sg.Window('Choosing plot to view', layout)
-    event, values = window.read()
-    window.close()
-    
-    if event==sg.WIN_CLOSED or event=='Cancel':
-         exit()
-    
-    plot_to_viz=values
-    
-    if len(plot_to_viz)!=0:
-        datavalid=True
-    else:
-        sg.popup('At least one box must be checked')
-
-                
-                #SECTION 3 FUNCTIONS DEFINITION
+                #SECTION 2 FUNCTIONS DEFINITION
 def stackbarcolor(df_plot,cat_list,ax,plot_name,colors_list,cat_key,tosum_key,ylabel_name,max_year,min_year,ymax=0):
     df_plot['bottom']=0    
     
@@ -339,70 +237,203 @@ def source(df,min_year,max_year,anitypes,color_list,thresold):
     fig.show()
     
     return fig
-                #SECTION 4 PRODUCTING PLOTS
-layout = [[sg.Text('Path to save plots')],
-          [sg.Input(default_text='plot'), sg.FolderBrowse()],
-          [sg.Ok(),sg.Cancel()]]
 
-window = sg.Window('Saving plot', layout)
-event,values=window.read()
-window.close()
-
-if event==sg.WIN_CLOSED or event=='Cancel':
-    window.close()
-    exit()  
-
-savepath=values[0]    
-
-layout = [[sg.Text('Current progress')],
-          [sg.Output(size=(80,12))],
-          [sg.Cancel()]]
-
-window = sg.Window('Progress', layout)
-event,values=window.read(timeout=5)
-if event==sg.WIN_CLOSED or event=='Cancel':
-    window.close()
-    exit()
-
-if plot_to_viz['Season evolution']==True:
-    fig_prod_m=production_season(raw,start_year,end_year,type_to_viz,picked_colors)
-
-event,values=window.read(timeout=5)
-if event==sg.WIN_CLOSED or event=='Cancel':
-    window.close()
-    exit()
-
-if plot_to_viz['Year evolution']==True:
-    fig_prod_y=production_year(raw,start_year,end_year,type_to_viz,picked_colors)
-
-event,values=window.read(timeout=5)
-if event==sg.WIN_CLOSED or event=='Cancel':
-    window.close()
-    exit()
+                #SECTION 3 CHOICE
+again=['Yes']
+while again[0]=='Yes':
+                    
+    #Choosing the csv file
+    datavalid=False
+    while datavalid==False:
+        layout = [[sg.Text('Path of the csv file')],
+                [sg.Input(default_text='Data/MAL-all-from-winter1970-to-present.csv'), sg.FileBrowse(file_types=(("csv Files", "*.csv"),))], 
+                [sg.OK(), sg.Cancel()]] 
+        window = sg.Window('Get path', layout)
+        event, values = window.read()
+        window.close()
+        if event==sg.WIN_CLOSED or event=='Cancel':
+            exit()  
     
-if plot_to_viz['Source repartition']==True:    
-    fig_source=source(raw,start_year,end_year,type_to_viz,picked_colors,2.5)
-
-event,values=window.read(timeout=5)
-if event==sg.WIN_CLOSED or event=='Cancel':
-    window.close()
-    exit()
+        path=values[0]
+        window.close()
+        try:
+            raw=pd.read_csv(path)
+            datavalid=True
+        except:
+            sg.popup('Could not read file.')    
     
-if plot_to_viz['TV (New) length']==True:    
-    fig_ep=episode(raw,start_year,end_year,'TV (New)',60)
-
-event,values=window.read(timeout=5)
-if event==sg.WIN_CLOSED or event=='Cancel':
-    window.close()
-    exit()
+    raw=pd.read_csv(path)
     
-if plot_to_viz['TV (Continuing) length']==True:    
-    fig_ep=episode(raw,start_year,end_year,'TV (Continuing)',150)
+    raw['release-year']=raw['release-year'].astype(int) #I make sure they are integer as sometime it's interpreted as float
+    raw['episodes']=raw['episodes'].astype(int)
+    
+    first_year=raw['release-year'].min()
+    last_year=raw['release-year'].max()
+    
+    #Choosing the years to view in plot
+    datavalid=False
+    while datavalid==False:
+        layout = [[sg.Text('Which years do you want to view ? ')],
+                [sg.Text('Must be YYYY in range ['+str(first_year)+';'+str(time.localtime().tm_year+1)+']')],
+                [sg.Text('From'),sg.Spin([i for i in range(first_year,time.localtime().tm_year+2)], initial_value=first_year),sg.Text('until'),sg.Spin([i for i in range(first_year,time.localtime().tm_year+2)], initial_value=last_year)], 
+                [sg.OK(), sg.Cancel()]] 
+        window = sg.Window('Interval selection', layout)
+        event, values = window.read()
+        window.close()
+        
+        if event==sg.WIN_CLOSED or event=='Cancel':
+             exit()    
+    
+        start_year=values[0]
+        end_year=values[1]
+        try:
+            start_year=int(start_year) #check if input is integer without breaking
+            end_year=int(end_year)
+            if start_year<1917 or start_year>time.localtime().tm_year or end_year<1917 or end_year>time.localtime().tm_year:
+                sg.popup('Invalid input. Must be YYYY in range ['+str(first_year)+';'+str(time.localtime().tm_year+1)+']')
+            elif start_year>end_year:
+                sg.popup('Start year is after end year')
+            else:
+                datavalid=True
+        except:
+            sg.popup('Invalid input. Must be YYYY in range ['+str(first_year)+';'+str(time.localtime().tm_year+1)+']')
+            
+    #Choosing the type to view in plot
+    type_to_viz=[]
+    datavalid=False
+    while datavalid==False:
+        layout = [[sg.Text('Which type of content do you want to scrap ? ')],
+                [[sg.CBox(anitype, default=True) for anitype in anime_types]], 
+                [sg.OK(), sg.Cancel()]]
+        window = sg.Window('Choosing anime type', layout)
+        event, values = window.read()
+        window.close()
+        
+        if event==sg.WIN_CLOSED or event=='Cancel':
+             exit()
+        
+        for i in range(len(values)):
+            if values[i]==True:
+                type_to_viz.append(anime_types[i])
+        
+        if len(type_to_viz)!=0:
+            datavalid=True
+        else:
+            sg.popup('At least one box must be checked')
+    
+    #Choosing the plot to produce        
+    plot_to_viz=[]
+    datavalid=False
+    while datavalid==False:
+        layout = [[sg.Text('Which type of content do you want to scrap ? ')],
+                [[sg.CBox(plot, default=True,key=plot) for plot in plot_list]], 
+                [sg.OK(), sg.Cancel()]]
+        window = sg.Window('Choosing plot to view', layout)
+        event, values = window.read()
+        window.close()
+        
+        if event==sg.WIN_CLOSED or event=='Cancel':
+             exit()
+        
+        plot_to_viz=values
+        
+        plots=0
+        for value in plot_to_viz.values():
+            if value==True:
+                datavalid=True
+                plots+=1
 
-event,values=window.read(timeout=5)
-if event==sg.WIN_CLOSED or event=='Cancel':
+        if datavalid==False:
+            sg.popup('At least one box must be checked')
+           
+    
+                    #SECTION 4 PRODUCTING PLOTS
+    layout = [[sg.Text('Path to save plots')],
+              [sg.Input(default_text='Plots'), sg.FolderBrowse()],
+              [sg.Ok(),sg.Cancel()]]
+    
+    window = sg.Window('Saving plot', layout)
+    
+    event,values=window.read()
     window.close()
-    exit()
-
-window.close()    
-sg.popup('Finish !')
+  
+    if event==sg.WIN_CLOSED or event=='Cancel':
+        window.close()
+        exit()  
+    
+    savepath=values[0]    
+    
+    layout = [[sg.Text('Current progress')],
+              [sg.Output(size=(80,12))],
+              [sg.ProgressBar(plots, orientation='h', size=(51, 20), key='progressbar')],
+              [sg.Cancel()]]
+    
+    window = sg.Window('Progress', layout)
+    progress_bar = window['progressbar']
+    plot_done=0
+    
+    
+    event,values=window.read(timeout=5)
+    if event==sg.WIN_CLOSED or event=='Cancel':
+        window.close()
+        exit()
+    
+    if plot_to_viz['Season evolution']==True:
+        fig_prod_m=production_season(raw,start_year,end_year,type_to_viz,picked_colors)
+        plot_done+=1
+        progress_bar.UpdateBar(plot_done)
+    
+    event,values=window.read(timeout=5)
+    if event==sg.WIN_CLOSED or event=='Cancel':
+        window.close()
+        exit()
+    
+    if plot_to_viz['Year evolution']==True:
+        fig_prod_y=production_year(raw,start_year,end_year,type_to_viz,picked_colors)
+        plot_done+=1
+        progress_bar.UpdateBar(plot_done)
+    
+    event,values=window.read(timeout=5)
+    if event==sg.WIN_CLOSED or event=='Cancel':
+        window.close()
+        exit()
+        
+    if plot_to_viz['Source repartition']==True:    
+        fig_source=source(raw,start_year,end_year,type_to_viz,picked_colors,2.5)
+        plot_done+=1
+        progress_bar.UpdateBar(plot_done)
+    
+    event,values=window.read(timeout=5)
+    if event==sg.WIN_CLOSED or event=='Cancel':
+        window.close()
+        exit()
+        
+    if plot_to_viz['TV (New) length']==True:    
+        fig_ep=episode(raw,start_year,end_year,'TV (New)',60)
+        plot_done+=1
+        progress_bar.UpdateBar(plot_done)
+    
+    event,values=window.read(timeout=5)
+    if event==sg.WIN_CLOSED or event=='Cancel':
+        window.close()
+        exit()
+        
+    if plot_to_viz['TV (Continuing) length']==True:    
+        fig_ep=episode(raw,start_year,end_year,'TV (Continuing)',150)
+        plot_done+=1
+        progress_bar.UpdateBar(plot_done)
+    
+    event,values=window.read(timeout=5)
+    if event==sg.WIN_CLOSED or event=='Cancel':
+        window.close()
+        exit()
+    
+    window.close()    
+    sg.popup('Finished ! \nPlots saved at '+savepath)
+    
+    layout=[[sg.Text('Do you want to draw other plots ?')],
+            [sg.Yes(),sg.No()]]
+    
+    window=sg.Window('Again ?',layout)
+    again=window.read()
+    window.close()
