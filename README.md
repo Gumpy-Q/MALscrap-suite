@@ -1,5 +1,5 @@
 # MALscraPy
-Using Python with BeautifulSoup as scraping modules, this script gathers information from the anime in a range of seasons you can specify at https://myanimelist.net/anime/season
+Using Python with BeautifulSoup as scraping module, this script gathers information from the anime in a range of seasons you can specify at https://myanimelist.net/anime/season
 
 Access to the last dataset on my Kaggle [here](https://www.kaggle.com/crazygump/myanimelist-scrappind-a-decade-of-anime)
 
@@ -28,7 +28,11 @@ You only need to install [Python]( https://www.python.org/downloads/) and its fo
 * [PySimpleGUI](https://pysimplegui.readthedocs.io/en/latest/#install)
 
 # MyAnalizer
-Want to visualize the data you have just scraped ? Here it is !
+Want to visualize the juicy data you have just scraped ? Here it is !
+AS for now this scripts can draw 3 kind of plots:
+* Evolution of production (year & season)
+* Source material of anime production
+* Length of anime aired (New production & Production continuing release)
 
 ### Example of results
 
