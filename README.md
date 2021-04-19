@@ -1,5 +1,5 @@
 # MALscraPy
-Using Python with BeautifulSoup as scraping modules, this script collects information from the anime in a range of seasons you can specify at https://myanimelist.net/anime/season
+Using Python with BeautifulSoup as scraping modules, this script gathers information from the anime in a range of seasons you can specify at https://myanimelist.net/anime/season
 
 Access to the last dataset on my Kaggle [here](https://www.kaggle.com/crazygump/myanimelist-scrappind-a-decade-of-anime)
 
@@ -21,9 +21,9 @@ You only need to install [Python]( https://www.python.org/downloads/) and its fo
 
 ## Run it
 When you will run the script, follow the instructions in the GUI.
-Beware: scraping large temporal range might be a bit RAM intensive (500 MB for 2021 to 2010)
+Beware: scraping large temporal range might be a bit RAM intensive (600 MB for 2021 to 2010)
 
-This is may not be the fastest way to scrap MAL (30s to scrap all 2020 anime content with 15 seconds of sleep time to avoid making MAL mad at me)
+This may not be the fastest way to scrap MAL but it gets the job done (3m45s for 2021 to 2010)
 
 
 # MyAnalizer
