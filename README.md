@@ -18,6 +18,7 @@ You only need to install [Python]( https://www.python.org/downloads/) and its fo
 * [BeautifulSoup4](https://www.crummy.com/software/BeautifulSoup/bs4/doc/#installing-beautiful-soup)
 * [Numpy](https://numpy.org/install/)
 * [Pandas](https://pandas.pydata.org/docs/getting_started/install.html)
+* [PySimpleGUI](https://pysimplegui.readthedocs.io/en/latest/#install)
 
 ## Run it
 When you will run the script, follow the instructions in the GUI.
