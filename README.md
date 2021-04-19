@@ -52,7 +52,7 @@ You only need to install [Python]( https://www.python.org/downloads/) and its fo
 * [Numpy](https://numpy.org/install/)
 * [Pandas](https://pandas.pydata.org/docs/getting_started/install.html)
 * [PySimpleGUI](https://pysimplegui.readthedocs.io/en/latest/#install)
-* 
+ 
 A csv file with the data you scraped before  
 
 
