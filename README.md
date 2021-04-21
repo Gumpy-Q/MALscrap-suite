@@ -32,6 +32,8 @@ Want to visualize the juicy data you have just scraped ? Here it is !
 
 As for now this scripts can draw 3 kinds of plots:
 * Evolution of production (year & season)
+* Top 3 studio production over the year
+* Number of studio in activity
 * Source material of anime production
 * Length of anime aired (New production & Production continuing release)
 
@@ -39,6 +41,8 @@ As for now this scripts can draw 3 kinds of plots:
 
 ![Evolution of the anime production from 1970 to 2021](https://github.com/Gumpy-Q/MALscraPy/blob/main/Plots/year_evolution1970-2020.png)
 ![Evolution of the anime production with seasons from 1990 to 2021](https://github.com/Gumpy-Q/MALscraPy/blob/main/Plots/season_evolution-1990-2021.png)
+![Evolution of top 3 studio production from 1990 to 2021](https://github.com/Gumpy-Q/MALscraPy/blob/main/Plots/studio-1990-2021.png)
+![Evolution of number of studio in activity from 1990 to 2021](https://github.com/Gumpy-Q/MALscraPy/blob/main/Plots/studio_quantity-1990-2021.png)
 ![Source of the anime adaptation from 2000 to 2021](https://github.com/Gumpy-Q/MALscraPy/blob/main/Plots/source-2000-2021.png)
 ![New anime length from 1990 to 2021](https://github.com/Gumpy-Q/MALscraPy/blob/main/Plots/episode_TV%20(New)-1990-2021.png)
 ![Continued anime length from 1990 to 2021](https://github.com/Gumpy-Q/MALscraPy/blob/main/Plots/episode_TV%20(Continuing)-1990-2021.png)
