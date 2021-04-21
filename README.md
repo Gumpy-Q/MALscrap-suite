@@ -1,5 +1,5 @@
 # MALscraPy
-Using Python with BeautifulSoup as scraping modules, this script collects information from the anime in a range of seasons you can specify at https://myanimelist.net/anime/season
+Using Python with BeautifulSoup as scraping module, this script gathers information from the anime in a range of seasons you can specify at https://myanimelist.net/anime/season
 
 Access to the last dataset on my Kaggle [here](https://www.kaggle.com/crazygump/myanimelist-scrappind-a-decade-of-anime)
 
@@ -11,6 +11,13 @@ Access to the last dataset on my Kaggle [here](https://www.kaggle.com/crazygump/
 ## Want to run the script without knowing much about Python ?
 Use the latest executable [here](https://github.com/Gumpy-Q/MALscraPy/releases/)
 
+### Run it
+When you will run the exe, follow the instructions in GUI.
+
+Beware: scraping large temporal range might be a bit RAM intensive (600 MB for 2020 to 2010)
+
+This may not be the fastest way to scrap MAL but it gets the job done (3m45s for 2020 to 2010)
+
 ## Want to run, read or modify the script with Python ?
 ### Requisites
 You only need to install [Python]( https://www.python.org/downloads/) and its following modules:
@@ -18,16 +25,15 @@ You only need to install [Python]( https://www.python.org/downloads/) and its fo
 * [BeautifulSoup4](https://www.crummy.com/software/BeautifulSoup/bs4/doc/#installing-beautiful-soup)
 * [Numpy](https://numpy.org/install/)
 * [Pandas](https://pandas.pydata.org/docs/getting_started/install.html)
-
-## Run it
-When you will run the script, follow the instructions in the GUI.
-Beware: scraping large temporal range might be a bit RAM intensive (500 MB for 2021 to 2010)
-
-This is may not be the fastest way to scrap MAL (30s to scrap all 2020 anime content with 15 seconds of sleep time to avoid making MAL mad at me)
-
+* [PySimpleGUI](https://pysimplegui.readthedocs.io/en/latest/#install)
 
 # MyAnalizer
-Want to visualize the data you have just scraped ? Here it is !
+Want to visualize the juicy data you have just scraped ? Here it is !
+
+As for now this scripts can draw 3 kinds of plots:
+* Evolution of production (year & season)
+* Source material of anime production
+* Length of anime aired (New production & Production continuing release)
 
 ### Example of results
 
@@ -41,11 +47,17 @@ Want to visualize the data you have just scraped ? Here it is !
 ## Want to run the script without knowing much about Python ?
 Use the latest executable [here](https://github.com/Gumpy-Q/MALscraPy/releases/)
 
+### Run it
+When you will run the exe, follow the instructions in GUI.
+
 ## Want to run, read or modify the script with Python ?
-### Requisites
-Previous requisites  
+You only need to install [Python]( https://www.python.org/downloads/) and its following modules:
+* [Requests](https://docs.python-requests.org/en/latest/user/install/#install) 
+* [BeautifulSoup4](https://www.crummy.com/software/BeautifulSoup/bs4/doc/#installing-beautiful-soup)
+* [Numpy](https://numpy.org/install/)
+* [Pandas](https://pandas.pydata.org/docs/getting_started/install.html)
+* [PySimpleGUI](https://pysimplegui.readthedocs.io/en/latest/#install)
+ 
 A csv file with the data you scraped before  
 
-## Run it
-When you will run the script, follow the instructions in GUI.
 
