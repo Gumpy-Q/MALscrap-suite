@@ -21,20 +21,32 @@ from sys import exit
 
 seasons=['winter','spring','summer','fall']
 anime_types=['TV (New)','TV (Continuing)','Special','OVA','ONA','Movie']
-plot_list=['Season evolution','Year evolution','Source repartition','TV (New) length','TV (Continuing) length']
+plot_list=['Season evolution','Year evolution','Evolution of studios production','Source repartition','TV (New) length','TV (Continuing) length']
 
 style.use('ggplot')
 sg.theme('DefaultNoMoreNagging') 
 
 font='xx-large'
-leg_position='center right'
+lgd_position='center right'
 adjust={'bottom':0.11,'right':0.82,'wspace':0.35}
 enlarge_fig=(18,10)
-picked_colors=['#e6194B', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#42d4f4', '#f032e6', '#bfef45', '#fabed4', '#469990', '#dcbeff', '#9A6324', '#fffac8', '#800000', '#aaffc3', '#808000', '#ffd8b1', '#000075', '#a9a9a9', '#ffffff', '#000000']
-
+contrast_colors=['#e6194B', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#42d4f4', '#f032e6', '#bfef45', '#fabed4', '#469990', '#dcbeff', '#9A6324', '#fffac8', '#800000', '#aaffc3', '#808000', '#ffd8b1', '#000075', '#a9a9a9', '#ffffff', '#000000']
+long_contrast_colors=["#000000", "#FFFF00", "#1CE6FF", "#FF34FF", "#FF4A46", "#008941", "#006FA6", "#A30059",
+"#FFDBE5", "#7A4900", "#0000A6", "#63FFAC", "#B79762", "#004D43", "#8FB0FF", "#997D87",
+"#5A0007", "#809693", "#FEFFE6", "#1B4400", "#4FC601", "#3B5DFF", "#4A3B53", "#FF2F80",
+"#61615A", "#BA0900", "#6B7900", "#00C2A0", "#FFAA92", "#FF90C9", "#B903AA", "#D16100",
+"#DDEFFF", "#000035", "#7B4F4B", "#A1C299", "#300018", "#0AA6D8", "#013349", "#00846F",
+"#372101", "#FFB500", "#C2FFED", "#A079BF", "#CC0744", "#C0B9B2", "#C2FF99", "#001E09",
+"#00489C", "#6F0062", "#0CBD66", "#EEC3FF", "#456D75", "#B77B68", "#7A87A1", "#788D66",
+"#885578", "#FAD09F", "#FF8A9A", "#D157A0", "#BEC459", "#456648", "#0086ED", "#886F4C",
+"#34362D", "#B4A8BD", "#00A6AA", "#452C2C", "#636375", "#A3C8C9", "#FF913F", "#938A81",
+"#575329", "#00FECF", "#B05B6F", "#8CD0FF", "#3B9700", "#04F757", "#C8A1A1", "#1E6E00",
+"#7900D7", "#A77500", "#6367A9", "#A05837", "#6B002C", "#772600", "#D790FF", "#9B9700",
+"#549E79", "#FFF69F", "#201625", "#72418F", "#BC23FF", "#99ADC0", "#3A2465", "#922329",
+"#5B4534", "#FDE8DC", "#404E55", "#0089A3", "#CB7E98", "#A4E804", "#324E72", "#6A3A4C"]
 
                 #SECTION 2 FUNCTIONS DEFINITION
-def stackbarcolor(df_plot,cat_list,ax,plot_name,colors_list,cat_key,tosum_key,ylabel_name,max_year,min_year,ymax=0):
+def stackbarcolor(df_plot,cat_list,ax,plot_name,colors_list,cat_key,tosum_key,ylabel_name,max_year,min_year,ymax=1):
     df_plot['bottom']=0    
     
     for cat_value,color in zip(cat_list,colors_list): #I want to attribute a color for each source that will be consistent for each type of anime
@@ -48,15 +60,15 @@ def stackbarcolor(df_plot,cat_list,ax,plot_name,colors_list,cat_key,tosum_key,yl
             for year in df_cat['release-year']:
                 df_plot.loc[df_plot['release-year']==year,['bottom']]=df_cat.loc[df_cat['release-year']==year,[tosum_key]].values+df_cat.loc[df_cat['release-year']==year,['bottom']].values 
                 
-            ax.set_ylabel(ylabel_name,fontsize=font)
-            ax.xaxis.label.set_size(font)
-            ax.set_title(plot_name,fontsize=font)
-            ax.axis(xmax=df_plot['release-year'].max()+1,xmin=df_plot['release-year'].min()-1)
-            ax.tick_params('x',labelrotation=45, labelsize=font)
-            ax.tick_params('y', labelsize=font)
-            ax.set(xlim=(min_year-1,max_year+1))
-            ax.ticklabel_format(axis='x', style='plain', useOffset=False) #If I don't do this plt want to put the label to engineering notation
-            ax.xaxis.set_major_locator(MaxNLocator(integer=True,nbins=7,prune='both')) #give instruction how to handle the tick label: integer, nb of label, remove egde label
+    ax.set_ylabel(ylabel_name,fontsize=font)
+    ax.xaxis.label.set_size(font)
+    ax.set_title(plot_name,fontsize=font)
+    ax.axis(xmax=df_plot['release-year'].max()+1,xmin=df_plot['release-year'].min()-1)
+    ax.tick_params('x',labelrotation=45, labelsize=font)
+    ax.tick_params('y', labelsize=font)
+    ax.set(xlim=(min_year-1,max_year+1))
+    ax.ticklabel_format(axis='x', style='plain', useOffset=False) #If I don't do this plt want to put the label to engineering notation
+    ax.xaxis.set_major_locator(MaxNLocator(integer=True,nbins=7,prune='both')) #give instruction how to handle the tick label: integer, nb of label, remove egde label
             
     ymax=max(df_plot['bottom'].max(),ymax) #after each season I retrieve the maximum value to limit plot axis
     
@@ -72,7 +84,7 @@ def production_season(df,min_year,max_year,anitypes,color_list): #To vizualize t
     select_years=season_analyze[(season_analyze['release-year']<=max_year) & (season_analyze['release-year']>=min_year)] #remove years out of study scope
     select_years=select_years[select_years['type'].isin(anitypes)]
     
-    picked_colors=color_list[0:len(anitypes)+1]
+    contrast_colors=color_list[0:len(anitypes)+1]
     
     custom_patches=[]
 
@@ -82,7 +94,7 @@ def production_season(df,min_year,max_year,anitypes,color_list): #To vizualize t
     ymax=0
     
     #avoid colors mismatch when getting legend
-    for color in picked_colors:
+    for color in contrast_colors:
         custom_patches.append(Patch(facecolor=color, edgecolor='b')) 
     
     print('------------ plotting evolution of production by season ------------')
@@ -92,7 +104,7 @@ def production_season(df,min_year,max_year,anitypes,color_list): #To vizualize t
 
         print('--------------'+season)
         
-        ymax=stackbarcolor(df_season,anitypes,ax,season,picked_colors,'type','count','Count',max_year,min_year,ymax)
+        ymax=stackbarcolor(df_season,anitypes,ax,season,contrast_colors,'type','count','Count',max_year,min_year,ymax)
         
     for ax in axes:
         ax.axis(ymax=ymax+5) #And then I set the limit
@@ -100,7 +112,7 @@ def production_season(df,min_year,max_year,anitypes,color_list): #To vizualize t
     
     signature(fig)
     fig.suptitle('Evolution of the production',fontsize=font)
-    fig.legend(custom_patches, anitypes, loc=leg_position,fontsize=font)
+    fig.legend(custom_patches, anitypes, loc=lgd_position,fontsize=font)
     
     fig.tight_layout()    
     fig.subplots_adjust(right=adjust['right'],bottom=adjust['bottom'],wspace=adjust['wspace'])
@@ -116,10 +128,10 @@ def production_year(df,min_year,max_year,anitypes,color_list): #To vizualize the
     select_years=season_analyze[(season_analyze['release-year']<=max_year) & (season_analyze['release-year']>=min_year)] #remove years out of study scope
     select_years=select_years[select_years['type'].isin(anitypes)]
     
-    picked_colors=color_list[0:len(anitypes)+1]  
+    contrast_colors=color_list[0:len(anitypes)+1]  
     custom_patches=[]    
     #avoid colors mismatch when getting legend
-    for color in picked_colors:
+    for color in contrast_colors:
         custom_patches.append(Patch(facecolor=color, edgecolor='b'))
     
     print('------------ plotting evolution of production by year ------------')    
@@ -130,13 +142,13 @@ def production_year(df,min_year,max_year,anitypes,color_list): #To vizualize the
      
     df_year=select_years.sort_values('release-year') #reducing the DataFrame to the season studied
         
-    ymax=stackbarcolor(df_year,anitypes,ax,'',picked_colors,'type','count','Number of anime aired',max_year,min_year,ymax)
+    ymax=stackbarcolor(df_year,anitypes,ax,'',contrast_colors,'type','count','Number of anime aired',max_year,min_year,ymax)
         
     ax.axis(ymax=ymax+5) #And then I set the limit
     
     signature(fig)
     fig.suptitle('Evolution of the production',fontsize=font)
-    fig.legend(custom_patches, anitypes, loc=leg_position,fontsize=font)
+    fig.legend(custom_patches, anitypes, loc=lgd_position,fontsize=font)
 
     fig.tight_layout()    
     fig.subplots_adjust(right=adjust['right'],bottom=adjust['bottom'])
@@ -146,7 +158,7 @@ def production_year(df,min_year,max_year,anitypes,color_list): #To vizualize the
 
     return fig
 
-def source(df,min_year,max_year,anitypes,color_list,thresold): 
+def source(df,min_year,max_year,anitypes,color_list,thresold=0): 
         
     select_years=df[(df['release-year']<=max_year) & (df['release-year']>=min_year)] #remove years out of study scope
     select_years=select_years[select_years['type'].isin(anitypes)] 
@@ -168,12 +180,12 @@ def source(df,min_year,max_year,anitypes,color_list,thresold):
     #build a descending list by percent of source material
     sources=select_years.sort_values('percent',ascending=False)['source-material'].unique()    
        
-    picked_colors=color_list[0:len(sources)]
+    contrast_colors=color_list[0:len(sources)]
      
     custom_patches=[]
     
     #avoid colors mismatch when getting legend
-    for color in picked_colors:
+    for color in contrast_colors:
         custom_patches.append(Patch(facecolor=color, edgecolor='b')) 
     
     print('------------ plotting evolution of source material ------------')    
@@ -194,7 +206,7 @@ def source(df,min_year,max_year,anitypes,color_list,thresold):
             df_type=select_years[select_years['type']==anime_type].sort_values('release-year') #reducing the DataFrame to the season studied I need the year to be at the right order for the stacking
             print('--------------'+anime_type)
             
-            stackbarcolor(df_type,sources,ax,anime_type,picked_colors,'source-material','percent','Part of the diffusion',max_year,min_year)
+            stackbarcolor(df_type,sources,ax,anime_type,contrast_colors,'source-material','percent','Part of the diffusion',max_year,min_year)
             for ax in axes:
                 ax.set(ylim=(0,1))
                 ax.yaxis.set_major_formatter(PercentFormatter(xmax=1, decimals=0, symbol='%', is_latex=False))
@@ -205,11 +217,11 @@ def source(df,min_year,max_year,anitypes,color_list,thresold):
         anime_type=anitypes[0]
         print('--------------'+anime_type)
           
-        stackbarcolor(df_type,sources,ax,anime_type,picked_colors,'source-material','percent','Part of the diffusion',max_year,min_year)
+        stackbarcolor(df_type,sources,ax,anime_type,contrast_colors,'source-material','percent','Part of the diffusion',max_year,min_year)
         ax.set(ylim=(0,1))
         ax.yaxis.set_major_formatter(PercentFormatter(xmax=1, decimals=0, symbol='%', is_latex=False))
 
-    fig.legend(custom_patches, sources, loc=leg_position,fontsize=font)
+    fig.legend(custom_patches, sources, loc=lgd_position,fontsize=font)
     signature(fig)
     fig.suptitle('Source of the adaptation (if less than '+str(thresold)+'% -> Other)',fontsize=font)          
    
@@ -221,13 +233,86 @@ def source(df,min_year,max_year,anitypes,color_list,thresold):
     
     return fig
 
+def production_studio(df,min_year,max_year,anitypes,color_list): 
+        
+    select_years=df[(df['release-year']<=max_year) & (df['release-year']>=min_year)] #remove years out of study scope
+    select_years=select_years[select_years['type'].isin(anitypes)] 
+    
+    select_years=select_years[select_years['studio'] != '          -' ]
+    select_years=select_years[select_years['studio'] != '-']
+    
+    select_years=select_years.value_counts(['release-year','type','studio']).reset_index(name='count') #transform the long list to a count for each config
+    
+    print('Selecting studios, please wait this is a long task')
+    
+    studios=[]
+    for year in select_years['release-year']:
+        for anitype in anitypes:
+            studio_list=select_years[(select_years['release-year']==year) & (select_years['type']==anitype)].sort_values('count',ascending=False)['studio'].head(3).values.tolist() #building the top 3 lists for each year and anime type
+            for studio in studio_list:
+                studios.append(studio)              
+        
+    studios = list(dict.fromkeys(studios))   #tricks to remove duplicate from a list
+    contrast_colors=color_list[0:len(studios)]
+     
+    custom_patches=[]
+    
+    #avoid colors mismatch when getting legend
+    for color in contrast_colors:
+        custom_patches.append(Patch(facecolor=color, edgecolor='b')) 
+    
+    print('------------ plotting evolution of studio production ------------')    
+               
+    if len(anitypes)>1:
+        
+        if len(anitypes)>4:
+            fig, axes = plt.subplots(2,3,figsize=enlarge_fig) #building a subplot for the 6 anime types
+            axes = axes.flatten()
+        elif len(anitypes)==2:
+            fig, axes = plt.subplots(1,2,figsize=enlarge_fig) #building a subplot for the 6 anime types
+            axes = axes.flatten()
+        else:
+            fig, axes = plt.subplots(2,2,figsize=enlarge_fig) #building a subplot for the 6 anime types
+            axes = axes.flatten()
+            
+        for anime_type,ax in zip(anitypes,axes): #Season and plot goes together so I zip them
+            df_type=select_years[select_years['type']==anime_type].sort_values('release-year') #reducing the DataFrame to the season studied I need the year to be at the right order for the stacking
+            print('--------------'+anime_type)
+            
+            ymax=stackbarcolor(df_type,studios,ax,anime_type,contrast_colors,'studio','count','Anime produced by',max_year,min_year)
+            ax.axis(ymax=ymax+5) #And then I set the limit
+            ax.ticklabel_format(axis='x', style='plain', useOffset=False)         
+                
+    else:
+        fig, ax = plt.subplots(1,1,figsize=enlarge_fig) #building a subplot for the one choosen
+        df_type=select_years.sort_values('release-year') #reducing the DataFrame to the season studied I need the year to be at the right order for the stacking
+        anime_type=anitypes[0]
+        print('--------------'+anime_type)
+          
+        ymax=stackbarcolor(df_type,studios,ax,anime_type,contrast_colors,'studio','count','Anime produced by',max_year,min_year)
+        ax.axis(ymax=ymax+5) #And then I set the limit
+        ax.ticklabel_format(axis='x', style='plain', useOffset=False)
+        
+
+    fig.legend(custom_patches, studios, loc=lgd_position,fontsize=font)
+    signature(fig)
+    fig.suptitle('Evolution of the production of the top 3 studios of each year and anime type',fontsize=font)          
+   
+    fig.tight_layout()    
+    fig.subplots_adjust(right=adjust['right']-0.1,bottom=adjust['bottom'],wspace=adjust['wspace'])
+       
+    fig.savefig(savepath+'/studio-'+str(start_year)+'-'+str(end_year))
+    fig.show()
+    
+    return fig
+
 def episode(df,min_year,max_year,anitype,max_shown): #This function is showing the repartition of anime'lenght in the year
     select_year=df[(df['type']==anitype) & (df['episodes']>0) & (df['release-year']>=min_year) & (df['release-year']<=max_year)] #Limit my dataframe
     
     print('------------ plotting evolution of anime length ------------')
     
     fig, ax =plt.subplots(figsize=enlarge_fig)
-    ax=sb.violinplot(x='release-year',y='episodes',data=select_year,bw=.05,cut=0, scale='width',inner='quartile',orientation='h') 
+    ax=sb.violinplot(x='release-year',y='episodes',data=select_year,bw=0.1,cut=0, scale='width',width=0.7,inner='stick',orientation='h') 
     ax.tick_params('x',labelrotation=45, labelsize=font)
     ax.tick_params('y', labelsize=font)
     ax.set_ylabel('Number of episodes per anime',fontsize=font)
@@ -355,8 +440,8 @@ while again[0]=='Yes':
         if datavalid==False:
             sg.popup('At least one box must be checked')
            
-    
-                    #SECTION 4 PRODUCTING PLOTS
+
+                    #SECTION 4 PRODUCING PLOTS
     layout = [[sg.Text('Path to save plots')],
               [sg.Input(default_text='Plots'), sg.FolderBrowse()],
               [sg.Ok(),sg.Cancel()]]
@@ -388,7 +473,7 @@ while again[0]=='Yes':
         exit()
     
     if plot_to_viz['Season evolution']==True:
-        fig_prod_m=production_season(raw,start_year,end_year,type_to_viz,picked_colors)
+        fig_prod_m=production_season(raw,start_year,end_year,type_to_viz,contrast_colors)
         plot_done+=1
         progress_bar.UpdateBar(plot_done)
     
@@ -398,7 +483,7 @@ while again[0]=='Yes':
         exit()
     
     if plot_to_viz['Year evolution']==True:
-        fig_prod_y=production_year(raw,start_year,end_year,type_to_viz,picked_colors)
+        fig_prod_y=production_year(raw,start_year,end_year,type_to_viz,contrast_colors)
         plot_done+=1
         progress_bar.UpdateBar(plot_done)
     
@@ -406,9 +491,14 @@ while again[0]=='Yes':
     if event==sg.WIN_CLOSED or event=='Cancel':
         window.close()
         exit()
-        
+
+    if plot_to_viz['Evolution of studios production']==True:
+        fig_stud_m=production_studio(raw,start_year,end_year,type_to_viz,contrast_colors)
+        plot_done+=1
+        progress_bar.UpdateBar(plot_done)        
+
     if plot_to_viz['Source repartition']==True:    
-        fig_source=source(raw,start_year,end_year,type_to_viz,picked_colors,2.5)
+        fig_source=source(raw,start_year,end_year,type_to_viz,contrast_colors,2.5)
         plot_done+=1
         progress_bar.UpdateBar(plot_done)
     
