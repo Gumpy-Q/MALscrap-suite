@@ -21,7 +21,7 @@ from sys import exit
 
 seasons=['winter','spring','summer','fall']
 anime_types=['TV (New)','TV (Continuing)','Special','OVA','ONA','Movie']
-plot_list=['Season evolution','Year evolution','Evolution of studios production','Source repartition','TV (New) length','TV (Continuing) length']
+plot_list=['Production seasons','Production years','Studio production','Studios quantity','Source repartition','TV (New) length','TV (Continuing) length']
 
 style.use('ggplot')
 sg.theme('DefaultNoMoreNagging') 
@@ -306,6 +306,72 @@ def production_studio(df,min_year,max_year,anitypes,color_list):
     
     return fig
 
+def studio_quantity(df,min_year,max_year,anitypes,color_list): #To vizualize the sum of anime product each year for each season
+    
+    select_years=df[(df['release-year']<=max_year) & (df['release-year']>=min_year)] #remove years out of study scope
+    select_years=select_years[select_years['type'].isin(anitypes)]
+    
+
+    select_years=select_years[select_years['studio'] != '          -' ]
+    select_years=select_years[select_years['studio'] != '-']
+    
+    select_years=select_years[['release-year','type','studio']]
+    
+    select_years=select_years.drop_duplicates()
+    select_years=select_years.value_counts(['release-year','type']).reset_index(name='sum')    
+    
+    contrast_colors=color_list[0:len(anitypes)+1]
+    
+    custom_patches=[]
+   
+    ymax=0
+    
+    #avoid colors mismatch when getting legend
+    for color in contrast_colors:
+        custom_patches.append(Patch(facecolor=color, edgecolor='b')) 
+    
+    print('------------ plotting evolution of studio quantity ------------')    
+               
+    if len(anitypes)>1:
+        
+        if len(anitypes)>4:
+            fig, axes = plt.subplots(2,3,figsize=enlarge_fig) #building a subplot for the 6 anime types
+            axes = axes.flatten()
+        elif len(anitypes)==2:
+            fig, axes = plt.subplots(1,2,figsize=enlarge_fig) #building a subplot for the 6 anime types
+            axes = axes.flatten()
+        else:
+            fig, axes = plt.subplots(2,2,figsize=enlarge_fig) #building a subplot for the 6 anime types
+            axes = axes.flatten()
+            
+        for anime_type,ax in zip(anitypes,axes): #Season and plot goes together so I zip them
+            df_type=select_years[select_years['type']==anime_type].sort_values('release-year') #reducing the DataFrame to the season studied I need the year to be at the right order for the stacking
+            print('--------------'+anime_type)
+            
+            ymax=stackbarcolor(df_type,[anime_type],ax,anime_type,contrast_colors,'type','sum','Number of studios',max_year,min_year)
+            ax.axis(ymax=ymax+5) #And then I set the limit
+            ax.ticklabel_format(axis='x', style='plain', useOffset=False)         
+                
+    else:
+        fig, ax = plt.subplots(1,1,figsize=enlarge_fig) #building a subplot for the one choosen
+        df_type=select_years.sort_values('release-year') #reducing the DataFrame to the season studied I need the year to be at the right order for the stacking
+        anime_type=anitypes[0]
+        print('--------------'+anime_type)
+          
+        ymax=stackbarcolor(df_type,[anime_type],ax,anime_type,contrast_colors,'type','sum','Number of studios',max_year,min_year)
+        ax.axis(ymax=ymax+5) #And then I set the limit
+        ax.ticklabel_format(axis='x', style='plain', useOffset=False)
+
+    signature(fig)
+    fig.suptitle('Number of studios credited on at least one anime (cooperations are accounted as a different studio)',fontsize=font) 
+    
+    fig.tight_layout()    
+    fig.subplots_adjust(bottom=adjust['bottom'])
+       
+    fig.savefig(savepath+'/studio_quantity-'+str(start_year)+'-'+str(end_year))
+    fig.show()
+    return fig
+
 def episode(df,min_year,max_year,anitype,max_shown): #This function is showing the repartition of anime'lenght in the year
     select_year=df[(df['type']==anitype) & (df['episodes']>0) & (df['release-year']>=min_year) & (df['release-year']<=max_year)] #Limit my dataframe
     
@@ -472,7 +538,7 @@ while again[0]=='Yes':
         window.close()
         exit()
     
-    if plot_to_viz['Season evolution']==True:
+    if plot_to_viz['Production seasons']==True:
         fig_prod_m=production_season(raw,start_year,end_year,type_to_viz,contrast_colors)
         plot_done+=1
         progress_bar.UpdateBar(plot_done)
@@ -482,7 +548,7 @@ while again[0]=='Yes':
         window.close()
         exit()
     
-    if plot_to_viz['Year evolution']==True:
+    if plot_to_viz['Production years']==True:
         fig_prod_y=production_year(raw,start_year,end_year,type_to_viz,contrast_colors)
         plot_done+=1
         progress_bar.UpdateBar(plot_done)
@@ -492,10 +558,25 @@ while again[0]=='Yes':
         window.close()
         exit()
 
-    if plot_to_viz['Evolution of studios production']==True:
-        fig_stud_m=production_studio(raw,start_year,end_year,type_to_viz,contrast_colors)
+    if plot_to_viz['Studio production']==True:
+        fig_studprod=production_studio(raw,start_year,end_year,type_to_viz,contrast_colors)
         plot_done+=1
-        progress_bar.UpdateBar(plot_done)        
+        progress_bar.UpdateBar(plot_done)   
+        
+    event,values=window.read(timeout=5)
+    if event==sg.WIN_CLOSED or event=='Cancel':
+        window.close()
+        exit()  
+
+    if plot_to_viz['Studios quantity']==True:
+        fig_studquant=studio_quantity(raw,start_year,end_year,type_to_viz,contrast_colors)
+        plot_done+=1
+        progress_bar.UpdateBar(plot_done)   
+        
+    event,values=window.read(timeout=5)
+    if event==sg.WIN_CLOSED or event=='Cancel':
+        window.close()
+        exit()        
 
     if plot_to_viz['Source repartition']==True:    
         fig_source=source(raw,start_year,end_year,type_to_viz,contrast_colors,2.5)
