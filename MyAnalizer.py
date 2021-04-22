@@ -399,7 +399,7 @@ def episode(df,min_year,max_year,anitype,max_shown): #This function is showing t
     
     return fig  
 
-def score_repartition(df,min_year,max_year,anitypes): #This function is showing the repartition of anime'lenght in the year
+def score_distribution(df,min_year,max_year,anitypes): #This function is showing the repartition of anime'lenght in the year
     
     select_years=df[(df['score']>0) & (df['release-year']>=min_year) & (df['release-year']<=max_year)] #Limit my dataframe
     select_years=select_years[select_years['type'].isin(anitypes)]
@@ -456,7 +456,7 @@ def score_repartition(df,min_year,max_year,anitypes): #This function is showing 
     fig.tight_layout()    
     fig.subplots_adjust(bottom=adjust['bottom']+0.03)
     
-    fig.savefig(savepath+'/score_'+'-'+str(start_year)+'-'+str(end_year))
+    fig.savefig(savepath+'/score_distribution'+'-'+str(start_year)+'-'+str(end_year))
     fig.show()
     
     return fig
@@ -660,7 +660,7 @@ while again[0]=='Yes':
         exit()
         
     if plot_to_viz['Score distribution']==True:    
-        fig_score=score_repartition(raw,start_year,end_year,type_to_viz)
+        fig_score=score_distribution(raw,start_year,end_year,type_to_viz)
         plot_done+=1
         progress_bar.UpdateBar(plot_done)
     
