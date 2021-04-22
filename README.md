@@ -36,6 +36,7 @@ As for now this scripts can draw 3 kinds of plots:
 * Number of studio in activity
 * Source material of anime production
 * Score distribution
+* Score correlation to popularity
 * Length of anime aired (New production & Production continuing release)
 
 ### Example of results
@@ -46,6 +47,7 @@ As for now this scripts can draw 3 kinds of plots:
 ![Evolution of number of studio in activity from 1990 to 2021](https://github.com/Gumpy-Q/MALscraPy/blob/main/Plots/studio_quantity-1990-2021.png?raw=true)
 ![Source of the anime adaptation from 2000 to 2021](https://github.com/Gumpy-Q/MALscraPy/blob/main/Plots/source-2000-2021.png?raw=true)
 ![Community score from 2000 to 2021](https://github.com/Gumpy-Q/MALscraPy/blob/main/Plots/score_distribution-2000-2021.png?raw=true)
+![Score and viewers from 1990 to 2021](https://github.com/Gumpy-Q/MALscraPy/blob/main/Plots/score_viewers-1990-2021.png?raw=true)
 ![New anime length from 1990 to 2021](https://github.com/Gumpy-Q/MALscraPy/blob/main/Plots/episode_TV%20(New)-1990-2021.png?raw=true)
 ![Continued anime length from 1990 to 2021](https://github.com/Gumpy-Q/MALscraPy/blob/main/Plots/episode_TV%20(Continuing)-1990-2021.png?raw=true)
 
