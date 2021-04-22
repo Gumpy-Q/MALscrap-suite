@@ -7,6 +7,7 @@ Created on Thu Apr  8 09:32:36 2021
                 #SECTION 1 INITIALIZION
 import pandas as pd
 import time
+import numpy as np
 
 import matplotlib.pyplot as plt
 from matplotlib import style
@@ -21,7 +22,7 @@ from sys import exit
 
 seasons=['winter','spring','summer','fall']
 anime_types=['TV (New)','TV (Continuing)','Special','OVA','ONA','Movie']
-plot_list=['Production seasons','Production years','Studio production','Studios quantity','Source repartition','TV (New) length','TV (Continuing) length']
+plot_list=['Production seasons','Production years','Studio production','Studios quantity','Source repartition','Score distribution','TV (New) length','TV (Continuing) length']
 
 style.use('ggplot')
 sg.theme('DefaultNoMoreNagging') 
@@ -396,40 +397,102 @@ def episode(df,min_year,max_year,anitype,max_shown): #This function is showing t
     fig.savefig(savepath+'/episode_'+anitype+'-'+str(start_year)+'-'+str(end_year))
     fig.show()
     
-    return fig    
+    return fig  
+
+def score_repartition(df,min_year,max_year,anitypes): #This function is showing the repartition of anime'lenght in the year
+    
+    select_years=df[(df['score']>0) & (df['release-year']>=min_year) & (df['release-year']<=max_year)] #Limit my dataframe
+    select_years=select_years[select_years['type'].isin(anitypes)]
+    
+    print('------------ plotting evolution score ------------')
+    
+    if len(anitypes)>1:
+        
+        if len(anitypes)>4:
+            fig, axes = plt.subplots(2,3,figsize=enlarge_fig) #building a subplot for the 6 anime types
+            axes = axes.flatten()
+        elif len(anitypes)==2:
+            fig, axes = plt.subplots(1,2,figsize=enlarge_fig) #building a subplot for the 6 anime types
+            axes = axes.flatten()
+        else:
+            fig, axes = plt.subplots(2,2,figsize=enlarge_fig) #building a subplot for the 6 anime types
+            axes = axes.flatten()
+            
+        for anime_type,ax in zip(anitypes,axes): #Season and plot goes together so I zip them
+            df_type=select_years[select_years['type']==anime_type] #reducing the DataFrame to the season studied I need the year to be at the right order for the stacking
+            print('--------------'+anime_type)
+            sb.violinplot(ax=ax,x='release-year',y='score',data=df_type,bw=0.1,cut=0, scale='width',width=0.7,inner='quartile',orientation='h')
+
+        for anime_type,ax in zip(anitypes,axes):
+            ax.tick_params('x',labelrotation=45, labelsize=font)
+            ax.tick_params('y', labelsize=font)
+            ax.set_ylabel('Score',fontsize=font)
+            ax.set_xlabel('Diffusion year',fontsize=font)
+            ax.xaxis.label.set_size(font)
+            ax.set(ylim=(0,10))
+            ax.set_title(anime_type,fontsize=font)
+            ax.xaxis.set_major_locator(MaxNLocator(integer=True,nbins=12,prune='both'))
+    
+    else:
+        fig, ax = plt.subplots(1,1,figsize=enlarge_fig) #building a subplot for the one choosen
+        df_type=select_years.sort_values('release-year') #reducing the DataFrame to the season studied I need the year to be at the right order for the stacking
+        anime_type=anitypes[0]
+        print('--------------'+anime_type)
+
+        ax=sb.violinplot(x='release-year',y='score',data=df_type,bw=0.1,cut=0, scale='width',width=0.7,inner='quartile',orientation='h') 
+        ax.tick_params('x',labelrotation=45, labelsize=font)
+        ax.tick_params('y', labelsize=font)
+        ax.set_ylabel('Score',fontsize=font)
+        ax.set_xlabel('Diffusion year',fontsize=font)
+        ax.xaxis.label.set_size(font)
+        ax.set(ylim=(0,10))
+        ax.set_title(anime_type,fontsize=font)
+        ax.xaxis.set_major_locator(MaxNLocator(integer=True,nbins=12,prune='both')) 
+    
+    signature(fig)
+    fig.suptitle('Score distribution',fontsize=font) 
+
+    
+    fig.tight_layout()    
+    fig.subplots_adjust(bottom=adjust['bottom']+0.03)
+    
+    fig.savefig(savepath+'/score_'+'-'+str(start_year)+'-'+str(end_year))
+    fig.show()
+    
+    return fig
 
                 #SECTION 3 CHOICE
+#Choosing the csv file
+datavalid=False
+while datavalid==False:
+    layout = [[sg.Text('Path of the csv file')],
+            [sg.Input(default_text='Data/MAL-all-from-winter1970-to-present.csv'), sg.FileBrowse(file_types=(("csv Files", "*.csv"),))], 
+            [sg.OK(), sg.Cancel()]] 
+    window = sg.Window('Get path', layout)
+    event, values = window.read()
+    window.close()
+    if event==sg.WIN_CLOSED or event=='Cancel':
+        exit()  
+
+    path=values[0]
+    window.close()
+    try:
+        raw=pd.read_csv(path)
+        datavalid=True
+    except:
+        sg.popup('Could not read file.')    
+
+raw=pd.read_csv(path)
+
+raw['release-year']=raw['release-year'].astype(int) #I make sure they are integer as sometime it's interpreted as float
+raw['episodes']=raw['episodes'].astype(int)
+
+first_year=raw['release-year'].min()
+last_year=raw['release-year'].max()
+
 again=['Yes']
 while again[0]=='Yes':
-                    
-    #Choosing the csv file
-    datavalid=False
-    while datavalid==False:
-        layout = [[sg.Text('Path of the csv file')],
-                [sg.Input(default_text='Data/MAL-all-from-winter1970-to-present.csv'), sg.FileBrowse(file_types=(("csv Files", "*.csv"),))], 
-                [sg.OK(), sg.Cancel()]] 
-        window = sg.Window('Get path', layout)
-        event, values = window.read()
-        window.close()
-        if event==sg.WIN_CLOSED or event=='Cancel':
-            exit()  
-    
-        path=values[0]
-        window.close()
-        try:
-            raw=pd.read_csv(path)
-            datavalid=True
-        except:
-            sg.popup('Could not read file.')    
-    
-    raw=pd.read_csv(path)
-    
-    raw['release-year']=raw['release-year'].astype(int) #I make sure they are integer as sometime it's interpreted as float
-    raw['episodes']=raw['episodes'].astype(int)
-    
-    first_year=raw['release-year'].min()
-    last_year=raw['release-year'].max()
-    
+                        
     #Choosing the years to view in plot
     datavalid=False
     while datavalid==False:
@@ -462,7 +525,7 @@ while again[0]=='Yes':
     type_to_viz=[]
     datavalid=False
     while datavalid==False:
-        layout = [[sg.Text('Which type of content do you want to scrap ? ')],
+        layout = [[sg.Text('Which type of content do you want to visualize ? ')],
                 [[sg.CBox(anitype, default=True) for anitype in anime_types]], 
                 [sg.OK(), sg.Cancel()]]
         window = sg.Window('Choosing anime type', layout)
@@ -485,9 +548,17 @@ while again[0]=='Yes':
     plot_to_viz=[]
     datavalid=False
     while datavalid==False:
-        layout = [[sg.Text('Which type of content do you want to scrap ? ')],
-                [[sg.CBox(plot, default=True,key=plot) for plot in plot_list]], 
-                [sg.OK(), sg.Cancel()]]
+        layout=[]
+        layout += [sg.Text('Which plots do you want to draw ? ')],
+               
+        for i in range(int(np.ceil(len(plot_list)/2))): #Choice on 2 colums to reduce window width
+            try:
+                layout+=[sg.CBox(plot_list[2*i],size=(20,1), default=True,key=plot_list[2*i]),sg.CBox(plot_list[2*i+1],size=(20,1), default=True,key=plot_list[2*i+1])],
+            except:
+                layout+=[sg.CBox(plot_list[2*i],size=(20,1), default=True,key=plot_list[2*i])],    
+            
+        layout+=[[sg.OK(), sg.Cancel()]]
+        
         window = sg.Window('Choosing plot to view', layout)
         event, values = window.read()
         window.close()
@@ -588,6 +659,16 @@ while again[0]=='Yes':
         window.close()
         exit()
         
+    if plot_to_viz['Score distribution']==True:    
+        fig_score=score_repartition(raw,start_year,end_year,type_to_viz)
+        plot_done+=1
+        progress_bar.UpdateBar(plot_done)
+    
+    event,values=window.read(timeout=5)
+    if event==sg.WIN_CLOSED or event=='Cancel':
+        window.close()
+        exit()
+
     if plot_to_viz['TV (New) length']==True:    
         fig_ep=episode(raw,start_year,end_year,'TV (New)',60)
         plot_done+=1

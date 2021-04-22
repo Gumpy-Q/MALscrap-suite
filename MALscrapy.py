@@ -17,7 +17,7 @@ from sys import exit
 
 
 seasons=["winter","spring","summer","fall"]
-formatting=['title','MAL_id','type','studio','release-season','release-year','realase-date','source-material','episodes']
+formatting=['title','MAL_id','type','studio','release-season','release-year','realase-date','source-material','episodes','score','members']
 anime_types=['TV (New)','TV (Continuing)','ONA','OVA','Movie','Special']
 
 default_url='https://myanimelist.net/anime/season'
@@ -194,6 +194,17 @@ def seasonscrap(season,year,anime_type):
                 except:
                     season_scrap['episodes'].append(int(0))
                 
+                score=anime.find('span',{'title':'Score'}).text.replace('\n','')
+                try:
+                    season_scrap['score'].append(float(score))
+                except:
+                    season_scrap['score'].append(float(0))
+                    
+                members=anime.find('span',{'title':'Members'}).text.replace(',','').replace(' ','').replace('\n','')
+                try:
+                    season_scrap['members'].append(int(members))
+                except:
+                    season_scrap['wachted by'].append(int(0))                
                 
             print('Finished scraping '+season_type.find('div',{'class':'anime-header'}).string+' of '+season+' '+str(year))
         else: 
@@ -218,7 +229,6 @@ layout = [[sg.Text('Current progress')],
 window = sg.Window('Progress', layout)
 progress_bar = window['progressbar']
 season_scraped=0
-
 
 #I need to give the seasons I want to scrape depending if: start year, end year, start=end
 for year in years:   
