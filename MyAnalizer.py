@@ -14,6 +14,8 @@ from matplotlib import style
 from matplotlib.patches import Patch
 from matplotlib.ticker import PercentFormatter
 from matplotlib.ticker import MaxNLocator
+from matplotlib import ticker as mticker
+
 import seaborn as sb
 
 import PySimpleGUI as sg
@@ -22,7 +24,7 @@ from sys import exit
 
 seasons=['winter','spring','summer','fall']
 anime_types=['TV (New)','TV (Continuing)','Special','OVA','ONA','Movie']
-plot_list=['Production seasons','Production years','Studio production','Studios quantity','Source repartition','Score distribution','TV (New) length','TV (Continuing) length']
+plot_list=['Production seasons','Production years','Studio production','Studios quantity','Score distribution','Score and viewers ','TV (New) length','TV (Continuing) length','Source repartition']
 
 style.use('ggplot')
 sg.theme('DefaultNoMoreNagging') 
@@ -421,6 +423,7 @@ def score_distribution(df,min_year,max_year,anitypes): #This function is showing
         for anime_type,ax in zip(anitypes,axes): #Season and plot goes together so I zip them
             df_type=select_years[select_years['type']==anime_type] #reducing the DataFrame to the season studied I need the year to be at the right order for the stacking
             print('--------------'+anime_type)
+            
             sb.violinplot(ax=ax,x='release-year',y='score',data=df_type,bw=0.1,cut=0, scale='width',width=0.7,inner='quartile',orientation='h')
 
         for anime_type,ax in zip(anitypes,axes):
@@ -440,12 +443,13 @@ def score_distribution(df,min_year,max_year,anitypes): #This function is showing
         print('--------------'+anime_type)
 
         ax=sb.violinplot(x='release-year',y='score',data=df_type,bw=0.1,cut=0, scale='width',width=0.7,inner='quartile',orientation='h') 
+        
         ax.tick_params('x',labelrotation=45, labelsize=font)
         ax.tick_params('y', labelsize=font)
         ax.set_ylabel('Score',fontsize=font)
         ax.set_xlabel('Diffusion year',fontsize=font)
         ax.xaxis.label.set_size(font)
-        ax.set(ylim=(0,10))
+        ax.set(ylim=(3,10))
         ax.set_title(anime_type,fontsize=font)
         ax.xaxis.set_major_locator(MaxNLocator(integer=True,nbins=12,prune='both')) 
     
@@ -460,6 +464,147 @@ def score_distribution(df,min_year,max_year,anitypes): #This function is showing
     fig.show()
     
     return fig
+
+# def score_viewers1(df,min_year,max_year,anitypes):
+#     select_years=df[(df['release-year']<=max_year) & (df['release-year']>=min_year)] #remove years out of study scope
+#     select_years=select_years[select_years['type'].isin(anitypes)]
+#     select_years=select_years[(select_years['score']!=0) & (select_years['members']!=0)]
+    
+#     select_years=select_years[['score','members']]
+    
+#     forks=[[0,1e3],[1e3,5e3],[5e3,1e4],[1e4,5e4],[5e4,1e5],[1e5,5e5],[5e5,3e6]]
+    
+#     scores=[[0,4]]
+#     for i in range(8,20):
+#         scores+=[[i*0.5,i*0.5+0.5]]
+    
+#     fork_list=[]
+#     df_map={'member':[],'score':[],'count':[]}
+#     for fork in forks:
+#         df_memb=select_years[(select_years['members']>fork[0]) &(select_years['members']<fork[1])]
+#         fork_list.append(str(int(fork[0]))+'-'+str(int(fork[1])))
+#         for score in scores:
+#             df_score=df_memb[(df_memb['score']>score[0]) &(df_memb['score']<score[1])]
+#             df_map['member'].append(str(int(fork[0]))+'-'+str(int(fork[1])))
+#             df_map['score'].append(str(score[0])+'-'+str(score[1]))
+#             df_map['count'].append(df_score.shape[0])    
+            
+#     df_map=pd.DataFrame(df_map).pivot('member','score','count')
+    
+#     i=0        
+#     for fork in fork_list:
+#         df_map.loc[fork,['sort']]=i
+#         i+=1
+       
+#     df_map=df_map.sort_values('sort')
+#     df_map.pop('sort')
+    
+#     fig, ax =plt.subplots(figsize=enlarge_fig)
+#     ax=sb.heatmap(df_map,linewidths=.5,cmap="YlGnBu")
+            
+            
+#     ax.tick_params('x',labelrotation=90, labelsize=font)
+#     ax.tick_params('y', labelrotation=0, labelsize=font)
+#     ax.set_ylabel('Number of viewers',fontsize=font)
+#     ax.set_xlabel('Score',fontsize=font)
+#     ax.xaxis.label.set_size(font)
+#     ax.set_title('Heatmap viewer/score '+str(min_year)+'-'+str(max_year)+'\n'+'/'.join(anitypes),fontsize=font)
+    
+#     signature(fig)
+    
+#     fig.tight_layout()
+#     fig.subplots_adjust(bottom=adjust['bottom']+0.05)
+    
+#     fig.savefig(savepath+'/score_viewers'+'-'+str(start_year)+'-'+str(end_year))
+#     fig.show()
+    
+#     return fig    
+
+def score_viewers(df,min_year,max_year,anitypes):
+    select_years=df[(df['release-year']<=max_year) & (df['release-year']>=min_year)] #remove years out of study scope
+    select_years=select_years[select_years['type'].isin(anitypes)]
+    select_years=select_years[(select_years['score']!=0) & (select_years['members']!=0)]
+    
+    select_years=select_years[['score','members','type']]
+    select_years['members']=np.log10(select_years['members'])
+    
+    scores=[[0,4]]
+    for i in range(8,20):
+        scores+=[[i*0.5,i*0.5+0.5]]
+    
+    scores_list=[]
+    for score in scores:
+        select_years.loc[((select_years['score']>score[0]) & (select_years['score']<score[1])),['score_cat']]=str(score[0])+'-'+str(score[1])
+        scores_list+=[str(score[0])+'-'+str(score[1])]
+        
+       
+    select_years=select_years.sort_values('score_cat')    
+
+    print('------------ plotting score and viewers ------------')
+    
+    if len(anitypes)>1:
+        
+        if len(anitypes)>4:
+            fig, axes = plt.subplots(2,3,figsize=enlarge_fig) #building a subplot for the 6 anime types
+            axes = axes.flatten()
+        elif len(anitypes)==2:
+            fig, axes = plt.subplots(1,2,figsize=enlarge_fig) #building a subplot for the 6 anime types
+            axes = axes.flatten()
+        else:
+            fig, axes = plt.subplots(2,2,figsize=enlarge_fig) #building a subplot for the 6 anime types
+            axes = axes.flatten()
+            
+        for anime_type,ax in zip(anitypes,axes): #Season and plot goes together so I zip them
+            df_type=select_years[select_years['type']==anime_type] #reducing the DataFrame to the season studied I need the year to be at the right order for the stacking
+            print('--------------'+anime_type)
+            
+            sb.violinplot(ax=ax,x='score_cat',y='members',data=df_type,bw=0.1,cut=0, scale='width',width=0.7,inner='quartile',orientation='h')
+            
+            ymax=df_type['members'].max()
+            ax.tick_params('x',labelrotation=45, labelsize=font)
+            ax.tick_params('y', labelsize=font)
+            ax.set_ylabel('Viewers',fontsize=font)
+            ax.set_xlabel('Score rage',fontsize=font)
+            ax.xaxis.label.set_size(font)
+            ax.set(ylim=(2,ymax))
+            ax.set_title(anime_type,fontsize=font)
+            ax.xaxis.set_major_locator(MaxNLocator(integer=True,nbins=12,prune='both'))
+            
+            ax.yaxis.set_major_formatter(mticker.StrMethodFormatter("$10^{{{x:.0f}}}$"))
+            ax.yaxis.set_ticks([np.log10(x) for p in range(2,5) for x in np.linspace(10**p, 10**(p+1), 10)], minor=True)
+    
+    else:
+        fig, ax = plt.subplots(1,1,figsize=enlarge_fig) #building a subplot for the one choosen
+       
+        anime_type=anitypes[0]
+        df_type=select_years[select_years['type']==anime_type]
+        print('--------------'+anime_type)
+
+        sb.violinplot(ax=ax,x='score_cat',y='members',data=df_type,bw=0.1,cut=0, scale='width',width=0.7,inner='quartile',orientation='h')
+       
+        ymax=df_type['members'].max()
+        ax.tick_params('x',labelrotation=45, labelsize=font)
+        ax.tick_params('y', labelsize=font)
+        ax.set_ylabel('Viewers',fontsize=font)
+        ax.set_xlabel('Score rage',fontsize=font)
+        ax.xaxis.label.set_size(font)
+        ax.set(ylim=(2,ymax))
+        ax.set_title(anime_type,fontsize=font)
+        ax.xaxis.set_major_locator(MaxNLocator(integer=True,nbins=12,prune='both'))
+        
+        ax.yaxis.set_major_formatter(mticker.StrMethodFormatter("$10^{{{x:.0f}}}$"))
+        ax.yaxis.set_ticks([np.log10(x) for p in range(2,3) for x in np.linspace(10**p, 10**(p+1), 10)], minor=True)
+    
+    fig.suptitle('Score correlation to popularity '+str(min_year)+'-'+str(max_year),fontsize=font)
+    signature(fig)
+    
+    fig.tight_layout()
+    fig.subplots_adjust(bottom=adjust['bottom']+0.05,hspace=0.5)
+    
+    fig.savefig(savepath+'/score_viewers'+'-'+str(start_year)+'-'+str(end_year))
+    fig.show()
+    
+    return fig    
 
                 #SECTION 3 CHOICE
 #Choosing the csv file
@@ -668,6 +813,16 @@ while again[0]=='Yes':
     if event==sg.WIN_CLOSED or event=='Cancel':
         window.close()
         exit()
+        
+    if plot_to_viz['Score and viewers ']==True:    
+        fig_heatscore=score_viewers(raw,start_year,end_year,type_to_viz)
+        plot_done+=1
+        progress_bar.UpdateBar(plot_done)
+    
+    event,values=window.read(timeout=5)
+    if event==sg.WIN_CLOSED or event=='Cancel':
+        window.close()
+        exit()       
 
     if plot_to_viz['TV (New) length']==True:    
         fig_ep=episode(raw,start_year,end_year,'TV (New)',60)
@@ -688,6 +843,7 @@ while again[0]=='Yes':
     if event==sg.WIN_CLOSED or event=='Cancel':
         window.close()
         exit()
+
     
     window.close()    
     sg.popup('Finished ! \nPlots saved at '+savepath)
