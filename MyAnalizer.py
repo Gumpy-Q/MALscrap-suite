@@ -107,7 +107,7 @@ def production_season(df,min_year,max_year,anitypes,color_list): #To vizualize t
 
         print('--------------'+season)
         
-        ymax=stackbarcolor(df_season,anitypes,ax,season,contrast_colors,'type','count','Count',max_year,min_year,ymax)
+        ymax=stackbarcolor(df_season,anitypes,ax,season,contrast_colors,'type','count','Number of anime aired',max_year,min_year,ymax)
         
     for ax in axes:
         ax.axis(ymax=ymax+5) #And then I set the limit
@@ -432,7 +432,7 @@ def score_distribution(df,min_year,max_year,anitypes): #This function is showing
             ax.set_ylabel('Score',fontsize=font)
             ax.set_xlabel('Diffusion year',fontsize=font)
             ax.xaxis.label.set_size(font)
-            ax.set(ylim=(0,10))
+            ax.set(ylim=(3,10))
             ax.set_title(anime_type,fontsize=font)
             ax.xaxis.set_major_locator(MaxNLocator(integer=True,nbins=12,prune='both'))
     
@@ -564,7 +564,7 @@ def score_viewers(df,min_year,max_year,anitypes):
             ax.tick_params('x',labelrotation=45, labelsize=font)
             ax.tick_params('y', labelsize=font)
             ax.set_ylabel('Viewers',fontsize=font)
-            ax.set_xlabel('Score rage',fontsize=font)
+            ax.set_xlabel('Score range',fontsize=font)
             ax.xaxis.label.set_size(font)
             ax.set(ylim=(2,ymax))
             ax.set_title(anime_type,fontsize=font)
@@ -586,7 +586,7 @@ def score_viewers(df,min_year,max_year,anitypes):
         ax.tick_params('x',labelrotation=45, labelsize=font)
         ax.tick_params('y', labelsize=font)
         ax.set_ylabel('Viewers',fontsize=font)
-        ax.set_xlabel('Score rage',fontsize=font)
+        ax.set_xlabel('Score range',fontsize=font)
         ax.xaxis.label.set_size(font)
         ax.set(ylim=(2,ymax))
         ax.set_title(anime_type,fontsize=font)
