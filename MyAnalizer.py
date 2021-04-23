@@ -33,6 +33,8 @@ font='xx-large'
 lgd_position='center right'
 adjust={'bottom':0.11,'right':0.82,'wspace':0.35}
 enlarge_fig=(18,10)
+nb_ticks=7
+rotation_ticks=45
 contrast_colors=['#e6194B', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#42d4f4', '#f032e6', '#bfef45', '#fabed4', '#469990', '#dcbeff', '#9A6324', '#fffac8', '#800000', '#aaffc3', '#808000', '#ffd8b1', '#000075', '#a9a9a9', '#ffffff', '#000000']
 long_contrast_colors=["#000000", "#FFFF00", "#1CE6FF", "#FF34FF", "#FF4A46", "#008941", "#006FA6", "#A30059",
 "#FFDBE5", "#7A4900", "#0000A6", "#63FFAC", "#B79762", "#004D43", "#8FB0FF", "#997D87",
@@ -67,11 +69,10 @@ def stackbarcolor(df_plot,cat_list,ax,plot_name,colors_list,cat_key,tosum_key,yl
     ax.xaxis.label.set_size(font)
     ax.set_title(plot_name,fontsize=font)
     ax.axis(xmax=df_plot['release-year'].max()+1,xmin=df_plot['release-year'].min()-1)
-    ax.tick_params('x',labelrotation=45, labelsize=font)
+    ax.tick_params('x',labelrotation=rotation_ticks, labelsize=font)
     ax.tick_params('y', labelsize=font)
-    ax.set(xlim=(min_year-1,max_year+1))
     ax.ticklabel_format(axis='x', style='plain', useOffset=False) #If I don't do this plt want to put the label to engineering notation
-    ax.xaxis.set_major_locator(MaxNLocator(integer=True,nbins=7,prune='both')) #give instruction how to handle the tick label: integer, nb of label, remove egde label
+    ax.xaxis.set_major_locator(MaxNLocator(integer=True,nbins=nb_ticks,prune='both')) #give instruction how to handle the tick label: integer, nb of label, remove egde label
             
     ymax=max(df_plot['bottom'].max(),ymax) #after each season I retrieve the maximum value to limit plot axis
     
@@ -382,14 +383,14 @@ def episode(df,min_year,max_year,anitype,max_shown): #This function is showing t
     
     fig, ax =plt.subplots(figsize=enlarge_fig)
     ax=sb.violinplot(x='release-year',y='episodes',data=select_year,bw=0.1,cut=0, scale='width',width=0.7,inner='stick',orientation='h') 
-    ax.tick_params('x',labelrotation=45, labelsize=font)
+    ax.tick_params('x',labelrotation=rotation_ticks, labelsize=font)
     ax.tick_params('y', labelsize=font)
     ax.set_ylabel('Number of episodes per anime',fontsize=font)
     ax.set_xlabel('Diffusion year',fontsize=font)
     ax.xaxis.label.set_size(font)
     ax.set(ylim=(0,max_shown))
     ax.set_title('Repartion of anime length : '+ anitype,fontsize=font)
-    ax.xaxis.set_major_locator(MaxNLocator(integer=True,nbins=12,prune='both')) #
+    ax.xaxis.set_major_locator(MaxNLocator(integer=True,nbins=nb_ticks,prune='both')) #
     
     signature(fig)
     
@@ -407,6 +408,13 @@ def score_distribution(df,min_year,max_year,anitypes): #This function is showing
     select_years=select_years[select_years['type'].isin(anitypes)]
     
     print('------------ plotting evolution score ------------')
+    
+    for anime_type in anitypes:
+        df_type=select_years[select_years['type']==anime_type]
+        for year in range(min_year,max_year+1):
+            if df_type[df_type['release-year']==year].shape[0]==0:
+                select_years=pd.concat([select_years,pd.DataFrame([[0,year,anime_type]],columns=['score','release-year','type'])], ignore_index=True)
+
     
     if len(anitypes)>1:
         
@@ -427,14 +435,14 @@ def score_distribution(df,min_year,max_year,anitypes): #This function is showing
             sb.violinplot(ax=ax,x='release-year',y='score',data=df_type,bw=0.1,cut=0, scale='width',width=0.7,inner='quartile',orientation='h')
 
         for anime_type,ax in zip(anitypes,axes):
-            ax.tick_params('x',labelrotation=45, labelsize=font)
+            ax.tick_params('x',labelrotation=rotation_ticks, labelsize=font)
             ax.tick_params('y', labelsize=font)
             ax.set_ylabel('Score',fontsize=font)
             ax.set_xlabel('Diffusion year',fontsize=font)
             ax.xaxis.label.set_size(font)
             ax.set(ylim=(3,10))
             ax.set_title(anime_type,fontsize=font)
-            ax.xaxis.set_major_locator(MaxNLocator(integer=True,nbins=12,prune='both'))
+            ax.xaxis.set_major_locator(MaxNLocator(integer=True,nbins=nb_ticks,prune='both'))
     
     else:
         fig, ax = plt.subplots(1,1,figsize=enlarge_fig) #building a subplot for the one choosen
@@ -444,14 +452,14 @@ def score_distribution(df,min_year,max_year,anitypes): #This function is showing
 
         ax=sb.violinplot(x='release-year',y='score',data=df_type,bw=0.1,cut=0, scale='width',width=0.7,inner='quartile',orientation='h') 
         
-        ax.tick_params('x',labelrotation=45, labelsize=font)
+        ax.tick_params('x',labelrotation=rotation_ticks, labelsize=font)
         ax.tick_params('y', labelsize=font)
         ax.set_ylabel('Score',fontsize=font)
         ax.set_xlabel('Diffusion year',fontsize=font)
         ax.xaxis.label.set_size(font)
         ax.set(ylim=(3,10))
         ax.set_title(anime_type,fontsize=font)
-        ax.xaxis.set_major_locator(MaxNLocator(integer=True,nbins=12,prune='both')) 
+        ax.xaxis.set_major_locator(MaxNLocator(integer=True,nbins=nb_ticks,prune='both')) 
     
     signature(fig)
     fig.suptitle('Score distribution',fontsize=font) 
@@ -526,17 +534,25 @@ def score_viewers(df,min_year,max_year,anitypes):
     select_years=select_years[(select_years['score']!=0) & (select_years['members']!=0)]
     
     select_years=select_years[['score','members','type']]
-    select_years['members']=np.log10(select_years['members'])
-    
+      
     scores=[[0,4]]
     for i in range(8,20):
         scores+=[[i*0.5,i*0.5+0.5]]
     
     scores_list=[]
     for score in scores:
-        select_years.loc[((select_years['score']>score[0]) & (select_years['score']<score[1])),['score_cat']]=str(score[0])+'-'+str(score[1])
+        select_years.loc[((select_years['score']>=score[0]) & (select_years['score']<score[1])),['score_cat']]=str(score[0])+'-'+str(score[1])
         scores_list+=[str(score[0])+'-'+str(score[1])]
-        
+    
+    ymax=int(np.ceil(select_years['members'].max()))
+    ymin=int(select_years['members'].min())
+    
+    for anime_type in anitypes:
+        df_type=select_years[select_years['type']==anime_type]
+        for score in scores_list:
+            if df_type[df_type['score_cat']==score].shape[0]==0:
+                select_years=pd.concat([select_years,pd.DataFrame([[0,score,anime_type]],columns=['members','score_cat','type'])], ignore_index=True)
+            
        
     select_years=select_years.sort_values('score_cat')    
 
@@ -560,19 +576,17 @@ def score_viewers(df,min_year,max_year,anitypes):
             
             sb.violinplot(ax=ax,x='score_cat',y='members',data=df_type,bw=0.1,cut=0, scale='width',width=0.7,inner='quartile',orientation='h')
             
-            ymax=df_type['members'].max()
-            ax.tick_params('x',labelrotation=45, labelsize=font)
+            ax.tick_params('x',labelrotation=rotation_ticks, labelsize=font)
             ax.tick_params('y', labelsize=font)
             ax.set_ylabel('Viewers',fontsize=font)
             ax.set_xlabel('Score range',fontsize=font)
             ax.xaxis.label.set_size(font)
-            ax.set(ylim=(2,ymax))
-            ax.set_title(anime_type,fontsize=font)
-            ax.xaxis.set_major_locator(MaxNLocator(integer=True,nbins=12,prune='both'))
             
-            ax.yaxis.set_major_formatter(mticker.StrMethodFormatter("$10^{{{x:.0f}}}$"))
-            ax.yaxis.set_ticks([np.log10(x) for p in range(2,5) for x in np.linspace(10**p, 10**(p+1), 10)], minor=True)
-    
+            ax.set_title(anime_type,fontsize=font)
+            
+            ax.set(ylim=((int(ymin/10**(len(str(ymin))-1)))*10**(len(str(ymin))-1),(1+int(ymax/10**(len(str(ymax))-1)))*10**(len(str(ymax))-1)))
+            ax.set_yscale('log')
+        
     else:
         fig, ax = plt.subplots(1,1,figsize=enlarge_fig) #building a subplot for the one choosen
        
@@ -582,18 +596,16 @@ def score_viewers(df,min_year,max_year,anitypes):
 
         sb.violinplot(ax=ax,x='score_cat',y='members',data=df_type,bw=0.1,cut=0, scale='width',width=0.7,inner='quartile',orientation='h')
        
-        ymax=df_type['members'].max()
-        ax.tick_params('x',labelrotation=45, labelsize=font)
+        ax.tick_params('x',labelrotation=rotation_ticks, labelsize=font)
         ax.tick_params('y', labelsize=font)
         ax.set_ylabel('Viewers',fontsize=font)
         ax.set_xlabel('Score range',fontsize=font)
         ax.xaxis.label.set_size(font)
-        ax.set(ylim=(2,ymax))
+
         ax.set_title(anime_type,fontsize=font)
-        ax.xaxis.set_major_locator(MaxNLocator(integer=True,nbins=12,prune='both'))
-        
-        ax.yaxis.set_major_formatter(mticker.StrMethodFormatter("$10^{{{x:.0f}}}$"))
-        ax.yaxis.set_ticks([np.log10(x) for p in range(2,3) for x in np.linspace(10**p, 10**(p+1), 10)], minor=True)
+
+        ax.set(ylim=((int(ymin/10**(len(str(ymin))-1)))*10**(len(str(ymin))-1),(1+int(ymax/10**(len(str(ymax))-1)))*10**(len(str(ymax))-1)))
+        ax.set_yscale('log')
     
     fig.suptitle('Score correlation to popularity '+str(min_year)+'-'+str(max_year),fontsize=font)
     signature(fig)
