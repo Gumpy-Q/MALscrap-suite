@@ -39,6 +39,9 @@ As for now this scripts can draw 3 kinds of plots:
 * Score correlation to popularity
 * Length of anime aired (New production & Production continuing release)
 
+### Use it to your heart content but...
+Please leave the credits on the plots if you want to share them
+
 ### Example of results
 
 ![Evolution of the anime production from 1970 to 2021](https://github.com/Gumpy-Q/MALscraPy/blob/main/Plots/year_evolution1970-2020.png?raw=true)
