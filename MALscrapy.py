@@ -257,22 +257,19 @@ for year in years:
         progress_bar.UpdateBar(season_scraped)
         window.refresh()
 
-        scrap=pd.concat([scrap,df_n]) #add the new data to the end of the data Frame
+        scrap=pd.concat([scrap,df_n],ignore_index=True) #add the new data to the end of the data Frame
         
         time.sleep(sleep_time)
         
 window.close()
 
-scrap.reset_index(drop=True, inplace=True) #reset l'index qui est chamboulé par le concat
-pd.to_numeric(scrap['release-year'], downcast='integer')              
-pd.to_numeric(scrap['episodes'], downcast='integer')    
+# scrap.reset_index(drop=True, inplace=True) #reset l'index qui est chamboulé par le concat  
 
               #SECTION 5 EXPORT
 output=["html","json","csv","excel"]
 
 compute_time=round(time.time()-begin)
 sg.popup('time to scrap: '+str(timedelta(seconds=compute_time))) 
-path='Data'
 
 if len(type_to_scrap)==1:
     type_chosen=type_to_scrap[0]
@@ -280,38 +277,40 @@ elif len(type_to_scrap)==6:
     type_chosen='all'
 else:
     type_chosen='custom'
-
+    
 filename='/MAL-'+type_chosen+'-from-'+start_season+str(start_year)+'-to-'+end_season+str(end_year)
 
 datavalid=False
-while datavalid==False:
-    print(output)
+while datavalid==False:    
+    
     layout = [  [sg.Text('Path to save')],
-            [sg.Input(default_text=path), sg.FolderBrowse()],
+            [sg.Input(default_text='Data'), sg.FolderBrowse()],
             [sg.Text('Output format:'),sg.Combo(output,default_value='csv')],
             [sg.OK(), sg.Cancel()]] 
-
+    
     window = sg.Window('Get path', layout)
-
+    
     event, values = window.read()
     window.close()
-
+    
     if event==sg.WIN_CLOSED or event=='Cancel':
         exit()  
     
     path=values[0]
     output_format=values[1]
     
-    if output_format=='html':
-        scrap.to_html(path+filename+'.html',index=False)
-    elif output_format=='json':
-        scrap.to_json(path+filename+'.json')
-    elif output_format=='csv':
-        scrap.to_csv(path+filename+'.csv',index=False)
-    elif output_format=='excel':
-        scrap.to_excel(path+filename+'.xlsx',index=False)
-    
-    datavalid=True
-
+    try:
+        if output_format=='html':
+            scrap.to_html(path+filename+'.html',index=False)
+        elif output_format=='json':
+            scrap.to_json(path+filename+'.json')
+        elif output_format=='csv':
+            scrap.to_csv(path+filename+'.csv',index=False)
+        elif output_format=='excel':
+            scrap.to_excel(path+filename+'.xlsx',index=False)
+        datavalid=True
+    except:
+        sg.popup('Unable to save at this path')
+        
 
 sg.popup('File saved as \n' + path+''+filename+'.'+output_format)       
