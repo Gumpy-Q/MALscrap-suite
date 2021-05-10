@@ -30,7 +30,7 @@ You only need to install [Python]( https://www.python.org/downloads/) and its fo
 # MyAnalizer
 Want to visualize the juicy data you have just scraped ? Here it is !
 
-As for now this scripts can draw 3 kinds of plots:
+As for now this scripts can draw these kinds of plots:
 * Evolution of production (year & season)
 * Top 3 studio production over the year
 * Number of studio in activity
