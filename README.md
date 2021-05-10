@@ -37,6 +37,7 @@ As for now this scripts can draw 3 kinds of plots:
 * Source material of anime production
 * Score distribution
 * Score correlation to popularity
+* MAL viewers evolution
 * Length of anime aired (New production & Production continuing release)
 
 ### Use it to your heart content but...
@@ -51,8 +52,10 @@ Please leave the credits on the plots if you want to share them
 ![Source of the anime adaptation from 2000 to 2021](https://github.com/Gumpy-Q/MALscraPy/blob/main/Plots/source-2000-2021.png?raw=true)
 ![Community score from 2000 to 2021](https://github.com/Gumpy-Q/MALscraPy/blob/main/Plots/score_distribution-2000-2021.png?raw=true)
 ![Score and viewers from 1990 to 2021](https://github.com/Gumpy-Q/MALscraPy/blob/main/Plots/score_viewers-1990-2021.png?raw=true)
+![MAL viewers from 2000 to 2021](https://github.com/Gumpy-Q/MALscraPy/blob/main/Plots/viewers_distribution-2000-2021.png?raw=true)
 ![New anime length from 1990 to 2021](https://github.com/Gumpy-Q/MALscraPy/blob/main/Plots/episode_TV%20(New)-1990-2021.png?raw=true)
 ![Continued anime length from 1990 to 2021](https://github.com/Gumpy-Q/MALscraPy/blob/main/Plots/episode_TV%20(Continuing)-1990-2021.png?raw=true)
+
 
 
 ## Want to run the script without knowing much about Python ?
