@@ -60,8 +60,8 @@ if len(df["type"].unique())==6:
 else:
     type_chosen="custom"
 
-start_year=int(df["release-year"].max())
-end_year=int(df["release-year"].min())
+end_year=int(df["release-year"].max())
+start_year=int(df["release-year"].min())
 start_season=df["release-season"].head(1).values[0]
 end_season=df["release-season"].tail(1).values[0]
 

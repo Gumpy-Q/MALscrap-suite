@@ -35,9 +35,10 @@ window.read()
 window.close()
 
                 #SECTION 2 CHOICES
-#choose start year. I choose to limite the range to 1917 (first recorded anime on MAL) to present year+1
-begin=time.time()
 
+begin=time.time() #Take the time value to give total computation time later
+
+#choose start year and season. I choose to limit the range from 1917 (first recorded anime on MAL) to present year+1
 datavalid=False
 while datavalid==False:
     layout = [[sg.Text('From which year do you want to scrap ? ')],
@@ -64,7 +65,7 @@ while datavalid==False:
     except:
         sg.popup('Invalid input. Must be YYYY in range [1917;'+str(time.localtime().tm_year+1)+']')
 
-        
+#choose end year and season. range from start year to present year+1        
 datavalid=False
 while datavalid==False:
     layout = [[sg.Text('Until which year do you want to scrap ? ')],
@@ -88,22 +89,22 @@ while datavalid==False:
             sg.popup('Invalid input. Must be YYYY in range ['+start_year+';'+str(time.localtime().tm_year+1)+']')
         elif end_year==start_year:
             
-            if start_season_index<=end_season_index: #position of end season must be greater than position of start season or equal
+            if start_season_index<=end_season_index: #position of end season in seasons list must be greater than position of start season or equal
                 datavalid=True
             else:
-                sg.popup('Invalid input. End and start in same the year but end season is sooner than start.')
+                sg.popup('Invalid input.\n End and start in same the year but end season is sooner than start.')
             
         else:
             datavalid=True
     except:
         sg.popup('Invalid input. Must be YYYY in range [1917;'+str(time.localtime().tm_year+1)+']')
 
-
+#choose what kind of anime to scrap
 type_to_scrap=[]
 datavalid=False
 while datavalid==False:
     layout = [[sg.Text('Which type of content do you want to scrap ? ')],
-            [[sg.CBox(anitype, default=True) for anitype in anime_types]], 
+            [[sg.CBox(anitype, default=True) for anitype in anime_types]], #create a list of checkbox from a list, here anime_types
             [sg.OK(), sg.Cancel()]]
     window = sg.Window('Choosing anime type', layout)
     event, values = window.read()
@@ -111,21 +112,18 @@ while datavalid==False:
     
     if event==sg.WIN_CLOSED or event=='Cancel':
          exit()
-    
+   
     for i in range(len(values)):
         if values[i]==True:
-            type_to_scrap.append(anime_types[i])
-    
+            type_to_scrap.append(anime_types[i]) #build the list of anime to scrap
+
     if len(type_to_scrap)!=0:
         datavalid=True
     else:
         sg.popup('At least one box must be checked')
-    
-         
-
-    
-print('____________________________')
-
+  
+   
+#choosing delay between season scrap
 layout = [[sg.Text('How many seconds between two requests ? ')],
           [sg.Text('WARNING fast requests might get your IP ban (I used 2 seconds to build my datasets)')],
           [sg.Slider(range=(0,10),default_value=2,orientation='horizontal')],
@@ -142,15 +140,17 @@ sleep_time=values[0]
 
 
                 #SECTION 3 scraper fonction
+#This function scrap one season for anime type                
 def seasonscrap(season,year,anime_type):
     url=default_url+"/"+str(year)+'/'+season    #url to scrap
     headers=({'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:53.0) Gecko/20100101 Firefox/53.0','Accept-Language':'fr-FR,q=0.5'})
     r=requests.get(url,headers)
     soup=BeautifulSoup(r.content,'html.parser')
-    
+
+    #initializing the dictionary    
     season_scrap={}
     for key in formatting:
-        season_scrap[key]=[]  #initializing the dictionary
+        season_scrap[key]=[]  
     
     season_types=soup.find_all('div',{'class':'anime-header'}) #anime-header has the name of each section for anime type
     season_types_parent=[]
@@ -161,8 +161,9 @@ def seasonscrap(season,year,anime_type):
     for season_type in season_types_parent:    
         if season_type.find('div',{'class':'anime-header'}).string in anime_type: #I want to scrap only the type of anime choosen by user
             animes=season_type.find_all("div",{"class":"seasonal-anime js-seasonal-anime"}) #This is the div of each anime
+            
             for anime in animes:
-                #those are directly in the text
+                #those are directly in the text of each anime
                 season_scrap['title'].append(anime.find("h2",{'class':'h2_anime_title'}).text) 
                 season_scrap['studio'].append(anime.find("span",{'class':'producer'}).text)
                 season_scrap['source-material'].append(anime.find("span",{'class':'source'}).text)
@@ -172,9 +173,10 @@ def seasonscrap(season,year,anime_type):
                 season_scrap['release-season'].append(season)
                 season_scrap['release-year'].append(year)
                                 
-                ID=anime.find("h2",{'class':'h2_anime_title'}).find("a").get('href')[30:35] #the id is in the url of the hypertext link on the name of the anime. The ID is in position 30 to 35 in the link
-                ID=''.join(filter(lambda i: i.isdigit(), ID)) #ID can have different length thus I will only take digit character
+                ID=anime.find("h2",{'class':'h2_anime_title'}).find("a").get('href')[30:] #the id is in the url of the hypertext link on the name of the anime. The ID begins at position 30 in the link
+                ID=ID[:ID.find('/')] #ID can have different length thus I will only take characters before the '/'
                 season_scrap['MAL_id'].append(ID)
+                
                 #Realase date exists in two formats: Mon. DD, YYYY, HH:MM (JST) or Mon. DD, YYYY
                 #There is also a lot of spaces and \n so I remove them before extracting the date to a datetime object with strptime
                 try:
@@ -187,8 +189,10 @@ def seasonscrap(season,year,anime_type):
                         
                 season_scrap['realase-date'].append(release)
                 
-                #I want only the number of episode/OVA/Movie, if it's not given then I put a Null value 
-                eps=''.join(filter(lambda i: i.isdigit(), anime.find("div",{'class':'eps'}).text))
+                #For older anime some stats are not displayed as they aren't enough users
+                
+                #I want only the number of episode/OVA/Movie, if it's not given then I return a 0 
+                eps=''.join(filter(lambda i: i.isdigit(), anime.find("div",{'class':'eps'}).text)) #Get only digit value in a list of char
                 try:
                     season_scrap['episodes'].append(int(eps))
                 except:
@@ -219,18 +223,18 @@ def seasonscrap(season,year,anime_type):
 
                 #SECTION 4 COMPILATION OF SCRAPING
 years=np.arange(start_year,end_year+1,1) #building a vector of years from start to end year
-scrap=pd.DataFrame(dict.fromkeys(formatting,[])) #initializing my dictionary
+scrap=pd.DataFrame(dict.fromkeys(formatting,[])) #initializing my DataFrame
 
 layout = [[sg.Text('Current progress')],
           [sg.Output(size=(80,12))],
-          [sg.ProgressBar(4*(1+end_year-start_year), orientation='h', size=(51, 20), key='progressbar')],
+          [sg.ProgressBar(4*(1+end_year-start_year), orientation='h', size=(40, 12), key='progressbar')], #build a progress bar /!\ not accurate as it will just do number of year * 4 (seasons)
           [sg.Cancel()]]
 
 window = sg.Window('Progress', layout)
 progress_bar = window['progressbar']
 season_scraped=0
 
-#I need to give the seasons I want to scrape depending if: start year, end year, start=end
+#I need to give and test the seasons I want to scrape depending if: start year, end year, start=end
 for year in years:   
     if year==start_year:
         
@@ -241,8 +245,9 @@ for year in years:
 
     elif year==end_year:
         seasons_to_scrap=seasons[:end_season_index+1] #I remove season after end season if end year
+    
     else:
-        seasons_to_scrap=seasons #For other years betweend start and end, I want all of them
+        seasons_to_scrap=seasons #For other years between start and end, I want all of them
         
     for season_to_scrap in seasons_to_scrap:
         #show progress of scraping
@@ -251,7 +256,7 @@ for year in years:
             window.close()
             exit()
              
-        df_n=pd.DataFrame(seasonscrap(season_to_scrap,year,type_to_scrap)) #I bluid a DataFrame around my data
+        df_n=pd.DataFrame(seasonscrap(season_to_scrap,year,type_to_scrap)) #I bluid a DataFrame around my data freshly scraped
 
         season_scraped+=1
         progress_bar.UpdateBar(season_scraped)
@@ -263,14 +268,13 @@ for year in years:
         
 window.close()
 
-# scrap.reset_index(drop=True, inplace=True) #reset l'index qui est chamboulé par le concat  
-
               #SECTION 5 EXPORT
 output=["html","json","csv","excel"]
 
 compute_time=round(time.time()-begin)
 sg.popup('time to scrap: '+str(timedelta(seconds=compute_time))) 
 
+#Naming the file
 if len(type_to_scrap)==1:
     type_chosen=type_to_scrap[0]
 elif len(type_to_scrap)==6:
@@ -280,6 +284,7 @@ else:
     
 filename='/MAL-'+type_chosen+'-from-'+start_season+str(start_year)+'-to-'+end_season+str(end_year)
 
+#choosing the output format and its directory
 datavalid=False
 while datavalid==False:    
     
