@@ -62,6 +62,7 @@ Please leave the credits on the plots if you want to share them
 Use the latest executable [here](https://github.com/Gumpy-Q/MALscraPy/releases/)
 
 ### Run it
+Get a csv file with the data
 When you will run the exe, follow the instructions in GUI.
 
 ## Want to run, read or modify the script with Python ?
