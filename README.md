@@ -20,7 +20,7 @@ This may not be the fastest way to scrap MAL but it gets the job done (3m45s for
 
 ## Want to run, read or modify the script with Python ?
 ### Requisites
-You only need to install [Python]( https://www.python.org/downloads/) and its following modules:
+You need to install [Python (3.9 used)]( https://www.python.org/downloads/) and its following modules:
 * [Requests](https://docs.python-requests.org/en/latest/user/install/#install) 
 * [BeautifulSoup4](https://www.crummy.com/software/BeautifulSoup/bs4/doc/#installing-beautiful-soup)
 * [Numpy](https://numpy.org/install/)
@@ -66,13 +66,13 @@ Get a csv file with the data
 When you will run the exe, follow the instructions in GUI.
 
 ## Want to run, read or modify the script with Python ?
-You only need to install [Python]( https://www.python.org/downloads/) and its following modules:
-* [Requests](https://docs.python-requests.org/en/latest/user/install/#install) 
-* [BeautifulSoup4](https://www.crummy.com/software/BeautifulSoup/bs4/doc/#installing-beautiful-soup)
+You need to install [Python (3.9 used)]( https://www.python.org/downloads/) and its following modules:
 * [Numpy](https://numpy.org/install/)
 * [Pandas](https://pandas.pydata.org/docs/getting_started/install.html)
 * [PySimpleGUI](https://pysimplegui.readthedocs.io/en/latest/#install)
- 
-A csv file with the data you scraped before  
+* [Matplotlib](https://matplotlib.org/stable/users/installing.html)
+* [Seaborn](https://seaborn.pydata.org/installing.html)
+
+A file with the data at the right format (see Exemple of results for MALscraPy  
 
 
