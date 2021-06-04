@@ -62,8 +62,8 @@ Please leave the credits on the plots if you want to share them
 Use the latest executable [here](https://github.com/Gumpy-Q/MALscraPy/releases/)
 
 ### Run it
-Get a csv file with the data
-When you will run the exe, follow the instructions in GUI.
+Get a csv file with the data.
+When you will run the exe, follow the instructions in the GUI.
 
 ## Want to run, read or modify the script with Python ?
 You need to install [Python (3.9 used)]( https://www.python.org/downloads/) and its following modules:
@@ -73,6 +73,6 @@ You need to install [Python (3.9 used)]( https://www.python.org/downloads/) and 
 * [Matplotlib](https://matplotlib.org/stable/users/installing.html)
 * [Seaborn](https://seaborn.pydata.org/installing.html)
 
-A file with the data at the right format (see Exemple of results for MALscraPy  
+A file with the data at the right format (see Exemple of results for MALscraPy)
 
 
