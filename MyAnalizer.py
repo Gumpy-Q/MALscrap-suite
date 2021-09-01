@@ -707,7 +707,7 @@ def score_viewers(df,min_year,max_year,anitypes):
 datavalid=False
 while datavalid==False:
     layout = [[sg.Text('Path of the data file')],
-            [sg.Input(default_text='Data/MAL-all-from-winter1970-to-present.csv'), sg.FileBrowse()], 
+            [sg.Input(), sg.FileBrowse()], 
             [sg.OK(), sg.Cancel()]] 
     window = sg.Window('Get path', layout)
     event, values = window.read()
@@ -823,7 +823,7 @@ while again[0]=='Yes':
                     #SECTION 4 PRODUCING PLOTS
     #Choosing the saving path
     layout = [[sg.Text('Path to save plots')],
-              [sg.Input(default_text='Plots'), sg.FolderBrowse()],
+              [sg.Input(), sg.FolderBrowse()],
               [sg.Ok(),sg.Cancel()]]
     
     window = sg.Window('Saving plot', layout)

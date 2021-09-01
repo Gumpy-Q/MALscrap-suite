@@ -289,7 +289,7 @@ datavalid=False
 while datavalid==False:    
     
     layout = [  [sg.Text('Path to save')],
-            [sg.Input(default_text='Data'), sg.FolderBrowse()],
+            [sg.Input(), sg.FolderBrowse()],
             [sg.Text('Output format:'),sg.Combo(output,default_value='csv')],
             [sg.OK(), sg.Cancel()]] 
     
