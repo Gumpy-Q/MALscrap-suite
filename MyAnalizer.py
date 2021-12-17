@@ -726,6 +726,7 @@ while datavalid==False:
 #I make sure they are integer as sometime it's interpreted as float
 raw['release-year']=raw['release-year'].astype(int) 
 raw['episodes']=raw['episodes'].astype(int)
+raw['studio']=raw["studio"].str[:20]
 
 first_year=raw['release-year'].min()
 last_year=raw['release-year'].max()
