@@ -137,10 +137,12 @@ def production_season(df,min_year,max_year,anitypes,color_list):
 #To vizualize the sum of anime product each year
 def production_year(df,min_year,max_year,anitypes,color_list): 
     
-    season_analyze=df.value_counts(['release-year','type']).reset_index(name='count') #count occurence and build the dataframe with a new column 'count'
+    select_years=df.drop_duplicates(subset=['title','release-year','type']) #remove TV duplicates notably for long runer with multiple apparition per year, only keep one/year.
+    select_years=select_years.value_counts(['release-year','type']).reset_index(name='count') #count occurence and build the dataframe with a new column 'count'
 
-    select_years=season_analyze[(season_analyze['release-year']<=max_year) & (season_analyze['release-year']>=min_year)] 
+    select_years=select_years[(select_years['release-year']<=max_year) & (select_years['release-year']>=min_year)] 
     select_years=select_years[select_years['type'].isin(anitypes)]
+    
     
     custom_patches=[]
     custom_patches=colo_patch(anitypes,color_list)
@@ -174,6 +176,7 @@ def source(df,min_year,max_year,anitypes,color_list,thresold=0):
         
     select_years=df[(df['release-year']<=max_year) & (df['release-year']>=min_year)] #remove years out of study scope
     select_years=select_years[select_years['type'].isin(anitypes)] 
+    select_years=select_years.drop_duplicates(subset=['title','release-year','type']) #remove TV duplicates notably for long runer with multiple apparition per year, only keep one/year.
     
     select_years.loc[select_years['source-material'] == '-', 'source-material'] = "Unknown in MAL" #replace the default value when source is not assigned to an anime
     
@@ -244,6 +247,7 @@ def production_studio(df,min_year,max_year,anitypes,color_list):
         
     select_years=df[(df['release-year']<=max_year) & (df['release-year']>=min_year)] #remove years out of study scope
     select_years=select_years[select_years['type'].isin(anitypes)] #limite to anime types
+    select_years=select_years.drop_duplicates(subset=['title','release-year','type']) #remove TV duplicates notably for long runer with multiple apparition per year, only keep one/year.
     
     #remove the anime with studio not registered in MAL
     select_years=select_years[select_years['studio'] != '          -' ] 
@@ -311,7 +315,7 @@ def production_studio(df,min_year,max_year,anitypes,color_list):
     
     return fig
 
-#To vizualize the sum of anime product each year for each season
+#To vizualize the sum of studio working on an anime each year
 def studio_quantity(df,min_year,max_year,anitypes,color_list): 
     
     select_years=df[(df['release-year']<=max_year) & (df['release-year']>=min_year)] #remove years out of study scope
@@ -373,12 +377,13 @@ def studio_quantity(df,min_year,max_year,anitypes,color_list):
 
 #This function is showing the repartition of anime's length in the year
 def episode(df,min_year,max_year,anitype,max_shown): 
-    select_year=df[(df['type']==anitype) & (df['episodes']>0) & (df['release-year']>=min_year) & (df['release-year']<=max_year)] #Limit my dataframe
+    select_years=df[(df['type']==anitype) & (df['episodes']>0) & (df['release-year']>=min_year) & (df['release-year']<=max_year)] #Limit my dataframe 
+    select_years=select_years.drop_duplicates(subset=['title','release-year','type']) #remove TV duplicates notably for long runer with multiple apparition per year, only keep one/year.
     
     print('------------ plotting evolution of anime length ------------')
     
     fig, ax =plt.subplots(figsize=enlarge_fig)
-    ax=sb.violinplot(x='release-year',y='episodes',data=select_year,bw=0.1,cut=0, scale='width',width=0.7,inner='stick',orientation='h') 
+    ax=sb.violinplot(x='release-year',y='episodes',data=select_years,bw=0.1,cut=0, scale='width',width=0.7,inner='stick',orientation='h') 
     
     ax.tick_params('x',labelrotation=rotation_ticks, labelsize=font)
     ax.tick_params('y', labelsize=font)
@@ -404,6 +409,7 @@ def score_distribution(df,min_year,max_year,anitypes):
     
     select_years=df[(df['score']>0) & (df['release-year']>=min_year) & (df['release-year']<=max_year)] #Limit my dataframe
     select_years=select_years[select_years['type'].isin(anitypes)]
+    select_years=select_years.drop_duplicates(subset=['title','release-year','type']) #remove TV duplicates notably for long runer with multiple apparition per year, only keep one/year.
     
     print('------------ plotting evolution score ------------')
     
@@ -477,6 +483,7 @@ def member_distribution(df,min_year,max_year,anitypes):
     
     select_years=df[(df['members']>0) & (df['release-year']>=min_year) & (df['release-year']<=max_year)] #Limit my dataframe
     select_years=select_years[select_years['type'].isin(anitypes)]
+    select_years=select_years.drop_duplicates(subset=['title','release-year','type']) #remove TV duplicates notably for long runer with multiple apparition per year, only keep one/year.
     
     print('------------ plotting evolution MAL viewers ------------')
 
@@ -512,7 +519,7 @@ def member_distribution(df,min_year,max_year,anitypes):
         for anime_type,ax in zip(anitypes,axes):
             ax.tick_params('x',labelrotation=rotation_ticks, labelsize=font)
             ax.tick_params('y', labelsize=font)
-            ax.set_ylabel('Members',fontsize=font)
+            ax.set_ylabel('MAL viewers',fontsize=font)
             ax.set_xlabel('Diffusion year',fontsize=font)
             ax.xaxis.label.set_size(font)
             ax.set_title(anime_type,fontsize=font)
@@ -614,6 +621,7 @@ def score_viewers(df,min_year,max_year,anitypes):
     select_years=df[(df['release-year']<=max_year) & (df['release-year']>=min_year)] #remove years out of study scope
     select_years=select_years[select_years['type'].isin(anitypes)]
     select_years=select_years[(select_years['score']!=0) & (select_years['members']!=0)]
+    select_years=select_years.drop_duplicates(subset=['title','release-year','type']) #remove TV duplicates notably for long runer with multiple apparition per year, only keep one/year.
     
     select_years=select_years[['score','members','type']]
       
@@ -663,7 +671,7 @@ def score_viewers(df,min_year,max_year,anitypes):
             
             ax.tick_params('x',labelrotation=rotation_ticks, labelsize=font)
             ax.tick_params('y', labelsize=font)
-            ax.set_ylabel('Viewers',fontsize=font)
+            ax.set_ylabel('MAL Viewers',fontsize=font)
             ax.set_xlabel('Score range',fontsize=font)
             ax.xaxis.label.set_size(font)        
             ax.set_title(anime_type,fontsize=font)
@@ -683,7 +691,7 @@ def score_viewers(df,min_year,max_year,anitypes):
        
         ax.tick_params('x',labelrotation=rotation_ticks, labelsize=font)
         ax.tick_params('y', labelsize=font)
-        ax.set_ylabel('Viewers',fontsize=font)
+        ax.set_ylabel('MAL Viewers',fontsize=font)
         ax.set_xlabel('Score range',fontsize=font)
         ax.xaxis.label.set_size(font)
         ax.set_title(anime_type,fontsize=font)
