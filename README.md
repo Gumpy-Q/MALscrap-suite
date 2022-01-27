@@ -110,7 +110,7 @@ Please leave the credits on the plots if you want to share them
 ![How long are your anime (don't lie, it's 12 episodes since a long time)](https://github.com/Gumpy-Q/MALscraPy/blob/main/Plots/crazy-gump_episode_TV%20(New)-2011-2021.png?raw=true)
 
 ## Want to run the script without knowing much about Python ?
-Use the latest executable [here](https://github.com/Gumpy-Q/MALscraPy/releases/)
+Use the latest executable [here (at least 2.0)](https://github.com/Gumpy-Q/MALscraPy/releases/)
 
 ### Run it
 Get a csv file with the data from MALscrapy.
