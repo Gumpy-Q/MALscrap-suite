@@ -1,4 +1,4 @@
-# MALscraPy
+# MALscraPy - Currently broken due to MAL new layout (jan 2022)
 Using Python with BeautifulSoup as scraping module, this script gathers information from the anime in a range of seasons you can specify at https://myanimelist.net/anime/season
 
 Access to the last dataset on my Kaggle [here](https://www.kaggle.com/crazygump/myanimelist-scrappind-a-decade-of-anime)
