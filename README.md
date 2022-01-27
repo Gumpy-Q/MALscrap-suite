@@ -62,7 +62,7 @@ Please leave the credits on the plots if you want to share them
 Use the latest executable [here](https://github.com/Gumpy-Q/MALscraPy/releases/)
 
 ### Run it
-Get a csv file with the data.
+Get a csv file with the data from MALscrapy.
 When you will run the exe, follow the instructions in the GUI.
 
 ## Want to run, read or modify the script with Python ?
@@ -74,5 +74,58 @@ You need to install [Python (3.9 used)]( https://www.python.org/downloads/) and 
 * [Seaborn](https://seaborn.pydata.org/installing.html)
 
 A file with the data at the right format (see Exemple of results for MALscraPy)
+
+# MergeData
+A simple script to merge data from two list you have scrap. A way to avoid scraping from 1917 each year ^^
+
+## Want to run the script without knowing much about Python ?
+Use the latest executable (at least 2.0) [here](https://github.com/Gumpy-Q/MALscraPy/releases/)
+
+### Run it
+Get two csv file with the data from MALscrapy.
+When you will run the exe, follow the instructions in the GUI.
+
+## Want to run, read or modify the script with Python ?
+You need to install [Python (3.9 used)]( https://www.python.org/downloads/) and its following modules:
+* [Pandas](https://pandas.pydata.org/docs/getting_started/install.html)
+* [PySimpleGUI](https://pysimplegui.readthedocs.io/en/latest/#install)
+
+A file with the data at the right format (see Exemple of results for MALscraPy)
+
+# Otakulyzer
+You want to play with your own data know ? You can !
+
+### Use it to your heart content but...
+Please leave the credits on the plots if you want to share them
+
+### Example of results
+
+![Anime from YYYY watched by crazy-gump](https://github.com/Gumpy-Q/MALscraPy/blob/main/Plots/crazy-gump_year_evolution2011-2021.png?raw=true)
+![The same but we look also to the season](https://github.com/Gumpy-Q/MALscraPy/blob/main/Plots/crazy-gump_season_evolution-2011-2021.png?raw=true)
+![Which studio did you watch more anime during thos last years?](https://github.com/Gumpy-Q/MALscraPy/blob/main/Plots/crazy-gump_studio-2011-2021.png?raw=true)
+![Manga adaptation lover or original hipster ?](https://github.com/Gumpy-Q/MALscraPy/blob/main/Plots/crazy-gump_source-2011-2021.png?raw=true)
+![Your score distribution](https://github.com/Gumpy-Q/MALscraPy/blob/main/Plots/crazy-gump_score_distribution-2011-2021.png?raw=true)
+![Are you "mainstream" or you have underground taste](https://github.com/Gumpy-Q/MALscraPy/blob/main/Plots/crazy-gump_score_viewers-2011-2021.png?raw=true)
+![MAL viewers from 2000 to 2021](https://github.com/Gumpy-Q/MALscraPy/blob/main/Plots/viewers_distribution-2000-2021.png?raw=true)
+![How long are your anime (don't lie, it's 12 episodes since a long time)](https://github.com/Gumpy-Q/MALscraPy/blob/main/Plots/crazy-gump_episode_TV%20(New)-2011-2021.png?raw=true)
+
+## Want to run the script without knowing much about Python ?
+Use the latest executable [here](https://github.com/Gumpy-Q/MALscraPy/releases/)
+
+### Run it
+Get a csv file with the data from MALscrapy.
+Get your MAL export : [here](https://myanimelist.net/panel.php?go=export)
+When you will run the exe, follow the instructions in the GUI.
+
+## Want to run, read or modify the script with Python ?
+You need to install [Python (3.9 used)]( https://www.python.org/downloads/) and its following modules:
+* [Numpy](https://numpy.org/install/)
+* [Pandas](https://pandas.pydata.org/docs/getting_started/install.html)
+* [PySimpleGUI](https://pysimplegui.readthedocs.io/en/latest/#install)
+* [Matplotlib](https://matplotlib.org/stable/users/installing.html)
+* [Seaborn](https://seaborn.pydata.org/installing.html)
+
+A file with the data at the right format (see Exemple of results for MALscraPy)
+Your MAL export : [here](https://myanimelist.net/panel.php?go=export)
 
 
