@@ -132,7 +132,7 @@ def production_season(df,min_year,max_year,anitypes,color_list):
     fig.tight_layout()    
     fig.subplots_adjust(right=adjust['right'],bottom=adjust['bottom'],wspace=adjust['wspace'])
        
-    fig.savefig(savepath+'/season_evolution-'+str(start_year)+'-'+str(end_year))
+    fig.savefig(savepath+'/'+username+'_season_evolution-'+str(start_year)+'-'+str(end_year))
     fig.show()
     return fig
 
@@ -168,7 +168,7 @@ def production_year(df,min_year,max_year,anitypes,color_list):
     fig.tight_layout()    
     fig.subplots_adjust(right=adjust['right'],bottom=adjust['bottom'])
        
-    fig.savefig(savepath+'/year_evolution'+str(start_year)+'-'+str(end_year))
+    fig.savefig(savepath+'/'+username+'_year_evolution'+str(start_year)+'-'+str(end_year))
     fig.show()
 
     return fig
@@ -239,7 +239,7 @@ def source(df,min_year,max_year,anitypes,color_list,thresold=0):
     fig.tight_layout()    
     fig.subplots_adjust(right=adjust['right'],bottom=adjust['bottom'],wspace=adjust['wspace'])
        
-    fig.savefig(savepath+'/source-'+str(start_year)+'-'+str(end_year))
+    fig.savefig(savepath+'/'+username+'_source-'+str(start_year)+'-'+str(end_year))
     fig.show()
     
     return fig
@@ -312,7 +312,7 @@ def production_studio(df,min_year,max_year,anitypes,color_list):
     fig.tight_layout()    
     fig.subplots_adjust(right=adjust['right']-0.1,bottom=adjust['bottom'],wspace=adjust['wspace'])
        
-    fig.savefig(savepath+'/studio-'+str(start_year)+'-'+str(end_year))
+    fig.savefig(savepath+'/'+username+'_studio-'+str(start_year)+'-'+str(end_year))
     fig.show()
     
     return fig
@@ -342,7 +342,7 @@ def episode(df,min_year,max_year,anitype,max_shown):
     fig.tight_layout()    
     fig.subplots_adjust(bottom=adjust['bottom']+0.03)
     
-    fig.savefig(savepath+'/episode_'+anitype+'-'+str(start_year)+'-'+str(end_year))
+    fig.savefig(savepath+'/'+username+'_episode_'+anitype+'-'+str(start_year)+'-'+str(end_year))
     fig.show()
     
     return fig  
@@ -416,7 +416,7 @@ def score_distribution(df,min_year,max_year,anitypes):
     fig.tight_layout()    
     fig.subplots_adjust(bottom=adjust['bottom']+0.03)
     
-    fig.savefig(savepath+'/score_distribution'+'-'+str(start_year)+'-'+str(end_year))
+    fig.savefig(savepath+'/'+username+'_score_distribution'+'-'+str(start_year)+'-'+str(end_year))
     fig.show()
     
     return fig
@@ -499,7 +499,7 @@ def score_viewers(df,min_year,max_year,anitypes):
     fig.tight_layout()
     fig.subplots_adjust(bottom=adjust['bottom']+0.05,hspace=0.5)
     
-    fig.savefig(savepath+'/score_viewers'+'-'+str(start_year)+'-'+str(end_year))
+    fig.savefig(savepath+'/'+username+'_score_viewers'+'-'+str(start_year)+'-'+str(end_year))
     fig.show()
     
     return fig    
