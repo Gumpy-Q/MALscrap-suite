@@ -163,15 +163,18 @@ def seasonscrap(season,year,anime_type):
             animes=season_type.find_all("div",{"class":"seasonal-anime js-seasonal-anime"}) #This is the div of each anime
             
             for anime in animes:
-                #those are directly in the text of each anime
-                season_scrap['title'].append(anime.find("h2",{'class':'h2_anime_title'}).text) 
-                season_scrap['studio'].append(anime.find("span",{'class':'producer'}).text)
-                season_scrap['source-material'].append(anime.find("span",{'class':'source'}).text)
-                
                 #those are defined in the scraping
                 season_scrap['type'].append(season_type.find('div',{'class':'anime-header'}).string)
                 season_scrap['release-season'].append(season)
                 season_scrap['release-year'].append(year)
+                                
+                #those are directly in the text of each anime
+                season_scrap['title'].append(anime.find("h2",{'class':'h2_anime_title'}).text)
+
+                #Those damn span class item...
+                item_class=anime.find('div',{'class':'synopsis js-synopsis'}).find_all('div',{'class':'property'})                
+                season_scrap['studio'].append(item_class[0].find('span',{'class':'item'}).text)
+                season_scrap['source-material'].append(item_class[1].find('span',{'class':'item'}).text)
                                 
                 ID=anime.find("h2",{'class':'h2_anime_title'}).find("a").get('href')[30:] #the id is in the url of the hypertext link on the name of the anime. The ID begins at position 30 in the link
                 ID=ID[:ID.find('/')] #ID can have different length thus I will only take characters before the '/'
@@ -179,11 +182,12 @@ def seasonscrap(season,year,anime_type):
                 
                 #Realase date exists in two formats: Mon. DD, YYYY, HH:MM (JST) or Mon. DD, YYYY
                 #There is also a lot of spaces and \n so I remove them before extracting the date to a datetime object with strptime
+                anime_info=anime.find('div',{'class':'info'}).find_all('span',{'class':'item'})   
                 try:
-                    release=datetime.strptime(anime.find("span",{'class':'remain-time'}).text.replace('  ','').replace('\n',''),'%b %d, %Y, %H:%M (JST)')
+                    release=datetime.strptime(anime_info[0].text.replace('  ','').replace('\n',''),'%b %d, %Y, %H:%M (JST)')
                 except:
                     try:
-                        release=datetime.strptime(anime.find("span",{'class':'remain-time'}).text.replace('  ','').replace('\n',''),'%b %d, %Y')    
+                        release=datetime.strptime(anime_info.text.replace('  ','').replace('\n',''),'%b %d, %Y')    
                     except:
                         release=None
                         
@@ -192,23 +196,30 @@ def seasonscrap(season,year,anime_type):
                 #For older anime some stats are not displayed as they aren't enough users
                 
                 #I want only the number of episode/OVA/Movie, if it's not given then I return a 0 
-                eps=''.join(filter(lambda i: i.isdigit(), anime.find("div",{'class':'eps'}).text)) #Get only digit value in a list of char
+                eps=''.join(filter(lambda i: i.isdigit(), anime_info[1].find_all('span')[0].text)) #Get only digit value in a list of char
                 try:
                     season_scrap['episodes'].append(int(eps))
                 except:
                     season_scrap['episodes'].append(int(0))
                 
-                score=anime.find('span',{'title':'Score'}).text.replace('\n','')
+                score=anime.find('div',{'title':'Score'}).text.replace('\n','').replace(' ','')
                 try:
                     season_scrap['score'].append(float(score))
                 except:
                     season_scrap['score'].append(float(0))
-                    
-                members=anime.find('span',{'title':'Members'}).text.replace(',','').replace(' ','').replace('\n','')
+                
+                #adapt members from K and M notation to integer
+                members=anime.find('div',{'class':'scormem-item member'}).text.replace(',','').replace(' ','').replace('\n','')
+                if 'K' in members:
+                    members=int(float(members[:-1])*(10**3))
+                elif 'M' in members:
+                    members=int(float(members[:-1])*(10**6))
+                else:
+                    members=int(members)
                 try:
-                    season_scrap['members'].append(int(members))
+                    season_scrap['members'].append(members)
                 except:
-                    season_scrap['wachted by'].append(int(0))                
+                    season_scrap['members'].append(int(0))                
                 
             print('Finished scraping '+season_type.find('div',{'class':'anime-header'}).string+' of '+season+' '+str(year))
         else: 
@@ -269,7 +280,7 @@ for year in years:
 window.close()
 
               #SECTION 5 EXPORT
-output=["html","json","csv","excel"]
+output=["html","json","csv","xlsx"]
 
 compute_time=round(time.time()-begin)
 sg.popup('time to scrap: '+str(timedelta(seconds=compute_time))) 
@@ -311,7 +322,7 @@ while datavalid==False:
             scrap.to_json(path+filename+'.json')
         elif output_format=='csv':
             scrap.to_csv(path+filename+'.csv',index=False)
-        elif output_format=='excel':
+        elif output_format=='xlsx':
             scrap.to_excel(path+filename+'.xlsx',index=False)
         datavalid=True
     except:

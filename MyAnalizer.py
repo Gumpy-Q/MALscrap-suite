@@ -365,7 +365,7 @@ def studio_quantity(df,min_year,max_year,anitypes,color_list):
         ax.ticklabel_format(axis='x', style='plain', useOffset=False)
 
     signature(fig)
-    fig.suptitle('Number of studios credited on at least one anime (cooperations are accounted as a different studio)',fontsize=font) 
+    fig.suptitle('Number of studios credited on at least one anime',fontsize=font) 
     
     fig.tight_layout()    
     fig.subplots_adjust(bottom=adjust['bottom'])
