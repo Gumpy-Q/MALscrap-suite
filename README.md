@@ -108,6 +108,7 @@ Please leave the credits on the plots if you want to share them
 ![Are you "mainstream" or you have underground taste](https://github.com/Gumpy-Q/MALscraPy/blob/main/Plots/crazy-gump_score_viewers-2011-2021.png?raw=true)
 ![MAL viewers from 2000 to 2021](https://github.com/Gumpy-Q/MALscraPy/blob/main/Plots/viewers_distribution-2000-2021.png?raw=true)
 ![How long are your anime (don't lie, it's 12 episodes since a long time)](https://github.com/Gumpy-Q/MALscraPy/blob/main/Plots/crazy-gump_episode_TV%20(New)-2011-2021.png?raw=true)
+![Compare your taste with other MAL users](https://github.com/Gumpy-Q/MALscraPy/blob/main/Plots/crazy-gump_score_vs_MAL-1986-2021.png?raw=true)
 
 ## Want to run the script without knowing much about Python ?
 Use the latest executable [here (at least 2.0)](https://github.com/Gumpy-Q/MALscraPy/releases/)
@@ -124,6 +125,7 @@ You need to install [Python (3.9 used)]( https://www.python.org/downloads/) and 
 * [PySimpleGUI](https://pysimplegui.readthedocs.io/en/latest/#install)
 * [Matplotlib](https://matplotlib.org/stable/users/installing.html)
 * [Seaborn](https://seaborn.pydata.org/installing.html)
+* [lxml](https://lxml.de/installation.html)
 
 A file with the data at the right format (see Exemple of results for MALscraPy)
 Your MAL export : [here](https://myanimelist.net/panel.php?go=export)
