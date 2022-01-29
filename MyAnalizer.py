@@ -378,7 +378,7 @@ def studio_quantity(df,min_year,max_year,anitypes,color_list):
 #This function is showing the repartition of anime's length in the year
 def episode(df,min_year,max_year,anitype,max_shown): 
     select_years=df[(df['type']==anitype) & (df['episodes']>0) & (df['release-year']>=min_year) & (df['release-year']<=max_year)] #Limit my dataframe 
-    select_years=select_years.drop_duplicates(subset=['title','release-year','type']) #remove TV duplicates notably for long runer with multiple apparition per year, only keep one/year.
+    select_years=select_years.drop_duplicates(subset=['title']) #remove TV duplicates notably for long runer with multiple apparition per year, only keep one/year.
     
     print('------------ plotting evolution of anime length ------------')
     
@@ -391,7 +391,7 @@ def episode(df,min_year,max_year,anitype,max_shown):
     ax.set_xlabel('Diffusion year',fontsize=font)
     ax.xaxis.label.set_size(font)
     ax.set(ylim=(0,max_shown))
-    ax.set_title('Repartion of anime length : '+ anitype,fontsize=font)
+    ax.set_title('Repartition of anime length : '+ anitype,fontsize=font)
     ax.xaxis.set_major_locator(MaxNLocator(integer=True,nbins=nb_ticks,prune='both'))
     
     signature(fig)
@@ -409,7 +409,7 @@ def score_distribution(df,min_year,max_year,anitypes):
     
     select_years=df[(df['score']>0) & (df['release-year']>=min_year) & (df['release-year']<=max_year)] #Limit my dataframe
     select_years=select_years[select_years['type'].isin(anitypes)]
-    select_years=select_years.drop_duplicates(subset=['title','release-year','type']) #remove TV duplicates notably for long runer with multiple apparition per year, only keep one/year.
+    select_years=select_years.drop_duplicates(subset=['title']) #remove TV duplicates notably for long runer with multiple apparition per year, only keep one/year.
     
     print('------------ plotting evolution score ------------')
     
@@ -483,7 +483,7 @@ def member_distribution(df,min_year,max_year,anitypes):
     
     select_years=df[(df['members']>0) & (df['release-year']>=min_year) & (df['release-year']<=max_year)] #Limit my dataframe
     select_years=select_years[select_years['type'].isin(anitypes)]
-    select_years=select_years.drop_duplicates(subset=['title','release-year','type']) #remove TV duplicates notably for long runer with multiple apparition per year, only keep one/year.
+    select_years=select_years.drop_duplicates(subset=['title']) #remove TV duplicates notably for long runer with multiple apparition per year, only keep one/year.
     
     print('------------ plotting evolution MAL viewers ------------')
 
@@ -559,62 +559,6 @@ def member_distribution(df,min_year,max_year,anitypes):
     fig.show()
     
     return fig
-
-# heatmap for score x number of viewers, I prefered the violon plot to show this correlation
-# def score_viewers1(df,min_year,max_year,anitypes):
-#     select_years=df[(df['release-year']<=max_year) & (df['release-year']>=min_year)] #remove years out of study scope
-#     select_years=select_years[select_years['type'].isin(anitypes)]
-#     select_years=select_years[(select_years['score']!=0) & (select_years['members']!=0)]
-    
-#     select_years=select_years[['score','members']]
-    
-#     forks=[[0,1e3],[1e3,5e3],[5e3,1e4],[1e4,5e4],[5e4,1e5],[1e5,5e5],[5e5,3e6]]
-    
-#     scores=[[0,4]]
-#     for i in range(8,20):
-#         scores+=[[i*0.5,i*0.5+0.5]]
-    
-#     fork_list=[]
-#     df_map={'member':[],'score':[],'count':[]}
-#     for fork in forks:
-#         df_memb=select_years[(select_years['members']>fork[0]) &(select_years['members']<fork[1])]
-#         fork_list.append(str(int(fork[0]))+'-'+str(int(fork[1])))
-#         for score in scores:
-#             df_score=df_memb[(df_memb['score']>score[0]) &(df_memb['score']<score[1])]
-#             df_map['member'].append(str(int(fork[0]))+'-'+str(int(fork[1])))
-#             df_map['score'].append(str(score[0])+'-'+str(score[1]))
-#             df_map['count'].append(df_score.shape[0])    
-            
-#     df_map=pd.DataFrame(df_map).pivot('member','score','count')
-    
-#     i=0        
-#     for fork in fork_list:
-#         df_map.loc[fork,['sort']]=i
-#         i+=1
-       
-#     df_map=df_map.sort_values('sort')
-#     df_map.pop('sort')
-    
-#     fig, ax =plt.subplots(figsize=enlarge_fig)
-#     ax=sb.heatmap(df_map,linewidths=.5,cmap="YlGnBu")
-            
-            
-#     ax.tick_params('x',labelrotation=90, labelsize=font)
-#     ax.tick_params('y', labelrotation=0, labelsize=font)
-#     ax.set_ylabel('Number of viewers',fontsize=font)
-#     ax.set_xlabel('Score',fontsize=font)
-#     ax.xaxis.label.set_size(font)
-#     ax.set_title('Heatmap viewer/score '+str(min_year)+'-'+str(max_year)+'\n'+'/'.join(anitypes),fontsize=font)
-    
-#     signature(fig)
-    
-#     fig.tight_layout()
-#     fig.subplots_adjust(bottom=adjust['bottom']+0.05)
-    
-#     fig.savefig(savepath+'/score_viewers'+'-'+str(start_year)+'-'+str(end_year))
-#     fig.show()
-    
-#     return fig    
 
 #Visualizing correlation between popularity and score
 def score_viewers(df,min_year,max_year,anitypes):

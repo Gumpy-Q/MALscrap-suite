@@ -23,7 +23,7 @@ from sys import exit
 
 seasons=['winter','spring','summer','fall']
 anime_types=['TV (New)','TV (Continuing)','Special','OVA','ONA','Movie']
-plot_list=['Watching seasons','Watching years','Studio watching','TV (New) length','Score distribution','Score vs viewers','Source repartition']
+plot_list=['Watching seasons','Watching years','Studio watching','TV (New) length','Score distribution','Score vs viewers','Score vs MAL means','Source repartition']
 
 style.use('ggplot')
 sg.theme('DefaultNoMoreNagging') 
@@ -321,7 +321,7 @@ def production_studio(df,min_year,max_year,anitypes,color_list):
 #This function is showing the repartition of anime's length in the year
 def episode(df,min_year,max_year,anitype,max_shown): 
     select_years=df[(df['type']==anitype) & (df['episodes']>0) & (df['release-year']>=min_year) & (df['release-year']<=max_year)] #Limit my dataframe 
-    select_years=select_years.drop_duplicates(subset=['title','release-year','type']) #remove TV duplicates notably for long runer with multiple apparition per year, only keep one/year.
+    select_years=select_years.drop_duplicates(subset=['title']) #remove TV duplicates notably for long runer with multiple apparition per year, only keep one/year.
     
     print('------------ plotting evolution of anime length ------------')
     
@@ -334,7 +334,7 @@ def episode(df,min_year,max_year,anitype,max_shown):
     ax.set_xlabel('Diffusion year',fontsize=font)
     ax.xaxis.label.set_size(font)
     ax.set(ylim=(0,max_shown))
-    ax.set_title('Repartion of anime length watched by '+username+': '+ anitype,fontsize=font)
+    ax.set_title('Repartition of anime length watched by '+username+': '+ anitype,fontsize=font)
     ax.xaxis.set_major_locator(MaxNLocator(integer=True,nbins=nb_ticks,prune='both'))
     
     signature(fig)
@@ -352,7 +352,7 @@ def score_distribution(df,min_year,max_year,anitypes):
     
     select_years=df[(df['release-year']>=min_year) & (df['release-year']<=max_year)] #Limit my dataframe
     select_years=select_years[select_years['type'].isin(anitypes)]
-    select_years=select_years.drop_duplicates(subset=['title','release-year','type']) #remove TV duplicates notably for long runer with multiple apparition per year, only keep one/year.
+    select_years=select_years.drop_duplicates(subset=['title']) #remove TV duplicates notably for long runer with multiple apparition per year, only keep one/year.
     
     print('------------ plotting evolution score ------------')
     
@@ -486,7 +486,7 @@ def score_viewers(df,min_year,max_year,anitypes):
         ax.tick_params('x',labelrotation=rotation_ticks, labelsize=font)
         ax.tick_params('y', labelsize=font)
         ax.set_ylabel('MAL Viewers',fontsize=font)
-        ax.set_xlabel('User score',fontsize=font)
+        ax.set_xlabel(username+' score',fontsize=font)
         ax.xaxis.label.set_size(font)
         ax.set_title(anime_type,fontsize=font)
 
@@ -504,6 +504,62 @@ def score_viewers(df,min_year,max_year,anitypes):
     
     return fig    
 
+#This function is showing the repartition of anime's score
+def score_vs_world(df,min_year,max_year,anitypes): 
+    
+    select_years=df[(df['release-year']>=min_year) & (df['release-year']<=max_year)] #Limit my dataframe
+    select_years=select_years[select_years['type'].isin(anitypes)]
+    select_years=select_years.drop_duplicates(subset=['title']) #remove TV duplicates notably for long runer with multiple apparition per year, only keep one/year.
+    
+    print('------------ plotting your score vs the world (of MAL :p) ------------')
+    
+    #count the number of anime under the mean MAL score
+    total=0
+    hipster=0
+    for my_score, mal_score in zip(select_years['my_score'],select_years['score']):
+        if  my_score>mal_score:
+            total+=1
+            hipster+=1
+        else:
+            total+=1
+                
+    hipster_score=int(100*hipster/total)
+    
+    minmal_score=int(select_years['score'].min())
+    minuser_score=int(select_years['my_score'].min())
+    maxmal_score=int(select_years['score'].max())
+    maxuser_score=int(select_years['my_score'].max())
+
+    tickmax=max(maxmal_score,maxuser_score)
+    tickmin=min(minmal_score,minuser_score)    
+    
+    #aspect_ratio=(1+maxmal_score-minmal_score)/(1+maxuser_score-minuser_score)+
+    aspect_ratio=1
+
+    fig, ax = plt.subplots(figsize=(15*aspect_ratio,15)) #building a subplot for the one choosen
+    ax=sb.scatterplot(x='score',y='my_score',data=select_years,hue='type') 
+    ax.plot([0,1,2,3,4,5,6,7,8,9,10],[0,1,2,3,4,5,6,7,8,9,10], c='black') 
+        
+    ax.tick_params('x', labelsize=font)
+    ax.tick_params('y', labelsize=font)
+    ax.set_ylabel(username+' score',fontsize=font)
+    ax.set_xlabel('MAL mean score',fontsize=font)
+    ax.set(xlim=(tickmin-0.5,tickmax+0.5))
+    ax.set(ylim=(tickmin-0.5,tickmax+0.5))
+    ax.set_box_aspect(1/aspect_ratio) 
+    
+    signature(fig)
+    fig.suptitle(username+' score vs MAL users means: '+str(hipster_score)+'% of the score are above the mean',fontsize=font) 
+
+    
+    fig.tight_layout()
+    fig.subplots_adjust(bottom=adjust['bottom'])
+    
+    fig.savefig(savepath+'/'+username+'_score_vs_MAL'+'-'+str(start_year)+'-'+str(end_year))
+    fig.show()
+    
+    return fig
+
                 #SECTION 3 CHOICE
 #Choosing the file
 datavalid=False
@@ -511,7 +567,9 @@ while datavalid==False:
     layout = [[sg.Text('Path of the MAL scrap data file')],
             [sg.Input(), sg.FileBrowse()],
             [sg.Text('Path of your MAL xml file (generate in https://myanimelist.net/panel.php?go=export)')],
-            [sg.Input(), sg.FileBrowse()],                     
+            [sg.Input(), sg.FileBrowse()],   
+            [sg.Text('Removing dropped anime ?')],
+            [sg.Radio('Yes','group1',default=True),sg.Radio('No','group1',default=False)],                   
             [sg.OK(), sg.Cancel()]] 
     window = sg.Window('Get path', layout)
     event, values = window.read()
@@ -521,6 +579,8 @@ while datavalid==False:
 
     scrapath=values[0]
     malpath=values[1]
+    drop_drop=values[2]
+    
     window.close()
     try:
         raw=opener(scrapath,scrapath[scrapath.find('.')+1:])
@@ -531,7 +591,12 @@ while datavalid==False:
 
 #Merge the two lists while keeping only the completed show
 username=malraw['user_name'][0]
-malraw=malraw[malraw['my_status'].isin(['Completed','Dropped'])]
+
+if values[2]==True:
+    malraw=malraw[malraw['my_status'].isin(['Completed'])]
+else:
+    malraw=malraw[malraw['my_status'].isin(['Completed','Dropped'])]
+
 raw=pd.merge(raw,malraw,left_on='title',right_on='series_title')
 
 #I make sure they are integer as sometime it's interpreted as float
@@ -738,6 +803,16 @@ while again[0]=='Yes':
     if event==sg.WIN_CLOSED or event=='Cancel':
         window.close()
         exit() 
+        
+    if plot_to_viz['Score vs MAL means']==True:    
+        fig_taste=score_vs_world(raw,start_year,end_year,type_to_viz)
+        plot_done+=1
+        progress_bar.UpdateBar(plot_done)
+    
+    event,values=window.read(timeout=5)
+    if event==sg.WIN_CLOSED or event=='Cancel':
+        window.close()
+        exit()        
         
 
     if plot_to_viz['TV (New) length']==True:    
