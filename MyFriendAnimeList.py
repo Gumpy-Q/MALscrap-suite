@@ -35,7 +35,7 @@ if event==sg.WIN_CLOSED or event=='Cancel':
 username=values[0]
 friendlist=[]
 
-formatting=['title','MAL_id','type','release-season','release-year',username+' score','friends_mean_score','friends_who_watched_it','type']
+formatting=['title','MAL_id','type','release-season','release-year',username+' score','friends_mean_score','nb_who_watched_it','friend_who_watched_it','type']
 scrap=pd.DataFrame(dict.fromkeys(formatting,[]))
 
 headers=({'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:53.0) Gecko/20100101 Firefox/53.0','Accept-Language':'fr-FR,q=0.5'})
@@ -166,8 +166,9 @@ def friendseasonscrap(season,year,user):
                         
                         if user!=username:                            
                             scrap.loc[scrap['MAL_id']==ID,'friends_mean_score']+=user_list['score'][ind]
-                            scrap.loc[scrap['MAL_id']==ID,'friends_who_watched_it']+=1
-                            scrap.loc[scrap['MAL_id']==ID,username+' score']=user_list['score'][ind]=None
+                            scrap.loc[scrap['MAL_id']==ID,'nb_who_watched_it']+=1
+                            scrap.loc[scrap['MAL_id']==ID,username+' score']=None
+                            scrap.loc[scrap['MAL_id']==ID,'friend_who_watched_it']+=user+';'
                         else:
                             scrap.loc[scrap['MAL_id']==ID,username+' score']=user_list['score'][ind]
                             
@@ -175,11 +176,12 @@ def friendseasonscrap(season,year,user):
                         if user!=username: 
                             friendict['friends_mean_score'].append(int(user_list['score'][ind]))
                             friendict[username+' score'].append(None)
-                            friendict['friends_who_watched_it'].append(1)
+                            friendict['nb_who_watched_it'].append(1)
+                            friendict['friend_who_watched_it'].append(user+';')
                         else:
                             friendict[username+' score'].append(int(user_list['score'][ind])) 
                             friendict['friends_mean_score'].append(None)
-                            friendict['friends_who_watched_it'].append(0)                            
+                            friendict['nb_who_watched_it'].append(0)                            
                             
                         friendict['MAL_id'].append(ID)
                         friendict['release-year'].append(year)
@@ -191,11 +193,12 @@ def friendseasonscrap(season,year,user):
                     if user!=username: 
                         friendict['friends_mean_score'].append(int(user_list['score'][ind]))
                         friendict[username+' score'].append(None)
-                        friendict['friends_who_watched_it'].append(1)
+                        friendict['nb_who_watched_it'].append(1)
+                        friendict['friend_who_watched_it'].append(user+';')
                     else:
                         friendict[username+' score'].append(int(user_list['score'][ind])) 
                         friendict['friends_mean_score'].append(None)
-                        friendict['friends_who_watched_it'].append(0) 
+                        friendict['nb_who_watched_it'].append(0) 
                         
                     friendict['MAL_id'].append(ID)
                     friendict['release-year'].append(year)
@@ -258,8 +261,8 @@ for friend in friendlist:
 window.close()
 
 for ind in scrap.index:
-    if scrap['friends_who_watched_it'][ind]>0:
-        scrap['friends_mean_score'][ind]=scrap['friends_mean_score'][ind]/scrap['friends_who_watched_it'][ind]
+    if scrap['nb_who_watched_it'][ind]>0:
+        scrap['friends_mean_score'][ind]=scrap['friends_mean_score'][ind]/scrap['nb_who_watched_it'][ind]
 
 scrap=scrap.sort_values(by=['friends_mean_score'],ascending=False) 
 
@@ -301,7 +304,9 @@ while datavalid==False:
         sg.popup('Unable to save at this path')
         
 textfile = open(path+'/'+username+"_friend list.txt", "w")
-for friend in friendlist:
+textfile.write(username + " friends list: \n")
+
+for friend in friendlist[:-1]:
     textfile.write(friend + "\n")
 textfile.close()
 
