@@ -128,7 +128,7 @@ layout = [[sg.Text('How many seconds between two requests ? ')],
           [sg.Text('WARNING fast requests might get your IP ban (I used 2 seconds to build my datasets)')],
           [sg.Slider(range=(0,10),default_value=2,orientation='horizontal')],
           [sg.OK(), sg.Cancel()]]
-window = sg.Window('Choosing anime type', layout)
+window = sg.Window('IP ban mitigation', layout)
 event, values = window.read()
 window.close()
 
