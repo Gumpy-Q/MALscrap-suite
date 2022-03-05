@@ -106,7 +106,6 @@ Please leave the credits on the plots if you want to share them
 ![Manga adaptation lover or original hipster ?](https://github.com/Gumpy-Q/MALscraPy/blob/main/Plots/crazy-gump_source-2011-2021.png?raw=true)
 ![Your score distribution](https://github.com/Gumpy-Q/MALscraPy/blob/main/Plots/crazy-gump_score_distribution-2011-2021.png?raw=true)
 ![Are you "mainstream" or you have underground taste](https://github.com/Gumpy-Q/MALscraPy/blob/main/Plots/crazy-gump_score_viewers-2011-2021.png?raw=true)
-![MAL viewers from 2000 to 2021](https://github.com/Gumpy-Q/MALscraPy/blob/main/Plots/viewers_distribution-2000-2021.png?raw=true)
 ![How long are your anime (don't lie, it's 12 episodes since a long time)](https://github.com/Gumpy-Q/MALscraPy/blob/main/Plots/crazy-gump_episode_TV%20(New)-2011-2021.png?raw=true)
 ![Compare your taste with other MAL users](https://github.com/Gumpy-Q/MALscraPy/blob/main/Plots/crazy-gump_score_vs_MAL-1986-2021.png?raw=true)
 
