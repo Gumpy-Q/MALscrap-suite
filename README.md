@@ -132,7 +132,7 @@ Your MAL export : [here](https://myanimelist.net/panel.php?go=export)
 
 #MyFriendAnimeList
 Side project suggested to me so you can get a list of the anime your MAL friend have watched and the mean score they have given to it.
-The best way to catch up the good anime from a season you could not invest time in.+
+The best way to catch up the good anime from a season you could not invest time in.
 
 ### Example of results
 | Title | MAL-id | Type | Release-season | Release-year | crazy-gump score | friends mean score | nb who watched it | friends who watched it |
