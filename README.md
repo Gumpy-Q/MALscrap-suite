@@ -4,7 +4,7 @@ Using Python with BeautifulSoup as scraping module, this script gathers informat
 Access to the last dataset on my Kaggle [here](https://www.kaggle.com/crazygump/myanimelist-scrappind-a-decade-of-anime)
 
 ### Example of results
-| Title | MAL-id | Type | Studio | Realase-season | Release-year | Release-date | Source-material | Episodes | Score | Members |
+| Title | MAL-id | Type | Studio | Release-season | Release-year | Release-date | Source-material | Episodes | Score | Members |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Attack No.1 | 1550 | TV (New) | Tokyo Movie Shinsha | winter | 1970 | 1969-12-07 19:00:00 | Manga | 104 | 6.74 | 7103 |
 
@@ -26,6 +26,23 @@ You need to install [Python (3.9 used)]( https://www.python.org/downloads/) and 
 * [Numpy](https://numpy.org/install/)
 * [Pandas](https://pandas.pydata.org/docs/getting_started/install.html)
 * [PySimpleGUI](https://pysimplegui.readthedocs.io/en/latest/#install)
+
+# MergeData
+A simple script to merge data from two list you have scrap. A way to avoid scraping from 1917 each year ^^
+
+## Want to run the script without knowing much about Python ?
+Use the latest executable [here](https://github.com/Gumpy-Q/MALscraPy/releases/)
+
+### Run it
+Get two csv file with the data from MALscrapy.
+When you will run the exe, follow the instructions in the GUI.
+
+## Want to run, read or modify the script with Python ?
+You need to install [Python (3.9 used)]( https://www.python.org/downloads/) and its following modules:
+* [Pandas](https://pandas.pydata.org/docs/getting_started/install.html)
+* [PySimpleGUI](https://pysimplegui.readthedocs.io/en/latest/#install)
+
+A file with the data at the right format (see Exemple of results for MALscraPy)
 
 # MyAnalizer
 Want to visualize the juicy data you have just scraped ? Here it is !
@@ -75,25 +92,8 @@ You need to install [Python (3.9 used)]( https://www.python.org/downloads/) and 
 
 A file with the data at the right format (see Exemple of results for MALscraPy)
 
-# MergeData
-A simple script to merge data from two list you have scrap. A way to avoid scraping from 1917 each year ^^
-
-## Want to run the script without knowing much about Python ?
-Use the latest executable (at least 2.0) [here](https://github.com/Gumpy-Q/MALscraPy/releases/)
-
-### Run it
-Get two csv file with the data from MALscrapy.
-When you will run the exe, follow the instructions in the GUI.
-
-## Want to run, read or modify the script with Python ?
-You need to install [Python (3.9 used)]( https://www.python.org/downloads/) and its following modules:
-* [Pandas](https://pandas.pydata.org/docs/getting_started/install.html)
-* [PySimpleGUI](https://pysimplegui.readthedocs.io/en/latest/#install)
-
-A file with the data at the right format (see Exemple of results for MALscraPy)
-
 # Otakulyzer
-You want to play with your own data know ? You can !
+You want to play with your own data now ? You can !
 
 ### Use it to your heart content but...
 Please leave the credits on the plots if you want to share them
@@ -129,4 +129,28 @@ You need to install [Python (3.9 used)]( https://www.python.org/downloads/) and 
 A file with the data at the right format (see Exemple of results for MALscraPy)
 Your MAL export : [here](https://myanimelist.net/panel.php?go=export)
 
+
+#MyFriendAnimeList
+Side project suggested to me so you can get a list of the anime your MAL friend have watched and the mean score they have given to it.
+The best way to catch up the good anime from a season you could not invest time in.+
+
+### Example of results
+| Title | MAL-id | Type | Release-season | Release-year | crazy-gump score | friends mean score | nb who watched it | friends who watched it |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Wu Liuqi Zhi Xuanwu Guo Pian | 45556 | ONA | Winter | 2021 | | 9 | 1 | Djidji; |
+| Pui Pui Molcar | 44235 | TV | Winter | 2021 | 8 | 9 | 1 | Yokanime; |
+| Mushoku Tensei: Isekai Ittara Honki Dasu | 39535 | TV | Winter | 2021 | 6 | 8,5 | 2 | Zccdcccc;Djidji; |
+
+## Want to run the script without knowing much about Python ?
+Use the latest executable [here](https://github.com/Gumpy-Q/MALscraPy/releases/)
+
+### Run it
+A MAL username
+When you will run the exe, follow the instructions in the GUI.
+
+## Want to run, read or modify the script with Python ?
+You need to install [Python (3.9 used)]( https://www.python.org/downloads/) and its following modules:
+* [Numpy](https://numpy.org/install/)
+* [Pandas](https://pandas.pydata.org/docs/getting_started/install.html)
+* [PySimpleGUI](https://pysimplegui.readthedocs.io/en/latest/#install)
 
