@@ -181,7 +181,8 @@ def friendseasonscrap(season,year,user):
                         else:
                             friendict[username+' score'].append(int(user_list['score'][ind])) 
                             friendict['friends_mean_score'].append(None)
-                            friendict['nb_who_watched_it'].append(0)                            
+                            friendict['nb_who_watched_it'].append(0)  
+                            friendict['friend_who_watched_it'].append(None)
                             
                         friendict['MAL_id'].append(ID)
                         friendict['release-year'].append(year)
@@ -245,8 +246,9 @@ for friend in friendlist:
             if event==sg.WIN_CLOSED or event=='Cancel':
                 window.close()
                 exit()
-                 
-            df_n=pd.DataFrame(friendseasonscrap(season_to_scrap,year,friend)) #I bluid a DataFrame around my data freshly scraped
+            
+            test=friendseasonscrap(season_to_scrap,year,friend)
+            df_n=pd.DataFrame(test) #I bluid a DataFrame around my data freshly scraped
     
             print(friend +' anime list for '+ str(season_to_scrap)+' '+str(year))
     
