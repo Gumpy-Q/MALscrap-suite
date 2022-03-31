@@ -537,7 +537,7 @@ def score_vs_world(df,min_year,max_year,anitypes):
     aspect_ratio=1
 
     fig, ax = plt.subplots(figsize=(15*aspect_ratio,15)) #building a subplot for the one choosen
-    ax=sb.scatterplot(x='score',y='my_score',data=select_years,hue='type') 
+    ax=sb.scatterplot(x='score',y='my_score',data=select_years,hue='type',s=70) 
     ax.plot([0,1,2,3,4,5,6,7,8,9,10],[0,1,2,3,4,5,6,7,8,9,10], c='black') 
         
     ax.tick_params('x', labelsize=font)

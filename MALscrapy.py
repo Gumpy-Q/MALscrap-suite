@@ -17,7 +17,7 @@ from sys import exit
 
 
 seasons=["winter","spring","summer","fall"]
-formatting=['title','MAL_id','type','studio','release-season','release-year','realase-date','source-material','episodes','score','members']
+formatting=['title','MAL_id','type','studio','release-season','release-year','release-date','source-material','episodes','score','members']
 anime_types=['TV (New)','TV (Continuing)','ONA','OVA','Movie','Special']
 
 default_url='https://myanimelist.net/anime/season'
@@ -180,7 +180,7 @@ def seasonscrap(season,year,anime_type):
                 ID=ID[:ID.find('/')] #ID can have different length thus I will only take characters before the '/'
                 season_scrap['MAL_id'].append(ID)
                 
-                #Realase date exists in two formats: Mon. DD, YYYY, HH:MM (JST) or Mon. DD, YYYY
+                #Release date exists in two formats: Mon. DD, YYYY, HH:MM (JST) or Mon. DD, YYYY
                 #There is also a lot of spaces and \n so I remove them before extracting the date to a datetime object with strptime
                 anime_info=anime.find('div',{'class':'info'}).find_all('span',{'class':'item'})   
                 try:
@@ -191,7 +191,7 @@ def seasonscrap(season,year,anime_type):
                     except:
                         release=None
                         
-                season_scrap['realase-date'].append(release)
+                season_scrap['release-date'].append(release)
                 
                 #For older anime some stats are not displayed as they aren't enough users
                 

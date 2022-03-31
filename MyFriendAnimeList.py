@@ -14,6 +14,13 @@ import numpy as np
 import time
 import PySimpleGUI as sg
 from sys import exit
+import matplotlib.pyplot as plt
+import seaborn as sb
+
+font='xx-large'
+lgd_position='center right'
+adjust={'bottom':0.11,'right':0.82,'wspace':0.35} #This array is used to adjust the limit of my 'normal' plots
+enlarge_fig=(18,10) #This is the size of my figures
 
 sg.theme('DefaultNoMoreNagging')
 seasons=["winter","spring","summer","fall"]
@@ -34,7 +41,6 @@ if event==sg.WIN_CLOSED or event=='Cancel':
 
 username=values[0]
 friendlist=[]
-
 formatting=['title','MAL_id','type','release-season','release-year',username+' score','friends_mean_score','nb_who_watched_it','friend_who_watched_it','type']
 scrap=pd.DataFrame(dict.fromkeys(formatting,[]))
 
@@ -209,6 +215,61 @@ def friendseasonscrap(season,year,user):
                                        
     return friendict
 
+#This function is showing the repartition of anime's score
+def score_vs_friend(df): 
+    
+    df=df[df[username+' score']>0]
+    df=df[df['friends_mean_score']>0]
+    #count the number of anime under the mean MAL score
+    total=0
+    hipster=0
+    for my_score, mal_score in zip(df[username+' score'],df['friends_mean_score']):
+        if  my_score>mal_score:
+            total+=1
+            hipster+=1
+        else:
+            total+=1
+                
+    hipster_score=int(100*hipster/total)
+    
+    minmal_score=int(df['friends_mean_score'].min())
+    minuser_score=int(df[username+' score'].min())
+    maxmal_score=int(df['friends_mean_score'].max())
+    maxuser_score=int(df[username+' score'].max())
+
+    tickmax=max(maxmal_score,maxuser_score)
+    tickmin=min(minmal_score,minuser_score)    
+    
+    #aspect_ratio=(1+maxmal_score-minmal_score)/(1+maxuser_score-minuser_score)+
+    aspect_ratio=1
+
+    fig, ax = plt.subplots(figsize=(15*aspect_ratio,15)) #building a subplot for the one choosen
+    ax=sb.scatterplot(x='friends_mean_score',y=username+' score',data=df,hue='type',s=70) 
+    ax.plot([0,1,2,3,4,5,6,7,8,9,10],[0,1,2,3,4,5,6,7,8,9,10], c='black') 
+        
+    ax.tick_params('x', labelsize=font)
+    ax.tick_params('y', labelsize=font)
+    ax.set_ylabel(username+' score',fontsize=font)
+    ax.set_xlabel('MAL friends mean score',fontsize=font)
+    ax.set(xlim=(tickmin-0.5,tickmax+0.5))
+    ax.set(ylim=(tickmin-0.5,tickmax+0.5))
+    ax.set_box_aspect(1/aspect_ratio) 
+    
+    signature(fig)
+    fig.suptitle(username+' score vs MAL friends means: '+str(hipster_score)+'% of the score are above their friends mean',fontsize=font) 
+
+    
+    fig.tight_layout()
+    fig.subplots_adjust(bottom=adjust['bottom'])
+    
+    fig.savefig(path+'/'+username+'_score_vs_MAL-friends'+'-'+str(start_year)+'-'+str(end_year))
+    fig.show()
+    
+    return fig
+
+def signature(fig):
+    fig.text(0,0.005,' Data collected with MALscraPy & Plot made with Otakulyzer | Scripts available at http://github.com/Gumpy-Q',fontsize=font, backgroundcolor='grey',style='italic',color='white')
+
 
 nbfriend=len(friendlist)
 years=np.arange(start_year,end_year+1,1) #building a vector of years from start to end year
@@ -304,6 +365,8 @@ while datavalid==False:
         datavalid=True
     except:
         sg.popup('Unable to save at this path')
+
+score_vs_friend(scrap)
         
 textfile = open(path+'/'+username+"_friend list.txt", "w")
 textfile.write(username + " friends list: \n")
