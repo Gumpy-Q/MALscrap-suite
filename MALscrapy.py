@@ -153,18 +153,14 @@ def seasonscrap(season,year,anime_type):
         season_scrap[key]=[]  
     
     season_types=soup.find_all('div',{'class':'anime-header'}) #anime-header has the name of each section for anime type
-    season_types_parent=[]
-    
-    for season_type in season_types:
-        season_types_parent.append(season_type.parent) #but it's the parent which got all the anime div
-        
-    for season_type in season_types_parent:    
-        if season_type.find('div',{'class':'anime-header'}).string in anime_type: #I want to scrap only the type of anime choosen by user
-            animes=season_type.find_all("div",{"class":"seasonal-anime js-seasonal-anime"}) #This is the div of each anime
+           
+    for season_type in season_types:    
+        if season_type.string in anime_type: #I want to scrap only the type of anime choosen by user
+            animes=season_type.find_next_siblings("div",attrs={'class': lambda e: e.startswith('js-anime') if e else False}) #This is the div of each anime. statswith can detect the div with a class starting with .... as MAL use different naming with the same start thankfully
             
             for anime in animes:
                 #those are defined in the scraping
-                season_scrap['type'].append(season_type.find('div',{'class':'anime-header'}).string)
+                season_scrap['type'].append(season_type.string)
                 season_scrap['release-season'].append(season)
                 season_scrap['release-year'].append(year)
                                 
@@ -201,7 +197,7 @@ def seasonscrap(season,year,anime_type):
                     season_scrap['episodes'].append(int(eps))
                 except:
                     season_scrap['episodes'].append(int(0))
-                
+                r
                 score=anime.find('div',{'title':'Score'}).text.replace('\n','').replace(' ','')
                 try:
                     season_scrap['score'].append(float(score))
@@ -221,7 +217,7 @@ def seasonscrap(season,year,anime_type):
                 except:
                     season_scrap['members'].append(int(0))                
                 
-            print('Finished scraping '+season_type.find('div',{'class':'anime-header'}).string+' of '+season+' '+str(year))
+            print('Finished scraping '+season_type.string+' of '+season+' '+str(year))
         else: 
             continue
     print('____________________________')
