@@ -18,12 +18,14 @@ from matplotlib.ticker import MaxNLocator
 import seaborn as sb
 
 import PySimpleGUI as sg
+
 from sys import exit
+from ast import literal_eval
 
 
 seasons=['winter','spring','summer','fall']
 anime_types=['TV (New)','TV (Continuing)','Special','OVA','ONA','Movie']
-plot_list=['Watching seasons','Watching years','Studio watching','TV (New) length','Score distribution','Score vs viewers','Score vs MAL means','Source repartition']
+plot_list=['Watching seasons','Watching years','Studio watching','TV (New) length','Score distribution','Score vs viewers','Score vs MAL means','Source repartition','Genre evolution']
 
 style.use('ggplot')
 sg.theme('DefaultNoMoreNagging') 
@@ -560,6 +562,101 @@ def score_vs_world(df,min_year,max_year,anitypes):
     
     return fig
 
+def genres_evolution(df,min_year,max_year,anitypes,color_list,thresold=10):
+    df=df.drop_duplicates(subset=['title','release-year','type'])
+    df=df[['release-year','type','genres']]
+    select_years=df[(df['release-year']<=max_year) & (df['release-year']>=min_year)] #remove years out of study scope
+    select_years=select_years[select_years['type'].isin(anitypes)]
+    
+    select_years=select_years.dropna(subset=['genres'])
+    
+    select_years['genres']=select_years['genres'].apply(literal_eval) #transform a string to a list
+    
+    select_years=select_years.explode('genres') #seperate list value to their own row
+    select_years=select_years.value_counts(['release-year','type','genres']).reset_index(name='count')
+    
+    #Build the top genres list of each year and put them in on unique list
+    genre_list=[]
+    for year in range(min_year,max_year+1):
+        for anitype in anitypes:
+            top_genres=select_years[(select_years['release-year']==year) & (select_years['type']==anitype)].sort_values('count',ascending=False)['genres'].head(thresold).values.tolist() #building the top 3 lists for each year and anime type
+            for genre in top_genres:
+                genre_list.append(genre)  
+                
+    genre_list = list(dict.fromkeys(genre_list))
+    
+    select_years=select_years[select_years['genres'].isin(genre_list)]
+    
+    data_add=[]
+      
+    for year in range(min_year,max_year+1):
+        for anitype in anitypes:
+            for genre in genre_list:
+            
+                if select_years[(select_years['type']==anitype) & (select_years['release-year']==year) & (select_years['genres']==genre)].empty:
+                    data_add.append([year,anitype,genre,0])
+                
+    df_add=pd.DataFrame(data_add,columns=['release-year','type','genres','count'])
+    select_years=select_years.append(df_add, ignore_index=True)
+    select_years=select_years.sort_values('genres')
+
+    
+    print('------------ plotting evolution of genre by year ------------')    
+    
+    custom_patches=contrast_colors[0:select_years['genres'].nunique()]
+    
+    if len(anitypes)>1:
+        
+        if len(anitypes)>4:
+            fig, axes = plt.subplots(2,3,figsize=enlarge_fig) #building a subplot for the 6 anime types
+            axes = axes.flatten()
+        elif len(anitypes)==2:
+            fig, axes = plt.subplots(1,2,figsize=enlarge_fig) #building a subplot for the 2 anime types
+            axes = axes.flatten()
+        else:
+            fig, axes = plt.subplots(2,2,figsize=enlarge_fig) #building a subplot for the 4 anime types
+            axes = axes.flatten()
+            
+        for anime_type,ax in zip(anitypes,axes): #anime types and plots go together so I zip them
+            df_type=select_years[select_years['type']==anime_type] #reducing the DataFrame to the season studied I need the year to be at the right order for the stacking
+            print('--------------'+anime_type)
+            
+            
+            sb.lineplot(ax=ax,x='release-year',y='count',hue='genres',data=df_type,linewidth = 2, legend=False, palette=custom_patches,ci=None)
+            
+            ax.set(ylim=0)
+            ax.set_ylabel('MAL Viewers',fontsize=font)
+            ax.set(ylabel='Number of anime with the genre')
+            ax.set_title(anime_type,fontsize=font)
+        
+    else:
+        fig, ax = plt.subplots(1,1,figsize=enlarge_fig) #building a subplot for the one choosen
+       
+        anime_type=anitypes[0]
+        df_type=select_years[select_years['type']==anime_type]
+        print('--------------'+anime_type)
+
+        sb.lineplot(ax=ax,x='release-year',y='count',hue='genres',data=df_type,linewidth = 2, legend=False, palette=custom_patches,ci=None)
+        
+        ax.set(ylim=0)
+        ax.set_ylabel('MAL Viewers',fontsize=font)
+        ax.set(ylabel='Animes with the genre')
+        ax.set_title(anime_type,fontsize=font)
+    
+    genre_list.sort()
+    fig.legend(genre_list, loc=lgd_position,fontsize=font)
+
+    signature(fig) 
+    fig.suptitle('Evolution of a genre watched by '+username+' (0 if they are less than top '+str(thresold)+' of the year)' ,fontsize=font)
+
+    fig.tight_layout()    
+    fig.subplots_adjust(right=adjust['right'],bottom=adjust['bottom'])
+       
+    fig.savefig(savepath+'/'+username+'genres_evolution'+str(start_year)+'-'+str(end_year))
+    fig.show()
+
+    return fig
+
                 #SECTION 3 CHOICE
 #Choosing the file
 datavalid=False
@@ -817,6 +914,16 @@ while again[0]=='Yes':
 
     if plot_to_viz['TV (New) length']==True:    
         fig_ep=episode(raw,start_year,end_year,'TV (New)',60)
+        plot_done+=1
+        progress_bar.UpdateBar(plot_done)
+    
+    event,values=window.read(timeout=5)
+    if event==sg.WIN_CLOSED or event=='Cancel':
+        window.close()
+        exit()
+        
+    if plot_to_viz['Genre evolution']==True:    
+        genres_evolution(raw,start_year,end_year,type_to_viz,contrast_colors,5)
         plot_done+=1
         progress_bar.UpdateBar(plot_done)
     

@@ -17,7 +17,7 @@ from sys import exit
 
 
 seasons=["winter","spring","summer","fall"]
-formatting=['title','MAL_id','type','studio','release-season','release-year','release-date','source-material','episodes','score','members']
+formatting=['title','MAL_id','type','studio','release-season','release-year','release-date','source-material','episodes','score','members','genres']
 anime_types=['TV (New)','TV (Continuing)','ONA','OVA','Movie','Special']
 
 default_url='https://myanimelist.net/anime/season'
@@ -189,7 +189,12 @@ def seasonscrap(season,year,anime_type):
                         
                 season_scrap['release-date'].append(release)
                 
-                #For older anime some stats are not displayed as they aren't enough users
+                anime_genres=[]
+                genres=anime.find_all('span',{'class':'genre'})
+                for genre in genres:
+                    anime_genres.append(genre.text.replace('\n',''))
+                    
+                season_scrap['genres'].append(anime_genres)
                 
                 #I want only the number of episode/OVA/Movie, if it's not given then I return a 0 
                 eps=''.join(filter(lambda i: i.isdigit(), anime_info[1].find_all('span')[0].text)) #Get only digit value in a list of char
