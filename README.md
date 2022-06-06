@@ -4,9 +4,9 @@ Using Python with BeautifulSoup as scraping module, this script gathers informat
 Access to the last dataset on my Kaggle [here](https://www.kaggle.com/crazygump/myanimelist-scrappind-a-decade-of-anime)
 
 ### Example of results
-| Title | MAL-id | Type | Studio | Release-season | Release-year | Release-date | Source-material | Episodes | Score | Members |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Attack No.1 | 1550 | TV (New) | Tokyo Movie Shinsha | winter | 1970 | 1969-12-07 19:00:00 | Manga | 104 | 6.74 | 7103 |
+| Title | MAL-id | Type | Studio | Release-season | Release-year | Release-date | Source-material | Episodes | Score | Members | Genres |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Attack No.1 | 1550 | TV (New) | Tokyo Movie Shinsha | winter | 1970 | 1969-12-07 19:00:00 | Manga | 104 | 6.74 | 7103 | ['Drama', 'Sports'] |
 
 ## Want to run the script without knowing much about Python ?
 Use the latest executable [here](https://github.com/Gumpy-Q/MALscraPy/releases/)
