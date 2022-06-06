@@ -56,6 +56,7 @@ As for now this scripts can draw these kinds of plots:
 * Score correlation to popularity
 * MAL viewers evolution
 * Length of anime aired (New production & Production continuing release)
+* Genre representation over time
 
 ### Use it to your heart content but...
 Please leave the credits on the plots if you want to share them
@@ -72,6 +73,7 @@ Please leave the credits on the plots if you want to share them
 ![MAL viewers from 2000 to 2021](https://github.com/Gumpy-Q/MALscraPy/blob/main/Plots/viewers_distribution-2000-2021.png?raw=true)
 ![New anime length from 1990 to 2021](https://github.com/Gumpy-Q/MALscraPy/blob/main/Plots/episode_TV%20(New)-1990-2021.png?raw=true)
 ![Continued anime length from 1990 to 2021](https://github.com/Gumpy-Q/MALscraPy/blob/main/Plots/episode_TV%20(Continuing)-1990-2021.png?raw=true)
+![Genres evolution from 1990 to 2021](https://github.com/Gumpy-Q/MALscrap-suite/blob/main/Plots/genres_evolution1990-2021.png?raw=true)
 
 
 
@@ -140,6 +142,9 @@ The best way to catch up the good anime from a season you could not invest time 
 | Wu Liuqi Zhi Xuanwu Guo Pian | 45556 | ONA | Winter | 2021 | | 9 | 1 | Djidji; |
 | Pui Pui Molcar | 44235 | TV | Winter | 2021 | 8 | 9 | 1 | Yokanime; |
 | Mushoku Tensei: Isekai Ittara Honki Dasu | 39535 | TV | Winter | 2021 | 6 | 8,5 | 2 | Zccdcccc;Djidji; |
+
+
+![Are you "mainstream" in yoru friend list](https://github.com/Gumpy-Q/MALscrap-suite/blob/main/Plots/crazy-gump_score_vs_MAL-friends-2012-2012.png?raw=True)
 
 ## Want to run the script without knowing much about Python ?
 Use the latest executable [here](https://github.com/Gumpy-Q/MALscraPy/releases/)
