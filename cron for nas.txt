@@ -1,0 +1,1 @@
+/opt/python3/bin/python3.10 /share/CACHEDEV1_DATA/Public/Jupyter/MAL_scrap/MALscrapy_updater_NAS_ed.py >> /share/CACHEDEV1_DATA/Public/Jupyter/MAL_scrap/scrap.log 2>&1

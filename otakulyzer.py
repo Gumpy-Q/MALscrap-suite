@@ -16,6 +16,8 @@ from matplotlib.ticker import PercentFormatter
 from matplotlib.ticker import MaxNLocator
 
 import seaborn as sb
+import requests
+from bs4 import BeautifulSoup
 
 import PySimpleGUI as sg
 
@@ -25,7 +27,9 @@ from ast import literal_eval
 
 seasons=['winter','spring','summer','fall']
 anime_types=['TV (New)','TV (Continuing)','Special','OVA','ONA','Movie']
-plot_list=['Watching seasons','Watching years','Studio watching','TV (New) length','Score distribution','Score vs viewers','Score vs MAL means','Source repartition','Genre evolution']
+plot_list=['Watching seasons','Watching years','Studio watching','TV (New) length','Score distribution','Score vs viewers','Score vs MAL means','Source repartition','Genre evolution','Theme evolution']
+
+formatting=['series_animedb_id','my_score','my_status']
 
 style.use('ggplot')
 sg.theme('DefaultNoMoreNagging') 
@@ -54,6 +58,52 @@ def opener(path,ext):
         df=pd.read_xml(path)
         
     return df
+
+#This function scrap one season for anime type                
+def friendseasonscrap(season,year,user):
+    scrap=pd.DataFrame(dict.fromkeys(formatting,[]))
+    url='https://myanimelist.net/animelist/'+user+'?season_year='+str(year)+'&season='+str(season)
+    headers=({'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:53.0) Gecko/20100101 Firefox/53.0','Accept-Language':'fr-FR,q=0.5'})
+    r=requests.get(url,headers)
+    soup=BeautifulSoup(r.content,'html.parser')
+
+    user_list=str(soup.find('table',{'class':'list-table'}))
+    user_list=user_list[user_list.find('data-items='):user_list.find('<tbody')] #get the json data
+    user_list=user_list.replace('>\n','').replace('data-items=','').replace(chr(39),'').replace('&quot;',chr(34)) #replace the character that would prevent to read as json
+
+    #dictionnary that will be merged with the final list
+    friendict={}
+    for key in formatting:
+        friendict[key]=[]      
+    
+    
+    if len(user_list)>0: #Check if the user list is empty
+        #removing final and first double quote for some case
+        if user_list[0]==chr(34) :
+            user_list=user_list[1:-1]
+               
+        user_list=pd.read_json(user_list)
+        
+        #Loop in the animes inside the json
+        for ind in user_list.index:
+            #Remove the 0 score as they can also be a non filled value
+            if user_list['score'][ind] > 0:
+                ID=user_list['anime_id'][ind]
+                
+                #check if the current list is empty
+                if (ID in scrap['series_animedb_id'].values)==False: #check if the the anime is part of the current friend list data
+                    friendict['my_score'].append(int(user_list['score'][ind])) 
+                    friendict['series_animedb_id'].append(ID)
+                    if user_list['status'][ind]==2:
+                        friendict['my_status'].append('Completed')
+                    if user_list['status'][ind]==4:
+                        friendict['my_status'].append('Dropped')
+                    if user_list['status'][ind]==1:
+                        friendict['my_status'].append('Watching')
+                    if user_list['status'][ind]==3:
+                        friendict['my_status'].append('On-Hold')
+                                       
+    return friendict
 
 #This function can create a stackbar plot in a given figure
 def stackbarcolor(df_plot,cat_list,ax,plot_name,colors_list,cat_key,tosum_key,ylabel_name,max_year,min_year,ymax=1):
@@ -252,6 +302,8 @@ def production_studio(df,min_year,max_year,anitypes,color_list):
     select_years=df[(df['release-year']<=max_year) & (df['release-year']>=min_year)] #remove years out of study scope
     select_years=select_years[select_years['type'].isin(anitypes)] #limite to anime types
     select_years=select_years.drop_duplicates(subset=['title','release-year','type']) #remove TV duplicates notably for long runer with multiple apparition per year, only keep one/year.
+    select_years['studio']=select_years['studio'].apply(lambda x: x.strip("[]").split(", "))
+    select_years=select_years.explode('studio')
     
     #remove the anime with studio not registered in MAL
     select_years=select_years[select_years['studio'] != '          -' ] 
@@ -404,7 +456,7 @@ def score_distribution(df,min_year,max_year,anitypes):
         
         ax.tick_params('x',labelrotation=rotation_ticks, labelsize=font)
         ax.tick_params('y', labelsize=font)
-        ax.set_ylabel('User score',fontsize=font)
+        ax.set_ylabel(username+' score',fontsize=font)
         ax.set_xlabel('Diffusion year',fontsize=font)
         ax.xaxis.label.set_size(font)
         ax.set(ylim=(0,10))
@@ -625,8 +677,10 @@ def genres_evolution(df,min_year,max_year,anitypes,color_list,thresold=10):
             sb.lineplot(ax=ax,x='release-year',y='count',hue='genres',data=df_type,linewidth = 2, legend=False, palette=custom_patches,ci=None)
             
             ax.set(ylim=0)
-            ax.set_ylabel('MAL Viewers',fontsize=font)
-            ax.set(ylabel='Number of anime with the genre')
+            ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+            ax.set(xlim=(min_year,max_year))
+            ax.set_ylabel('Number of anime with the genre',fontsize=font)
+            ax.set_xlabel('Diffusion year',fontsize=font)
             ax.set_title(anime_type,fontsize=font)
         
     else:
@@ -639,8 +693,10 @@ def genres_evolution(df,min_year,max_year,anitypes,color_list,thresold=10):
         sb.lineplot(ax=ax,x='release-year',y='count',hue='genres',data=df_type,linewidth = 2, legend=False, palette=custom_patches,ci=None)
         
         ax.set(ylim=0)
-        ax.set_ylabel('MAL Viewers',fontsize=font)
-        ax.set(ylabel='Animes with the genre')
+        ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+        ax.set(xlim=(min_year,max_year))
+        ax.set_ylabel('Number of anime with the genre',fontsize=font)
+        ax.set_xlabel('Diffusion year',fontsize=font)
         ax.set_title(anime_type,fontsize=font)
     
     genre_list.sort()
@@ -657,6 +713,106 @@ def genres_evolution(df,min_year,max_year,anitypes,color_list,thresold=10):
 
     return fig
 
+def themes_evolution(df,min_year,max_year,anitypes,color_list,thresold=10):
+    df=df.drop_duplicates(subset=['title','release-year','type'])
+    df=df[['release-year','type','themes']]
+    select_years=df[(df['release-year']<=max_year) & (df['release-year']>=min_year)] #remove years out of study scope
+    select_years=select_years[select_years['type'].isin(anitypes)]
+    
+    select_years=select_years.dropna(subset=['themes'])
+    select_years=select_years[select_years['themes']!="[]"]
+    
+    select_years['themes']=select_years['themes'].apply(literal_eval) #transform a string to a list
+    
+    select_years=select_years.explode('themes') #seperate list value to their own row
+    select_years=select_years.value_counts(['release-year','type','themes']).reset_index(name='count')
+    
+    #Build the top genres list of each year and put them in on unique list
+    theme_list=[]
+    for year in range(min_year,max_year+1):
+        for anitype in anitypes:
+            top_themes=select_years[(select_years['release-year']==year) & (select_years['type']==anitype)].sort_values('count',ascending=False)['themes'].head(thresold).values.tolist() #building the top 3 lists for each year and anime type
+            for theme in top_themes:
+                theme_list.append(theme)  
+                
+    theme_list = list(dict.fromkeys(theme_list))
+    
+    select_years=select_years[select_years['themes'].isin(theme_list)]
+    
+    data_add=[]
+      
+    for year in range(min_year,max_year+1):
+        for anitype in anitypes:
+            for theme in theme_list:
+            
+                if select_years[(select_years['type']==anitype) & (select_years['release-year']==year) & (select_years['themes']==theme)].empty:
+                    data_add.append([year,anitype,theme,0])
+                
+    df_add=pd.DataFrame(data_add,columns=['release-year','type','themes','count'])
+    select_years=select_years.append(df_add, ignore_index=True)
+    select_years=select_years.sort_values('themes')
+
+    
+    print('------------ plotting evolution of genre by year ------------')    
+    
+    custom_patches=contrast_colors[0:select_years['themes'].nunique()]
+    
+    if len(anitypes)>1:
+        
+        if len(anitypes)>4:
+            fig, axes = plt.subplots(2,3,figsize=enlarge_fig) #building a subplot for the 6 anime types
+            axes = axes.flatten()
+        elif len(anitypes)==2:
+            fig, axes = plt.subplots(1,2,figsize=enlarge_fig) #building a subplot for the 2 anime types
+            axes = axes.flatten()
+        else:
+            fig, axes = plt.subplots(2,2,figsize=enlarge_fig) #building a subplot for the 4 anime types
+            axes = axes.flatten()
+            
+        for anime_type,ax in zip(anitypes,axes): #anime types and plots go together so I zip them
+            df_type=select_years[select_years['type']==anime_type] #reducing the DataFrame to the season studied I need the year to be at the right order for the stacking
+            print('--------------'+anime_type)
+            
+            
+            sb.lineplot(ax=ax,x='release-year',y='count',hue='themes',data=df_type,linewidth = 2, legend=False, palette=custom_patches,ci=None)
+            
+            ax.set(ylim=0)
+            ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+            ax.set(xlim=(min_year,max_year))
+            ax.set_ylabel('Number of anime with the theme',fontsize=font)
+            ax.set_xlabel('Diffusion year',fontsize=font)
+            ax.set_title(anime_type,fontsize=font)
+        
+    else:
+        fig, ax = plt.subplots(1,1,figsize=enlarge_fig) #building a subplot for the one choosen
+       
+        anime_type=anitypes[0]
+        df_type=select_years[select_years['type']==anime_type]
+        print('--------------'+anime_type)
+
+        sb.lineplot(ax=ax,x='release-year',y='count',hue='themes',data=df_type,linewidth = 2, legend=False, palette=custom_patches,ci=None)
+        
+        ax.set(ylim=0)
+        ax.set(xlim=(min_year,max_year))
+        ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+        ax.set_ylabel('Number of anime with the theme',fontsize=font)
+        ax.set_xlabel('Diffusion year',fontsize=font)
+        ax.set_title(anime_type,fontsize=font)
+    
+    theme_list.sort()
+    fig.legend(theme_list, loc=lgd_position,fontsize=font)
+
+    signature(fig) 
+    fig.suptitle('Evolution of a theme watched by '+username+' (0 if they are less than top '+str(thresold)+' of the year)' ,fontsize=font)
+
+    fig.tight_layout()    
+    fig.subplots_adjust(right=adjust['right'],bottom=adjust['bottom'])
+       
+    fig.savefig(savepath+'/'+username+'_themes_evolution'+str(start_year)+'-'+str(end_year))
+    fig.show()
+
+    return fig
+
                 #SECTION 3 CHOICE
 #Choosing the file
 datavalid=False
@@ -664,7 +820,9 @@ while datavalid==False:
     layout = [[sg.Text('Path of the MAL scrap data file')],
             [sg.Input(), sg.FileBrowse()],
             [sg.Text('Path of your MAL xml file (generate in https://myanimelist.net/panel.php?go=export)')],
-            [sg.Input(), sg.FileBrowse()],   
+            [sg.Input(), sg.FileBrowse()], 
+            [sg.Text('OR MyAnimeList username (takes longer)')],
+            [sg.Input()],
             [sg.Text('Removing dropped anime ?')],
             [sg.Radio('Yes','group1',default=True),sg.Radio('No','group1',default=False)],                   
             [sg.OK(), sg.Cancel()]] 
@@ -676,32 +834,32 @@ while datavalid==False:
 
     scrapath=values[0]
     malpath=values[1]
-    drop_drop=values[2]
+    username=values[2]
+    drop_drop=values[3]
     
     window.close()
     try:
-        raw=opener(scrapath,scrapath[scrapath.find('.')+1:])
-        malraw=opener(malpath,malpath[malpath.find('.')+1:])
-        datavalid=True
+        datavalid=(len(username)*len(malpath)==0)and(len(username)!=len(malpath))
     except:
-        sg.popup('Could not read file.')    
-
-#Merge the two lists while keeping only the completed show
-username=malraw['user_name'][0]
-
-if values[2]==True:
-    malraw=malraw[malraw['my_status'].isin(['Completed'])]
-else:
-    malraw=malraw[malraw['my_status'].isin(['Completed','Dropped'])]
-
-raw=pd.merge(raw,malraw,left_on='title',right_on='series_title')
+        sg.popup('You need to fill the xml adress or the username, not both')
+        
+    if username!='':
+        try:
+            raw=opener(scrapath,scrapath[scrapath.find('.')+1:])
+            datavalid=True
+        except:
+            sg.popup('Could not read file.')        
+    else:    
+        try:
+            raw=opener(scrapath,scrapath[scrapath.find('.')+1:])
+            malraw=opener(malpath,malpath[malpath.find('.')+1:])
+            datavalid=True
+        except:
+            sg.popup('Could not read file.')
 
 #I make sure they are integer as sometime it's interpreted as float
 raw['release-year']=raw['release-year'].astype(int) 
 raw['episodes']=raw['episodes'].astype(int)
-raw['studio']=raw["studio"].str[:20]
-raw['my_score']=raw["my_score"].astype(int) 
-
 
 first_year=raw['release-year'].min()
 last_year=raw['release-year'].max()
@@ -737,8 +895,73 @@ while again[0]=='Yes':
             else:
                 datavalid=True
         except:
-            sg.popup('Invalid input. Must be YYYY in range ['+str(first_year)+';'+str(last_year)+']')
+            sg.popup('Invalid input. Must be YYYY in range ['+str(start_year)+';'+str(end_year)+']')
+    
+    years=np.arange(start_year,end_year+1,1)
+
+    season_scraped=0
+
+    if username=='':
             
+        #Merge the two lists while keeping only the completed show
+        username=malraw['user_name'][0]
+        
+        if drop_drop==True:
+            malraw=malraw[malraw['my_status'].isin(['Completed','Watching'])]
+        else:
+            malraw=malraw[malraw['my_status'].isin(['Completed','Watching','Dropped'])]
+    else:
+        #choosing delay between season scrap
+        layout = [[sg.Text('How many seconds between two requests ? ')],
+                  [sg.Text('WARNING fast requests might get your IP ban (I used 2 seconds to build my datasets)')],
+                  [sg.Slider(range=(0,10),default_value=2,orientation='horizontal')],
+                  [sg.OK(), sg.Cancel()]]
+        window = sg.Window('IP ban mitigation', layout)
+        event, values = window.read()
+        window.close()
+
+        if event==sg.WIN_CLOSED or event=='Cancel':
+                 exit()
+            
+        sleep_time=values[0]
+        malraw=pd.DataFrame(dict.fromkeys(formatting,[]))
+        
+        layout = [[sg.Text('Current progress')],
+                  [sg.Output(size=(80,12))],
+                  [sg.ProgressBar(4*(1+end_year-start_year), orientation='h', size=(40, 12), key='progressbar')], #build a progress bar /!\ not accurate as it will just do number of year * 4 (seasons)
+                  [sg.Cancel()]]
+
+        window = sg.Window('Progress', layout)
+        progress_bar = window['progressbar']
+        season_scraped=0
+        
+        for year in years:              
+            for season_to_scrap in seasons:
+                #show progress of scraping
+                event,values=window.read(timeout=5+sleep_time)
+                if event==sg.WIN_CLOSED or event=='Cancel':
+                    window.close()
+                    exit()
+                
+                test=friendseasonscrap(season_to_scrap,year,username)
+                df_n=pd.DataFrame(test) #I bluid a DataFrame around my data freshly scraped
+        
+                print(username +' anime list for '+ str(season_to_scrap)+' '+str(year))
+        
+                season_scraped+=1
+                progress_bar.UpdateBar(season_scraped)
+                window.refresh()
+                
+                malraw=pd.concat([malraw,df_n],ignore_index=True)
+                   
+                time.sleep(sleep_time)
+                
+        window.close()
+        
+    raw=pd.merge(raw,malraw,left_on='MAL_id',right_on='series_animedb_id')
+
+    raw['my_score']=raw["my_score"].astype(int)         
+    
     #Choosing the type to view in plot
     type_to_viz=[]
     datavalid=False
@@ -932,6 +1155,15 @@ while again[0]=='Yes':
         window.close()
         exit()
         
+    if plot_to_viz['Theme evolution']==True:    
+        themes_evolution(raw,start_year,end_year,type_to_viz,contrast_colors,3)
+        plot_done+=1
+        progress_bar.UpdateBar(plot_done)
+
+    event,values=window.read(timeout=5)
+    if event==sg.WIN_CLOSED or event=='Cancel':
+        window.close()
+        exit()        
 
     #this is the end...
     window.close()    

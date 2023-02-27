@@ -12,34 +12,32 @@ pd.options.mode.chained_assignment = None
 from bs4 import BeautifulSoup
 import numpy as np
 import time
-import PySimpleGUI as sg
 from sys import exit
 import matplotlib.pyplot as plt
 import seaborn as sb
+import os
+
+try:
+    os.chdir("Data")
+    path =os.getcwd()
+except:
+    os.chdir("/share/CACHEDEV1_DATA/Public/Jupyter/MAL_scrap/Data")
+    path =os.getcwd()
 
 font='xx-large'
 lgd_position='center right'
 adjust={'bottom':0.11,'right':0.82,'wspace':0.35} #This array is used to adjust the limit of my 'normal' plots
 enlarge_fig=(18,10) #This is the size of my figures
 
-sg.theme('DefaultNoMoreNagging')
 seasons=["winter","spring","summer","fall"]
 
+cur_month=time.localtime().tm_mon
+cur_year=time.localtime().tm_year
 
             #SECTION 1 building the friend list
-layout = [  [sg.Text('Who is the user you want to know their friends tastes ?')],
-        [sg.Input()],
-        [sg.OK(), sg.Cancel()]] 
 
-window = sg.Window('Get path', layout)
 
-event, values = window.read()
-window.close()
-
-if event==sg.WIN_CLOSED or event=='Cancel':
-    exit()  
-
-username=values[0]
+username=input("username of MAL user: ")
 friendlist=[]
 formatting=['title','MAL_id','type','release-season','release-year',username+' score','friends_mean_score','nb_who_watched_it','friend_who_watched_it','type']
 scrap=pd.DataFrame(dict.fromkeys(formatting,[]))
@@ -58,80 +56,48 @@ friendlist.append(username)
                 #SECTION 2 Choosing the time period
 #choose start year and season. I choose to limit the range from 1917 (first recorded anime on MAL) to present year+1
 datavalid=False
+
+if cur_month>9 :
+    end_season="summer"
+elif cur_month>6 :
+    end_season="spring"
+elif cur_month>3 :
+    end_season="winter"
+else :
+    end_season="fall"
+    cur_year-=1
+     
+
+end_year=cur_year
+end_season_index=seasons.index(end_season) 
+
+
 while datavalid==False:
-    layout = [[sg.Text('From which year do you want to scrap ? ')],
-            [sg.Text('Must be YYYY in range [1917;'+str(time.localtime().tm_year+1)+']')],
-            [sg.Text('From'),sg.Spin([i for i in range(1917,time.localtime().tm_year+2)], initial_value=time.localtime().tm_year-10),sg.Text('season'),sg.Combo(seasons,default_value='winter')], 
-            [sg.OK(), sg.Cancel()]] 
-    window = sg.Window('Start point selection', layout)
-    event, values = window.read()
-    window.close()
-  
-    if event==sg.WIN_CLOSED or event=='Cancel':
-         exit()
          
-    start_year=values[0]
-    start_season=values[1]
-    start_season_index=seasons.index(start_season)
+    start_year=input("Start year as XXXX: ")
+    start_season=input("Start season, input as winter or spring or summer or fall: ")
+    start_season_index=seasons.index(start_season) 
     
     try:
         start_year=int(start_year) #check if input is integer without breaking
         if start_year<1917 or start_year>time.localtime().tm_year+1:
-            sg.popup('Invalid input. Must be YYYY in range [1917;'+str(time.localtime().tm_year+1)+']')
-        else:
-            datavalid=True
-    except:
-        sg.popup('Invalid input. Must be YYYY in range [1917;'+str(time.localtime().tm_year+1)+']')
-
-#choose end year and season. range from start year to present year+1        
-datavalid=False
-while datavalid==False:
-    layout = [[sg.Text('Until which year do you want to scrap ? ')],
-            [sg.Text('Must be YYYY in range ['+str(start_year)+';'+str(time.localtime().tm_year+1)+']')],
-            [sg.Text('Until'),sg.Spin([i for i in range(start_year,time.localtime().tm_year+2)], initial_value=start_year),sg.Text('season'),sg.Combo(seasons,default_value='fall')], 
-            [sg.OK(), sg.Cancel()]] 
-    window = sg.Window('End point selection', layout)
-    event, values = window.read()
-    window.close()
-    
-    if event==sg.WIN_CLOSED or event=='Cancel':
-         exit()
-         
-    end_year=values[0]
-    end_season=values[1]
-    end_season_index=seasons.index(end_season)
-    
-    try:
-        end_year=int(end_year) #check if input is integer without breaking
-        if end_year<1917 or end_year<start_year:
-            sg.popup('Invalid input. Must be YYYY in range ['+start_year+';'+str(time.localtime().tm_year+1)+']')
+            print('Invalid input. Must be YYYY in range [1917;'+str(time.localtime().tm_year)+']')
+        
         elif end_year==start_year:
             
             if start_season_index<=end_season_index: #position of end season in seasons list must be greater than position of start season or equal
                 datavalid=True
             else:
-                sg.popup('Invalid input.\n End and start in same the year but end season is sooner than start.')
-            
+                print('Invalid input.\n End and start in same the year but end season is sooner than start.')        
         else:
             datavalid=True
     except:
-        sg.popup('Invalid input. Must be YYYY in range [1917;'+str(time.localtime().tm_year+1)+']')
+        print('Invalid input. Must be YYYY in range [1917;'+str(time.localtime().tm_year)+']')  
 
 
 
-#choosing delay between season scrap
-layout = [[sg.Text('How many seconds between two requests ? ')],
-          [sg.Text('WARNING fast requests might get your IP ban (I used 2 seconds to build my datasets)')],
-          [sg.Slider(range=(0,10),default_value=2,orientation='horizontal')],
-          [sg.OK(), sg.Cancel()]]
-window = sg.Window('IP ban mitigation', layout)
-event, values = window.read()
-window.close()
-
-if event==sg.WIN_CLOSED or event=='Cancel':
-         exit()
-    
-sleep_time=values[0]
+#choosing delay between season scrap   
+sleep_time=1
 
 
 
@@ -168,15 +134,18 @@ def friendseasonscrap(season,year,user):
                 
                 #check if the current list is empty
                 if ID in scrap['MAL_id'].values: #check if the the anime is part of the current friend list data
-                    
+
                     if user!=username:                            
                         scrap.loc[scrap['MAL_id']==ID,'friends_mean_score']+=user_list['score'][ind]
                         scrap.loc[scrap['MAL_id']==ID,'nb_who_watched_it']+=1
                         scrap.loc[scrap['MAL_id']==ID,username+' score']=None
                         scrap.loc[scrap['MAL_id']==ID,'friend_who_watched_it']+=user+';'
                     else:
+                        scrap.loc[scrap['MAL_id']==ID,'friends_mean_score']+=user_list['score'][ind]
                         scrap.loc[scrap['MAL_id']==ID,username+' score']=user_list['score'][ind]
-                        
+                        scrap.loc[scrap['MAL_id']==ID,'friend_who_watched_it']+=user+';'
+                        scrap.loc[scrap['MAL_id']==ID,'nb_who_watched_it']+=1
+
                 else: #if it's not then add every info
                     if user!=username: 
                         friendict['friends_mean_score'].append(int(user_list['score'][ind]))
@@ -185,27 +154,32 @@ def friendseasonscrap(season,year,user):
                         friendict['friend_who_watched_it'].append(user+';')
                     else:
                         friendict[username+' score'].append(int(user_list['score'][ind])) 
-                        friendict['friends_mean_score'].append(None)
-                        friendict['nb_who_watched_it'].append(0)  
-                        friendict['friend_who_watched_it'].append(None)
+                        friendict['friends_mean_score'].append(int(user_list['score'][ind]))
+                        friendict['nb_who_watched_it'].append(1)  
+                        friendict['friend_who_watched_it'].append(user+';')
                         
+
                     friendict['MAL_id'].append(ID)
                     friendict['release-year'].append(year)
                     friendict['release-season'].append(season)
                     friendict['title'].append(user_list['anime_title'][ind])
-                    friendict['type'].append(user_list['anime_media_type_string'][ind])        
+                    friendict['type'].append(user_list['anime_media_type_string'][ind])
+                    
+                    
                                        
     return friendict
 
 #This function is showing the repartition of anime's score
+
+#This function is showing the repartition of anime's score
 def score_vs_friend(df): 
     
-    df=df[df[username+' score']>0]
+    df=df[df['score']>0]
     df=df[df['friends_mean_score']>0]
     #count the number of anime under the mean MAL score
     total=0
     hipster=0
-    for my_score, mal_score in zip(df[username+' score'],df['friends_mean_score']):
+    for my_score, mal_score in zip(df['score'],df['friends_mean_score']):
         if  my_score>mal_score:
             total+=1
             hipster+=1
@@ -215,9 +189,9 @@ def score_vs_friend(df):
     hipster_score=int(100*hipster/total)
     
     minmal_score=int(df['friends_mean_score'].min())
-    minuser_score=int(df[username+' score'].min())
+    minuser_score=int(df['score'].min())
     maxmal_score=int(df['friends_mean_score'].max())
-    maxuser_score=int(df[username+' score'].max())
+    maxuser_score=int(df['score'].max())
 
     tickmax=max(maxmal_score,maxuser_score)
     tickmin=min(minmal_score,minuser_score)    
@@ -226,25 +200,25 @@ def score_vs_friend(df):
     aspect_ratio=1
 
     fig, ax = plt.subplots(figsize=(15*aspect_ratio,15)) #building a subplot for the one choosen
-    ax=sb.scatterplot(x='friends_mean_score',y=username+' score',data=df,hue='type',s=70) 
+    ax=sb.scatterplot(x='friends_mean_score',y='score',data=df,hue='type_y',s=70) 
     ax.plot([0,1,2,3,4,5,6,7,8,9,10],[0,1,2,3,4,5,6,7,8,9,10], c='black') 
         
     ax.tick_params('x', labelsize=font)
     ax.tick_params('y', labelsize=font)
-    ax.set_ylabel(username+' score',fontsize=font)
-    ax.set_xlabel('MAL friends mean score',fontsize=font)
+    ax.set_ylabel('MAL score',fontsize=font)
+    ax.set_xlabel('Yokanime MAL friends mean score',fontsize=font)
     ax.set(xlim=(tickmin-0.5,tickmax+0.5))
     ax.set(ylim=(tickmin-0.5,tickmax+0.5))
     ax.set_box_aspect(1/aspect_ratio) 
     
     signature(fig)
-    fig.suptitle(username+' score vs MAL friends means: '+str(hipster_score)+'% of the score are above their friends mean',fontsize=font) 
+    fig.suptitle('MAL score vs Yokanime MAL friends means: '+str(hipster_score)+'% of the score are lower than MAL score',fontsize=font) 
 
     
     fig.tight_layout()
     fig.subplots_adjust(bottom=adjust['bottom'])
     
-    fig.savefig(path+'/'+username+'_score_vs_MAL-friends'+'-'+str(start_year)+'-'+str(end_year))
+    fig.savefig(path+'/'+username+'_friends_score_vs_MAL'+'-'+str(start_year)+'-'+str(end_year))
     fig.show()
     
     return fig
@@ -252,16 +226,13 @@ def score_vs_friend(df):
 def signature(fig):
     fig.text(0,0.005,' Data collected with MALscraPy & Plot made with Otakulyzer | Scripts available at http://github.com/Gumpy-Q',fontsize=font, backgroundcolor='grey',style='italic',color='white')
 
+def signature(fig):
+    fig.text(0,0.005,' Data collected with MALscraPy & Plot made with Otakulyzer | Scripts available at http://github.com/Gumpy-Q',fontsize=font, backgroundcolor='grey',style='italic',color='white')
+
 
 nbfriend=len(friendlist)
 years=np.arange(start_year,end_year+1,1) #building a vector of years from start to end year
-layout = [[sg.Text('Current progress')],
-          [sg.Output(size=(80,12))],
-          [sg.ProgressBar(nbfriend*4*(1+end_year-start_year), orientation='h', size=(40, 12), key='progressbar')], #build a progress bar /!\ not accurate as it will just do number of year * 4 (seasons)
-          [sg.Cancel()]]
 
-window = sg.Window('Progress', layout)
-progress_bar = window['progressbar']
 season_scraped=0
 
 
@@ -285,10 +256,6 @@ for friend in friendlist:
             
         for season_to_scrap in seasons_to_scrap:
             #show progress of scraping
-            event,values=window.read(timeout=5+sleep_time)
-            if event==sg.WIN_CLOSED or event=='Cancel':
-                window.close()
-                exit()
             
             test=friendseasonscrap(season_to_scrap,year,friend)
             df_n=pd.DataFrame(test) #I bluid a DataFrame around my data freshly scraped
@@ -296,14 +263,10 @@ for friend in friendlist:
             print(friend +' anime list for '+ str(season_to_scrap)+' '+str(year))
     
             season_scraped+=1
-            progress_bar.UpdateBar(season_scraped)
-            window.refresh()
             
             scrap=pd.concat([scrap,df_n],ignore_index=True)
                
             time.sleep(sleep_time)
-            
-window.close()
 
 for ind in scrap.index:
     if scrap['nb_who_watched_it'][ind]>0:
@@ -313,40 +276,19 @@ scrap=scrap.sort_values(by=['friends_mean_score'],ascending=False)
 
         #SECTION 5 Save the results
 output=["html","json","csv","xlsx"]
-filename='/MAL-friends-'+username+'-from-'+start_season+str(start_year)+'-to-'+end_season+str(end_year)
+filename='/MAL-vs-friends-'+username+'-from-'+start_season+str(start_year)+'-to-'+end_season+str(end_year)
+
+malraw=pd.read_csv('MAL-all-latest.csv')
+
+for ind in test.index:
+    scrap['MAL_id'][ind]=int(scrap['MAL_id'][ind])
+
+scrap=pd.merge(malraw,scrap,on='MAL_id')
+scrap=scrap[scrap['friends_mean_score']>0]
+scrap=scrap.drop_duplicates('MAL_id')
 
 #choosing the output format and its directory
-datavalid=False
-while datavalid==False:    
-    
-    layout = [  [sg.Text('Path to save')],
-            [sg.Input(), sg.FolderBrowse()],
-            [sg.Text('Output format:'),sg.Combo(output,default_value='xlsx')],
-            [sg.OK(), sg.Cancel()]] 
-    
-    window = sg.Window('Get path', layout)
-    
-    event, values = window.read()
-    window.close()
-    
-    if event==sg.WIN_CLOSED or event=='Cancel':
-        exit()  
-    
-    path=values[0]
-    output_format=values[1]
-    
-    try:
-        if output_format=='html':
-            scrap.to_html(path+filename+'.html',index=False)
-        elif output_format=='json':
-            scrap.to_json(path+filename+'.json')
-        elif output_format=='csv':
-            scrap.to_csv(path+filename+'.csv',index=False)
-        elif output_format=='xlsx':
-            scrap.to_excel(path+filename+'.xlsx',index=False)
-        datavalid=True
-    except:
-        sg.popup('Unable to save at this path')
+scrap.to_excel(path+filename+'.xlsx',index=False)
 
 score_vs_friend(scrap)
         
@@ -357,4 +299,4 @@ for friend in friendlist[:-1]:
     textfile.write(friend + "\n")
 textfile.close()
 
-sg.popup('File saved as \n' + path+''+filename+'.'+output_format)  
+print('File saved as \n' + path+''+filename+'.xlsx')  

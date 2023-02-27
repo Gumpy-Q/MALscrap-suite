@@ -25,7 +25,7 @@ from ast import literal_eval
 
 seasons=['winter','spring','summer','fall']
 anime_types=['TV (New)','TV (Continuing)','Special','OVA','ONA','Movie']
-plot_list=['Production seasons','Production years','Studio production','Studios quantity','TV (New) length','TV (Continuing) length','Score distribution','Score vs viewers','MAL viewers distribution','Source repartition','Genre evolution']
+plot_list=['Production seasons','Production years','Studio production','Studios quantity','TV (New) length','TV (Continuing) length','Score distribution','Score vs viewers','MAL viewers distribution','Source repartition','Genre evolution','Themes evolution']
 
 style.use('ggplot')
 sg.theme('DefaultNoMoreNagging') 
@@ -250,10 +250,13 @@ def production_studio(df,min_year,max_year,anitypes,color_list):
     select_years=df[(df['release-year']<=max_year) & (df['release-year']>=min_year)] #remove years out of study scope
     select_years=select_years[select_years['type'].isin(anitypes)] #limite to anime types
     select_years=select_years.drop_duplicates(subset=['title','release-year','type']) #remove TV duplicates notably for long runer with multiple apparition per year, only keep one/year.
+    select_years['studio']=select_years['studio'].apply(lambda x: x.strip("[]").split(", "))
+    select_years=select_years.explode('studio')
     
     #remove the anime with studio not registered in MAL
     select_years=select_years[select_years['studio'] != '          -' ] 
     select_years=select_years[select_years['studio'] != '-']
+    select_years=select_years[select_years['studio'] != 'Unknown']
     
     select_years=select_years.value_counts(['release-year','type','studio']).reset_index(name='count') #transform the long list to a count for each config
     
@@ -321,13 +324,14 @@ def production_studio(df,min_year,max_year,anitypes,color_list):
 def studio_quantity(df,min_year,max_year,anitypes,color_list): 
     
     select_years=df[(df['release-year']<=max_year) & (df['release-year']>=min_year)] #remove years out of study scope
-    select_years=select_years[select_years['type'].isin(anitypes)]
+    select_years=select_years[select_years['type'].isin(anitypes)]  
+    select_years=select_years[['release-year','type','studio']]
+    select_years['studio']=select_years['studio'].apply(lambda x: x.strip("[]").split(", "))
+    select_years=select_years.explode('studio')
     
-
     select_years=select_years[select_years['studio'] != '          -' ]
     select_years=select_years[select_years['studio'] != '-']
-    
-    select_years=select_years[['release-year','type','studio']]
+    select_years=select_years[select_years['studio'] != 'Unknown']
     
     select_years=select_years.drop_duplicates()
     select_years=select_years.value_counts(['release-year','type']).reset_index(name='sum')    
@@ -380,7 +384,7 @@ def studio_quantity(df,min_year,max_year,anitypes,color_list):
 #This function is showing the repartition of anime's length in the year
 def episode(df,min_year,max_year,anitype,max_shown): 
     select_years=df[(df['type']==anitype) & (df['episodes']>0) & (df['release-year']>=min_year) & (df['release-year']<=max_year)] #Limit my dataframe 
-    select_years=select_years.drop_duplicates(subset=['title']) #remove TV duplicates notably for long runer with multiple apparition per year, only keep one/year.
+    select_years=select_years.drop_duplicates(subset=['title','release-year','type']) #remove TV duplicates notably for long runer with multiple apparition per year, only keep one/year.
     
     print('------------ plotting evolution of anime length ------------')
     
@@ -411,7 +415,7 @@ def score_distribution(df,min_year,max_year,anitypes):
     
     select_years=df[(df['score']>0) & (df['release-year']>=min_year) & (df['release-year']<=max_year)] #Limit my dataframe
     select_years=select_years[select_years['type'].isin(anitypes)]
-    select_years=select_years.drop_duplicates(subset=['title']) #remove TV duplicates notably for long runer with multiple apparition per year, only keep one/year.
+    select_years=select_years.drop_duplicates(subset=['title','release-year','type']) #remove TV duplicates notably for long runer with multiple apparition per year, only keep one/year.
     
     print('------------ plotting evolution score ------------')
     
@@ -463,7 +467,7 @@ def score_distribution(df,min_year,max_year,anitypes):
         ax.tick_params('y', labelsize=font)
         ax.set_ylabel('Mean score',fontsize=font)
         ax.set_xlabel('Diffusion year',fontsize=font)
-        ax.xaxis.label.set_size(font)
+        ax.xaxis.label.set_size(font)    
         ax.set(ylim=(0,10))
         ax.set_title(anime_type,fontsize=font)
         ax.xaxis.set_major_locator(MaxNLocator(integer=True,nbins=nb_ticks,prune='both')) 
@@ -485,7 +489,7 @@ def member_distribution(df,min_year,max_year,anitypes):
     
     select_years=df[(df['members']>0) & (df['release-year']>=min_year) & (df['release-year']<=max_year)] #Limit my dataframe
     select_years=select_years[select_years['type'].isin(anitypes)]
-    select_years=select_years.drop_duplicates(subset=['title']) #remove TV duplicates notably for long runer with multiple apparition per year, only keep one/year.
+    select_years=select_years.drop_duplicates(subset=['title','release-year','type']) #remove TV duplicates notably for long runer with multiple apparition per year, only keep one/year.
     
     print('------------ plotting evolution MAL viewers ------------')
 
@@ -719,8 +723,10 @@ def genres_evolution(df,min_year,max_year,anitypes,color_list,thresold=10):
             sb.lineplot(ax=ax,x='release-year',y='count',hue='genres',data=df_type,linewidth = 2, legend=False, palette=custom_patches,ci=None)
             
             ax.set(ylim=0)
-            ax.set_ylabel('MAL Viewers',fontsize=font)
-            ax.set(ylabel='Number of anime with the genre')
+            ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+            ax.set(xlim=(min_year,max_year))
+            ax.set_ylabel('Number of anime with the genre',fontsize=font)
+            ax.set_xlabel('Diffusion year',fontsize=font)
             ax.set_title(anime_type,fontsize=font)
         
     else:
@@ -733,8 +739,10 @@ def genres_evolution(df,min_year,max_year,anitypes,color_list,thresold=10):
         sb.lineplot(ax=ax,x='release-year',y='count',hue='genres',data=df_type,linewidth = 2, legend=False, palette=custom_patches,ci=None)
         
         ax.set(ylim=0)
-        ax.set_ylabel('MAL Viewers',fontsize=font)
-        ax.set(ylabel='Animes with the genre')
+        ax.set(xlim=(min_year,max_year))
+        ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+        ax.set_ylabel('Number of anime with the genre',fontsize=font)
+        ax.set_xlabel('Diffusion year',fontsize=font)
         ax.set_title(anime_type,fontsize=font)
     
     genre_list.sort()
@@ -751,6 +759,105 @@ def genres_evolution(df,min_year,max_year,anitypes,color_list,thresold=10):
 
     return fig
 
+def themes_evolution(df,min_year,max_year,anitypes,color_list,thresold=10):
+    df=df.drop_duplicates(subset=['title','release-year','type'])
+    df=df[['release-year','type','themes']]
+    select_years=df[(df['release-year']<=max_year) & (df['release-year']>=min_year)] #remove years out of study scope
+    select_years=select_years[select_years['type'].isin(anitypes)]
+    
+    select_years=select_years.dropna(subset=['themes'])
+    select_years=select_years[select_years['themes']!="[]"]
+    
+    select_years['themes']=select_years['themes'].apply(literal_eval) #transform a string to a list
+    
+    select_years=select_years.explode('themes') #seperate list value to their own row
+    select_years=select_years.value_counts(['release-year','type','themes']).reset_index(name='count')
+    
+    #Build the top genres list of each year and put them in on unique list
+    theme_list=[]
+    for year in range(min_year,max_year+1):
+        for anitype in anitypes:
+            top_themes=select_years[(select_years['release-year']==year) & (select_years['type']==anitype)].sort_values('count',ascending=False)['themes'].head(thresold).values.tolist() #building the top 3 lists for each year and anime type
+            for theme in top_themes:
+                theme_list.append(theme)  
+                
+    theme_list = list(dict.fromkeys(theme_list))
+    
+    select_years=select_years[select_years['themes'].isin(theme_list)]
+    
+    data_add=[]
+      
+    for year in range(min_year,max_year+1):
+        for anitype in anitypes:
+            for theme in theme_list:
+            
+                if select_years[(select_years['type']==anitype) & (select_years['release-year']==year) & (select_years['themes']==theme)].empty:
+                    data_add.append([year,anitype,theme,0])
+                
+    df_add=pd.DataFrame(data_add,columns=['release-year','type','themes','count'])
+    select_years=select_years.append(df_add, ignore_index=True)
+    select_years=select_years.sort_values('themes')
+
+    
+    print('------------ plotting evolution of genre by year ------------')    
+    
+    custom_patches=contrast_colors[0:select_years['themes'].nunique()]
+    
+    if len(anitypes)>1:
+        
+        if len(anitypes)>4:
+            fig, axes = plt.subplots(2,3,figsize=enlarge_fig) #building a subplot for the 6 anime types
+            axes = axes.flatten()
+        elif len(anitypes)==2:
+            fig, axes = plt.subplots(1,2,figsize=enlarge_fig) #building a subplot for the 2 anime types
+            axes = axes.flatten()
+        else:
+            fig, axes = plt.subplots(2,2,figsize=enlarge_fig) #building a subplot for the 4 anime types
+            axes = axes.flatten()
+            
+        for anime_type,ax in zip(anitypes,axes): #anime types and plots go together so I zip them
+            df_type=select_years[select_years['type']==anime_type] #reducing the DataFrame to the season studied I need the year to be at the right order for the stacking
+            print('--------------'+anime_type)
+            
+            
+            sb.lineplot(ax=ax,x='release-year',y='count',hue='themes',data=df_type,linewidth = 2, legend=False, palette=custom_patches,ci=None)
+            
+            ax.set(ylim=0)
+            ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+            ax.set(xlim=(min_year,max_year))
+            ax.set_ylabel('Number of anime with the theme',fontsize=font)
+            ax.set_xlabel('Diffusion year',fontsize=font)
+            ax.set_title(anime_type,fontsize=font)
+        
+    else:
+        fig, ax = plt.subplots(1,1,figsize=enlarge_fig) #building a subplot for the one choosen
+       
+        anime_type=anitypes[0]
+        df_type=select_years[select_years['type']==anime_type]
+        print('--------------'+anime_type)
+
+        sb.lineplot(ax=ax,x='release-year',y='count',hue='themes',data=df_type,linewidth = 2, legend=False, palette=custom_patches,ci=None)
+        
+        ax.set(ylim=0)
+        ax.set(xlim=(min_year,max_year))
+        ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+        ax.set_ylabel('Number of anime with the theme',fontsize=font)
+        ax.set_xlabel('Diffusion year',fontsize=font)
+        ax.set_title(anime_type,fontsize=font)
+    
+    theme_list.sort()
+    fig.legend(theme_list, loc=lgd_position,fontsize=font)
+
+    signature(fig) 
+    fig.suptitle('Evolution of a theme representation (0 if they are less than top '+str(thresold)+' of the year)' ,fontsize=font)
+
+    fig.tight_layout()    
+    fig.subplots_adjust(right=adjust['right'],bottom=adjust['bottom'])
+       
+    fig.savefig(savepath+'/themes_evolution'+str(start_year)+'-'+str(end_year))
+    fig.show()
+
+    return fig
             
             #SECTION 3 CHOICE
 #Choosing the file
@@ -776,7 +883,6 @@ while datavalid==False:
 #I make sure they are integer as sometime it's interpreted as float
 raw['release-year']=raw['release-year'].astype(int) 
 raw['episodes']=raw['episodes'].astype(int)
-raw['studio']=raw["studio"].str[:20]
 
 first_year=raw['release-year'].min()
 last_year=raw['release-year'].max()
@@ -1016,6 +1122,16 @@ while again[0]=='Yes':
 
     if plot_to_viz['Genre evolution']==True:    
         genres_evolution(raw,start_year,end_year,type_to_viz,contrast_colors,5)
+        plot_done+=1
+        progress_bar.UpdateBar(plot_done)
+        
+    event,values=window.read(timeout=5)
+    if event==sg.WIN_CLOSED or event=='Cancel':
+        window.close()
+        exit()
+
+    if plot_to_viz['Themes evolution']==True:    
+        themes_evolution(raw,start_year,end_year,type_to_viz,contrast_colors,3)
         plot_done+=1
         progress_bar.UpdateBar(plot_done)
     

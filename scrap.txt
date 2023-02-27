@@ -1,0 +1,245 @@
+time.struct_time(tm_year=2023, tm_mon=1, tm_mday=1, tm_hour=0, tm_min=34, tm_sec=40, tm_wday=6, tm_yday=1, tm_isdst=0)
+Finished scraping TV (New) of fall 2022
+Finished scraping TV (Continuing) of fall 2022
+Finished scraping ONA of fall 2022
+Finished scraping OVA of fall 2022
+Finished scraping Movie of fall 2022
+Finished scraping Special of fall 2022
+File saved as 
+/share/CACHEDEV1_DATA/Public/Jupyter/MAL_scrap/Output/MAL-all-from-winter1917-to-summer2022.csv
+File saved as 
+/share/CACHEDEV1_DATA/Public/Jupyter/MAL_scrap/Output/MAL-all-latest.csv
+time.struct_time(tm_year=2023, tm_mon=1, tm_mday=1, tm_hour=2, tm_min=0, tm_sec=18, tm_wday=6, tm_yday=1, tm_isdst=0)
+Finished scraping TV (New) of fall 2022
+Finished scraping TV (Continuing) of fall 2022
+Finished scraping ONA of fall 2022
+Finished scraping OVA of fall 2022
+Finished scraping Movie of fall 2022
+Finished scraping Special of fall 2022
+File saved as 
+/share/CACHEDEV1_DATA/Public/Jupyter/MAL_scrap/Output/MAL-all-from-winter1917-to-summer2022.csv
+File saved as 
+/share/CACHEDEV1_DATA/Public/Jupyter/MAL_scrap/Output/MAL-all-latest.csv
+-----------------------------------------------------------------------------
+Scraped during fall 2022
+-----------------------------------------------------------------------------
+Finished scraping TV (New) of fall 2021
+Finished scraping TV (Continuing) of fall 2021
+Finished scraping ONA of fall 2021
+Finished scraping OVA of fall 2021
+Finished scraping Movie of fall 2021
+Finished scraping Special of fall 2021
+____________________________
+anime for this season: 251
+Script will sleep for 2  seconds
+____________________________
+Finished scraping TV (New) of winter 2022
+Finished scraping TV (Continuing) of winter 2022
+Finished scraping ONA of winter 2022
+Finished scraping OVA of winter 2022
+Finished scraping Movie of winter 2022
+Finished scraping Special of winter 2022
+____________________________
+anime for this season: 239
+Script will sleep for 2  seconds
+____________________________
+Finished scraping TV (New) of spring 2022
+Finished scraping TV (Continuing) of spring 2022
+Finished scraping ONA of spring 2022
+Finished scraping OVA of spring 2022
+Finished scraping Movie of spring 2022
+Finished scraping Special of spring 2022
+____________________________
+anime for this season: 228
+Script will sleep for 2  seconds
+____________________________
+Finished scraping TV (New) of summer 2022
+Finished scraping TV (Continuing) of summer 2022
+Finished scraping ONA of summer 2022
+Finished scraping OVA of summer 2022
+Finished scraping Movie of summer 2022
+Finished scraping Special of summer 2022
+____________________________
+anime for this season: 245
+Script will sleep for 2  seconds
+____________________________
+Finished scraping TV (New) of fall 2022
+Finished scraping TV (Continuing) of fall 2022
+Finished scraping ONA of fall 2022
+Finished scraping OVA of fall 2022
+Finished scraping Movie of fall 2022
+Finished scraping Special of fall 2022
+____________________________
+anime for this season: 220
+Script will sleep for 2  seconds
+____________________________
+Traceback (most recent call last):
+  File "/share/CACHEDEV1_DATA/Public/Jupyter/MAL_scrap/MALscrapy_updater_NAS_ed.py", line 242, in <module>
+    df0=pd.read_csv(path+latest_filename)
+NameError: name 'path' is not defined
+-----------------------------------------------------------------------------
+Scraped during fall 2022
+-----------------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/share/CACHEDEV1_DATA/Public/Jupyter/MAL_scrap/MALscrapy_updater_NAS_ed.py", line 231, in <module>
+    df_n=pd.DataFrame(seasonscrap(season_to_scrap,year,type_to_scrap)) #I bluid a DataFrame around my data freshly scraped
+  File "/share/CACHEDEV1_DATA/Public/Jupyter/MAL_scrap/MALscrapy_updater_NAS_ed.py", line 95, in seasonscrap
+    r=requests.get(url,headers)
+  File "/opt/python3/lib/python3.10/site-packages/requests/api.py", line 73, in get
+    return request("get", url, params=params, **kwargs)
+  File "/opt/python3/lib/python3.10/site-packages/requests/api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+  File "/opt/python3/lib/python3.10/site-packages/requests/sessions.py", line 587, in request
+    resp = self.send(prep, **send_kwargs)
+  File "/opt/python3/lib/python3.10/site-packages/requests/sessions.py", line 701, in send
+    r = adapter.send(request, **kwargs)
+  File "/opt/python3/lib/python3.10/site-packages/requests/adapters.py", line 489, in send
+    resp = conn.urlopen(
+  File "/opt/python3/lib/python3.10/site-packages/urllib3/connectionpool.py", line 703, in urlopen
+    httplib_response = self._make_request(
+  File "/opt/python3/lib/python3.10/site-packages/urllib3/connectionpool.py", line 449, in _make_request
+    six.raise_from(e, None)
+  File "<string>", line 3, in raise_from
+  File "/opt/python3/lib/python3.10/site-packages/urllib3/connectionpool.py", line 444, in _make_request
+    httplib_response = conn.getresponse()
+  File "/opt/python3/lib/python3.10/http/client.py", line 1374, in getresponse
+    response.begin()
+  File "/opt/python3/lib/python3.10/http/client.py", line 318, in begin
+    version, status, reason = self._read_status()
+  File "/opt/python3/lib/python3.10/http/client.py", line 279, in _read_status
+    line = str(self.fp.readline(_MAXLINE + 1), "iso-8859-1")
+  File "/opt/python3/lib/python3.10/socket.py", line 705, in readinto
+    return self._sock.recv_into(b)
+  File "/opt/python3/lib/python3.10/ssl.py", line 1273, in recv_into
+    return self.read(nbytes, buffer)
+  File "/opt/python3/lib/python3.10/ssl.py", line 1129, in read
+    return self._sslobj.read(len, buffer)
+KeyboardInterrupt
+-----------------------------------------------------------------------------
+Scraped during fall 2022
+-----------------------------------------------------------------------------
+Finished scraping TV (New) of fall 2021
+Finished scraping TV (Continuing) of fall 2021
+Finished scraping ONA of fall 2021
+Finished scraping OVA of fall 2021
+Finished scraping Movie of fall 2021
+Finished scraping Special of fall 2021
+____________________________
+anime for this season: 251
+Script will sleep for 2  seconds
+____________________________
+Finished scraping TV (New) of winter 2022
+Finished scraping TV (Continuing) of winter 2022
+Finished scraping ONA of winter 2022
+Finished scraping OVA of winter 2022
+Finished scraping Movie of winter 2022
+Finished scraping Special of winter 2022
+____________________________
+anime for this season: 240
+Script will sleep for 2  seconds
+____________________________
+Traceback (most recent call last):
+  File "/share/CACHEDEV1_DATA/Public/Jupyter/MAL_scrap/MALscrapy_updater_NAS_ed.py", line 231, in <module>
+    df_n=pd.DataFrame(seasonscrap(season_to_scrap,year,type_to_scrap)) #I bluid a DataFrame around my data freshly scraped
+  File "/share/CACHEDEV1_DATA/Public/Jupyter/MAL_scrap/MALscrapy_updater_NAS_ed.py", line 95, in seasonscrap
+    r=requests.get(url,headers)
+  File "/opt/python3/lib/python3.10/site-packages/requests/api.py", line 73, in get
+    return request("get", url, params=params, **kwargs)
+  File "/opt/python3/lib/python3.10/site-packages/requests/api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+  File "/opt/python3/lib/python3.10/site-packages/requests/sessions.py", line 587, in request
+    resp = self.send(prep, **send_kwargs)
+  File "/opt/python3/lib/python3.10/site-packages/requests/sessions.py", line 701, in send
+    r = adapter.send(request, **kwargs)
+  File "/opt/python3/lib/python3.10/site-packages/requests/adapters.py", line 489, in send
+    resp = conn.urlopen(
+  File "/opt/python3/lib/python3.10/site-packages/urllib3/connectionpool.py", line 703, in urlopen
+    httplib_response = self._make_request(
+  File "/opt/python3/lib/python3.10/site-packages/urllib3/connectionpool.py", line 449, in _make_request
+    six.raise_from(e, None)
+  File "<string>", line 3, in raise_from
+  File "/opt/python3/lib/python3.10/site-packages/urllib3/connectionpool.py", line 444, in _make_request
+    httplib_response = conn.getresponse()
+  File "/opt/python3/lib/python3.10/http/client.py", line 1374, in getresponse
+    response.begin()
+  File "/opt/python3/lib/python3.10/http/client.py", line 318, in begin
+    version, status, reason = self._read_status()
+  File "/opt/python3/lib/python3.10/http/client.py", line 279, in _read_status
+    line = str(self.fp.readline(_MAXLINE + 1), "iso-8859-1")
+  File "/opt/python3/lib/python3.10/socket.py", line 705, in readinto
+    return self._sock.recv_into(b)
+  File "/opt/python3/lib/python3.10/ssl.py", line 1273, in recv_into
+    return self.read(nbytes, buffer)
+  File "/opt/python3/lib/python3.10/ssl.py", line 1129, in read
+    return self._sslobj.read(len, buffer)
+KeyboardInterrupt
+-----------------------------------------------------------------------------
+Scraped during fall 2022
+-----------------------------------------------------------------------------
+Finished scraping TV (New) of fall 2021
+Finished scraping TV (Continuing) of fall 2021
+Finished scraping ONA of fall 2021
+Finished scraping OVA of fall 2021
+Finished scraping Movie of fall 2021
+Finished scraping Special of fall 2021
+____________________________
+anime for this season: 251
+Script will sleep for 2  seconds
+____________________________
+Traceback (most recent call last):
+  File "/share/CACHEDEV1_DATA/Public/Jupyter/MAL_scrap/MALscrapy_updater_NAS_ed.py", line 231, in <module>
+    df_n=pd.DataFrame(seasonscrap(season_to_scrap,year,type_to_scrap)) #I bluid a DataFrame around my data freshly scraped
+  File "/share/CACHEDEV1_DATA/Public/Jupyter/MAL_scrap/MALscrapy_updater_NAS_ed.py", line 96, in seasonscrap
+    soup=BeautifulSoup(r.content,'html.parser')
+  File "/opt/python3/lib/python3.10/site-packages/bs4/__init__.py", line 333, in __init__
+    self._feed()
+  File "/opt/python3/lib/python3.10/site-packages/bs4/__init__.py", line 451, in _feed
+    self.builder.feed(self.markup)
+  File "/opt/python3/lib/python3.10/site-packages/bs4/builder/_htmlparser.py", line 399, in feed
+    parser.feed(markup)
+  File "/opt/python3/lib/python3.10/html/parser.py", line 110, in feed
+    self.goahead(0)
+  File "/opt/python3/lib/python3.10/html/parser.py", line 170, in goahead
+    k = self.parse_starttag(i)
+  File "/opt/python3/lib/python3.10/html/parser.py", line 344, in parse_starttag
+    self.handle_starttag(tag, attrs)
+  File "/opt/python3/lib/python3.10/site-packages/bs4/builder/_htmlparser.py", line 154, in handle_starttag
+    tag = self.soup.handle_starttag(
+  File "/opt/python3/lib/python3.10/site-packages/bs4/__init__.py", line 714, in handle_starttag
+    self.endData()
+  File "/opt/python3/lib/python3.10/site-packages/bs4/__init__.py", line 589, in endData
+    o = containerClass(current_data)
+  File "/opt/python3/lib/python3.10/site-packages/bs4/element.py", line 946, in __new__
+    u.setup()
+  File "/opt/python3/lib/python3.10/site-packages/bs4/element.py", line 157, in setup
+    def setup(self, parent=None, previous_element=None, next_element=None,
+KeyboardInterrupt
+-----------------------------------------------------------------------------
+Scraped during fall 2022
+-----------------------------------------------------------------------------
+Finished scraping TV (New) of fall 2021
+Finished scraping TV (Continuing) of fall 2021
+Finished scraping ONA of fall 2021
+Finished scraping OVA of fall 2021
+Finished scraping Movie of fall 2021
+Finished scraping Special of fall 2021
+____________________________
+anime for this season: 251
+Script will sleep for 2  seconds
+____________________________
+Finished scraping TV (New) of winter 2022
+Finished scraping TV (Continuing) of winter 2022
+Finished scraping ONA of winter 2022
+Finished scraping OVA of winter 2022
+Finished scraping Movie of winter 2022
+Finished scraping Special of winter 2022
+____________________________
+anime for this season: 240
+Script will sleep for 2  seconds
+____________________________
+Traceback (most recent call last):
+  File "/share/CACHEDEV1_DATA/Public/Jupyter/MAL_scrap/MALscrapy_updater_NAS_ed.py", line 238, in <module>
+    time.sleep(sleep_time)
+KeyboardInterrupt
+-sh: python3.10: command not found
+-sh: python3.10: command not found
