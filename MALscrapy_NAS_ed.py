@@ -37,14 +37,14 @@ cur_year=time.localtime().tm_year
 begin=time.time() #Take the time value to give total computation time later
 datavalid=False
 
-if cur_month>9 :
-    end_season="summer"
-elif cur_month>6 :
-    end_season="spring"
-elif cur_month>3 :
-    end_season="winter"
-else :
+if cur_month>=9 :
     end_season="fall"
+elif cur_month>=6 :
+    end_season="summer"
+elif cur_month>=3 :
+    end_season="spring"
+else :
+    end_season="winter"
     cur_year-=1
      
 

@@ -226,9 +226,6 @@ def score_vs_friend(df):
 def signature(fig):
     fig.text(0,0.005,' Data collected with MALscraPy & Plot made with Otakulyzer | Scripts available at http://github.com/Gumpy-Q',fontsize=font, backgroundcolor='grey',style='italic',color='white')
 
-def signature(fig):
-    fig.text(0,0.005,' Data collected with MALscraPy & Plot made with Otakulyzer | Scripts available at http://github.com/Gumpy-Q',fontsize=font, backgroundcolor='grey',style='italic',color='white')
-
 
 nbfriend=len(friendlist)
 years=np.arange(start_year,end_year+1,1) #building a vector of years from start to end year
