@@ -8,15 +8,17 @@ Access to the last dataset on my Kaggle [here](https://www.kaggle.com/crazygump/
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Attack No.1 | 1550 | TV (New) | Tokyo Movie Shinsha | winter | 1970 | 1969-12-07 19:00:00 | Manga | 104 | 6.74 | 7103 | ['Drama', 'Sports'] |
 
-~~## Want to run the script without knowing much about Python ?
-Use the latest executable [here](https://github.com/Gumpy-Q/MALscraPy/releases/)
 
-### Run it
-When you will run the exe, follow the instructions in GUI.
+~~## Want to run the script without knowing much about Python ?~~
+~~Use the latest executable [here](https://github.com/Gumpy-Q/MALscraPy/releases/)~~
 
-Beware: scraping large temporal range might be a bit RAM intensive (600 MB for 2020 to 2010)
+~~### Run it~~
+~~When you will run the exe, follow the instructions in GUI.~~
 
-This may not be the fastest way to scrap MAL but it gets the job done (3m45s for 2020 to 2010)~~
+~~Beware: scraping large temporal range might be a bit RAM intensive (600 MB for 2020 to 2010)~~
+
+~~This may not be the fastest way to scrap MAL but it gets the job done (3m45s for 2020 to 2010)~~
+
 I do not update the exe, sorry
 
 ## Want to run, read or modify the script with Python ?
