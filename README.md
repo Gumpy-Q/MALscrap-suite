@@ -149,12 +149,13 @@ The best way to catch up the good anime from a season you could not invest time 
 
 ![Are you "mainstream" in yoru friend list](https://github.com/Gumpy-Q/MALscrap-suite/blob/main/Plots/crazy-gump_score_vs_MAL-friends-2012-2012.png?raw=True)
 
-## Want to run the script without knowing much about Python ?
-Use the latest executable [here](https://github.com/Gumpy-Q/MALscraPy/releases/)
+~~## Want to run the script without knowing much about Python ?~~
+~~Use the latest executable [here](https://github.com/Gumpy-Q/MALscraPy/releases/)~~
 
-### Run it
-A MAL username
-When you will run the exe, follow the instructions in the GUI.
+~~### Run it~~
+~~A MAL username~~
+~~When you will run the exe, follow the instructions in the GUI.~~
+I do not update the exe, sorry
 
 ## Want to run, read or modify the script with Python ?
 You need to install [Python (3.9 used)]( https://www.python.org/downloads/) and its following modules:
