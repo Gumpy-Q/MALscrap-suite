@@ -252,6 +252,7 @@ def production_studio(df,min_year,max_year,anitypes,color_list):
     select_years=select_years.drop_duplicates(subset=['title','release-year','type']) #remove TV duplicates notably for long runer with multiple apparition per year, only keep one/year.
     select_years['studio']=select_years['studio'].apply(lambda x: x.strip("[]").split(", "))
     select_years=select_years.explode('studio')
+    select_years['studio']=select_years['studio'].apply(lambda x: x.strip("''"))
     
     #remove the anime with studio not registered in MAL
     select_years=select_years[select_years['studio'] != '          -' ] 
@@ -389,7 +390,7 @@ def episode(df,min_year,max_year,anitype,max_shown):
     print('------------ plotting evolution of anime length ------------')
     
     fig, ax =plt.subplots(figsize=enlarge_fig)
-    ax=sb.violinplot(x='release-year',y='episodes',data=select_years,bw=0.1,cut=0, scale='width',width=0.7,inner='stick',orientation='h') 
+    ax=sb.violinplot(x='release-year',y='episodes',data=select_years,bw_method=0.1,cut=0, density_norm='area',width=0.7,inner='stick',orient='v') 
     
     ax.tick_params('x',labelrotation=rotation_ticks, labelsize=font)
     ax.tick_params('y', labelsize=font)
@@ -443,7 +444,7 @@ def score_distribution(df,min_year,max_year,anitypes):
             df_type=select_years[select_years['type']==anime_type] #reducing the DataFrame to the season studied I need the year to be at the right order for the stacking
             print('--------------'+anime_type)
             
-            sb.violinplot(ax=ax,x='release-year',y='score',data=df_type,bw=0.1,cut=0, scale='width',width=0.7,inner='quartile',orientation='h')
+            sb.violinplot(ax=ax,x='release-year',y='score',data=df_type,bw_method=0.1,cut=0, density_norm='area',width=0.7,inner='quartile',orient='v')
 
         for anime_type,ax in zip(anitypes,axes):
             ax.tick_params('x',labelrotation=rotation_ticks, labelsize=font)
@@ -461,7 +462,7 @@ def score_distribution(df,min_year,max_year,anitypes):
         anime_type=anitypes[0]
         print('--------------'+anime_type)
 
-        ax=sb.violinplot(x='release-year',y='score',data=df_type,bw=0.1,cut=0, scale='width',width=0.7,inner='quartile',orientation='h') 
+        ax=sb.violinplot(x='release-year',y='score',data=df_type,bw_method=0.1,cut=0, density_norm='area',width=0.7,inner='quartile',orient='v') 
         
         ax.tick_params('x',labelrotation=rotation_ticks, labelsize=font)
         ax.tick_params('y', labelsize=font)
@@ -520,7 +521,7 @@ def member_distribution(df,min_year,max_year,anitypes):
             df_type=select_years[select_years['type']==anime_type] #reducing the DataFrame to the season studied I need the year to be at the right order for the stacking
             print('--------------'+anime_type)
             
-            sb.violinplot(ax=ax,x='release-year',y='members',data=df_type,bw=0.1,cut=0, scale='width',width=0.7,inner='quartile',orientation='h')
+            sb.violinplot(ax=ax,x='release-year',y='members',data=df_type,bw_method=0.1,cut=0, density_norm='area',width=0.7,inner='quartile',orient='v')
 
         for anime_type,ax in zip(anitypes,axes):
             ax.tick_params('x',labelrotation=rotation_ticks, labelsize=font)
@@ -541,7 +542,7 @@ def member_distribution(df,min_year,max_year,anitypes):
         anime_type=anitypes[0]
         print('--------------'+anime_type)
 
-        ax=sb.violinplot(x='release-year',y='members',data=df_type,bw=0.1,cut=0, scale='width',width=0.7,inner='quartile',orientation='h') 
+        ax=sb.violinplot(x='release-year',y='members',data=df_type,bw_method=0.1,cut=0, density_norm='area',width=0.7,inner='quartile',orien='v') 
         
         ax.tick_params('x',labelrotation=rotation_ticks, labelsize=font)
         ax.tick_params('y', labelsize=font)
@@ -617,7 +618,7 @@ def score_viewers(df,min_year,max_year,anitypes):
             df_type=select_years[select_years['type']==anime_type] #reducing the DataFrame to the season studied I need the year to be at the right order for the stacking
             print('--------------'+anime_type)
             
-            sb.violinplot(ax=ax,x='score_cat',y='members',data=df_type,bw=0.1,cut=0, scale='width',width=0.7,inner='quartile',orientation='h')
+            sb.violinplot(ax=ax,x='score_cat',y='members',data=df_type,bw=0.1,cut=0, density_norm='width',width=0.7,inner='quartile',orient='v')
             
             ax.tick_params('x',labelrotation=rotation_ticks, labelsize=font)
             ax.tick_params('y', labelsize=font)
@@ -637,7 +638,7 @@ def score_viewers(df,min_year,max_year,anitypes):
         df_type=select_years[select_years['type']==anime_type]
         print('--------------'+anime_type)
 
-        sb.violinplot(ax=ax,x='score_cat',y='members',data=df_type,bw=0.1,cut=0, scale='width',width=0.7,inner='quartile',orientation='h')
+        sb.violinplot(ax=ax,x='score_cat',y='members',data=df_type,bw_method=0.1,cut=0, density_norm='width',width=0.7,inner='quartile',orient='v')
        
         ax.tick_params('x',labelrotation=rotation_ticks, labelsize=font)
         ax.tick_params('y', labelsize=font)
@@ -919,7 +920,9 @@ while again[0]=='Yes':
                 datavalid=True
         except:
             sg.popup('Invalid input. Must be YYYY in range ['+str(first_year)+';'+str(last_year)+']')
-            
+    
+    raw.drop_duplicates(subset=["MAL_id","release-year","release-season"], keep='last', inplace=True, ignore_index=True)
+    
     #Choosing the type to view in plot
     type_to_viz=[]
     datavalid=False

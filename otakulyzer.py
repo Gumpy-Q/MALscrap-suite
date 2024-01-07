@@ -60,7 +60,7 @@ def opener(path,ext):
     return df
 
 #This function scrap one season for anime type                
-def friendseasonscrap(season,year,user):
+def userseasonscrap(season,year,user):
     scrap=pd.DataFrame(dict.fromkeys(formatting,[]))
     url='https://myanimelist.net/animelist/'+user+'?season_year='+str(year)+'&season='+str(season)
     headers=({'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:53.0) Gecko/20100101 Firefox/53.0','Accept-Language':'fr-FR,q=0.5'})
@@ -304,6 +304,7 @@ def production_studio(df,min_year,max_year,anitypes,color_list):
     select_years=select_years.drop_duplicates(subset=['title','release-year','type']) #remove TV duplicates notably for long runer with multiple apparition per year, only keep one/year.
     select_years['studio']=select_years['studio'].apply(lambda x: x.strip("[]").split(", "))
     select_years=select_years.explode('studio')
+    select_years['studio']=select_years['studio'].apply(lambda x: x.strip("''"))
     
     #remove the anime with studio not registered in MAL
     select_years=select_years[select_years['studio'] != '          -' ] 
@@ -319,7 +320,7 @@ def production_studio(df,min_year,max_year,anitypes,color_list):
         for anitype in anitypes:
             studio_list=select_years[(select_years['release-year']==year) & (select_years['type']==anitype)].sort_values('count',ascending=False)['studio'].head(3).values.tolist() #building the top 3 lists for each year and anime type
             for studio in studio_list:
-                studios.append(studio)              
+                studios.append(studio[0:15])              
         
     studios = list(dict.fromkeys(studios))   #tricks to remove duplicate from a list
   
@@ -380,7 +381,7 @@ def episode(df,min_year,max_year,anitype,max_shown):
     print('------------ plotting evolution of anime length ------------')
     
     fig, ax =plt.subplots(figsize=enlarge_fig)
-    ax=sb.violinplot(x='release-year',y='episodes',data=select_years,bw=0.1,cut=0, scale='width',width=0.7,inner='stick',orientation='h') 
+    ax=sb.violinplot(x='release-year',y='episodes',data=select_years,bw_method=0.1,cut=0, density_norm='area',width=0.7,inner='stick',orient='v') 
     
     ax.tick_params('x',labelrotation=rotation_ticks, labelsize=font)
     ax.tick_params('y', labelsize=font)
@@ -434,7 +435,7 @@ def score_distribution(df,min_year,max_year,anitypes):
             df_type=select_years[select_years['type']==anime_type] #reducing the DataFrame to the season studied I need the year to be at the right order for the stacking
             print('--------------'+anime_type)
             
-            sb.violinplot(ax=ax,x='release-year',y='my_score',data=df_type,bw=0.1,cut=0, scale='width',width=0.7,inner='quartile',orientation='h')
+            sb.violinplot(ax=ax,x='release-year',y='my_score',data=df_type,bw_method=0.1,cut=0, density_norm='area',width=0.7,inner='quartile',orient='v')
 
         for anime_type,ax in zip(anitypes,axes):
             ax.tick_params('x',labelrotation=rotation_ticks, labelsize=font)
@@ -452,7 +453,7 @@ def score_distribution(df,min_year,max_year,anitypes):
         anime_type=anitypes[0]
         print('--------------'+anime_type)
 
-        ax=sb.violinplot(x='release-year',y='my_score',data=df_type,bw=0.1,cut=0, scale='width',width=0.7,inner='quartile',orientation='h') 
+        ax=sb.violinplot(x='release-year',y='my_score',data=df_type,bw_method=0.1,cut=0, density_norm='area',width=0.7,inner='quartile',orient='v') 
         
         ax.tick_params('x',labelrotation=rotation_ticks, labelsize=font)
         ax.tick_params('y', labelsize=font)
@@ -515,12 +516,12 @@ def score_viewers(df,min_year,max_year,anitypes):
             df_type=select_years[select_years['type']==anime_type] #reducing the DataFrame to the season studied I need the year to be at the right order for the stacking
             print('--------------'+anime_type)
             
-            sb.violinplot(ax=ax,x='my_score',y='members',data=df_type,bw=0.1,cut=0, scale='width',width=0.7,inner='quartile',orientation='h')
+            sb.violinplot(ax=ax,x='my_score',y='members',data=df_type,bw_method=0.1,cut=0, density_norm='width',width=0.7,inner='quartile',orient='v')
             
             ax.tick_params('x',labelrotation=rotation_ticks, labelsize=font)
             ax.tick_params('y', labelsize=font)
             ax.set_ylabel('MAL Viewers',fontsize=font)
-            ax.set_xlabel('User score',fontsize=font)
+            ax.set_xlabel(username+' score',fontsize=font)
             ax.xaxis.label.set_size(font)        
             ax.set_title(anime_type,fontsize=font)
             
@@ -535,7 +536,7 @@ def score_viewers(df,min_year,max_year,anitypes):
         df_type=select_years[select_years['type']==anime_type]
         print('--------------'+anime_type)
 
-        sb.violinplot(ax=ax,x='my_score',y='members',data=df_type,bw=0.1,cut=0, scale='width',width=0.7,inner='quartile',orientation='h')
+        sb.violinplot(ax=ax,x='my_score',y='members',data=df_type,bw_method=0.1,cut=0, density_norm='width',width=0.7,inner='quartile',orient='v')
        
         ax.tick_params('x',labelrotation=rotation_ticks, labelsize=font)
         ax.tick_params('y', labelsize=font)
@@ -649,7 +650,7 @@ def genres_evolution(df,min_year,max_year,anitypes,color_list,thresold=10):
                     data_add.append([year,anitype,genre,0])
                 
     df_add=pd.DataFrame(data_add,columns=['release-year','type','genres','count'])
-    select_years=select_years.append(df_add, ignore_index=True)
+    select_years=pd.concat([select_years,df_add], ignore_index=True)
     select_years=select_years.sort_values('genres')
 
     
@@ -708,7 +709,7 @@ def genres_evolution(df,min_year,max_year,anitypes,color_list,thresold=10):
     fig.tight_layout()    
     fig.subplots_adjust(right=adjust['right'],bottom=adjust['bottom'])
        
-    fig.savefig(savepath+'/'+username+'genres_evolution'+str(start_year)+'-'+str(end_year))
+    fig.savefig(savepath+'/'+username+'_genres_evolution'+str(start_year)+'-'+str(end_year))
     fig.show()
 
     return fig
@@ -749,7 +750,7 @@ def themes_evolution(df,min_year,max_year,anitypes,color_list,thresold=10):
                     data_add.append([year,anitype,theme,0])
                 
     df_add=pd.DataFrame(data_add,columns=['release-year','type','themes','count'])
-    select_years=select_years.append(df_add, ignore_index=True)
+    select_years=pd.concat([select_years,df_add], ignore_index=True)
     select_years=select_years.sort_values('themes')
 
     
@@ -943,7 +944,7 @@ while again[0]=='Yes':
                     window.close()
                     exit()
                 
-                test=friendseasonscrap(season_to_scrap,year,username)
+                test=userseasonscrap(season_to_scrap,year,username)
                 df_n=pd.DataFrame(test) #I bluid a DataFrame around my data freshly scraped
         
                 print(username +' anime list for '+ str(season_to_scrap)+' '+str(year))
@@ -956,11 +957,11 @@ while again[0]=='Yes':
                    
                 time.sleep(sleep_time)
                 
-        window.close()
-        
+        window.close()    
     raw=pd.merge(raw,malraw,left_on='MAL_id',right_on='series_animedb_id')
 
     raw['my_score']=raw["my_score"].astype(int)         
+    raw=raw.drop_duplicates(subset=['title','release-year','type','release-season'])
     
     #Choosing the type to view in plot
     type_to_viz=[]

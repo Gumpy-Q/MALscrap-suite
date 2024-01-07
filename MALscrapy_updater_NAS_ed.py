@@ -241,11 +241,13 @@ for year in years:
 latest_filename="/MAL-all-latest.csv"
 
 df0=pd.read_csv(path+latest_filename)
+df0.drop_duplicates(subset=["MAL_id","release-year","release-season"], keep='last', inplace=True, ignore_index=True)
 
-    
+df=pd.concat([df0,scrap]) 
 
-df=pd.concat([df0,scrap])
-df.drop_duplicates(subset=["MAL_id","release-year","release-season"], keep='last', inplace=True, ignore_index=True)    
+df.to_csv(path+latest_filename,index=False)
+df=pd.read_csv(path+latest_filename)
+df.drop_duplicates(subset=["MAL_id","release-year","release-season"], keep='last', inplace=True, ignore_index=True)
 
 if len(df["type"].unique())==6:
     type_chosen="all"
